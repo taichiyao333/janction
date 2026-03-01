@@ -1,52 +1,57 @@
-# 🚀 GPU Rental Platform
+# 🚀 GPU Cloud Rendering System
 
-> RUNPODライクな、ローカルGPUリソースを外部ユーザーへ貸し出すプラットフォーム
+> NVIDIA A6000 PROMAX × 12枚 / QNAP × 2台 / SeaweedFS 分散FS / AWS S3 / 10Gbps NURO によるエンタープライズグレードGPUクラウドレンダリングシステム
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-v18+-green.svg)](https://nodejs.org/)
-[![Status](https://img.shields.io/badge/Status-Planning-blue.svg)]()
+[![Status](https://img.shields.io/badge/Status-In_Progress-orange.svg)]()
+[![SeaweedFS](https://img.shields.io/badge/Storage-SeaweedFS-blue.svg)](https://seaweedfs.com/)
+[![AWS S3](https://img.shields.io/badge/Cloud-AWS_S3-FF9900.svg)](https://aws.amazon.com/s3/)
 
 ---
 
 ## 📋 概要
 
-ローカルマシンに搭載された複数のGPUリソースを、外部ユーザーに対してクラウドGPUサービスとして提供するプラットフォームです。
+NVIDIA A6000 PROMAX × 12枚のGPUクラスターを活用し、**AWS S3経由** でユーザーがファイルをアップロードし、データセンターの **QNAP + SeaweedFS分散ファイルシステム** でファイルを管理・処理する、エンタープライズグレードのGPUクラウドレンダリングシステムです。
 
 ### 主要機能
 
 | 機能 | 説明 |
 |------|------|
-| 🖥 **GPUレンタル** | ユーザーが利用したいGPUを選択し時間単位でレンタル |
-| 📅 **WEB予約システム** | カレンダーベースの予約管理・競合チェック |
-| 💻 **ユーザーワークスペース** | Webブラウザからターミナル・ファイル管理・GPUモニター |
-| 🛡 **管理者ダッシュボード** | リアルタイム監視・アラート・レポート機能 |
-| 🌐 **外部公開** | Cloudflare Tunnelによる安全な外部アクセス |
+| ☁️ **S3アップロード** | ユーザーがAWS S3経由で最大5GBのレンダリングデータをアップロード |
+| 💾 **SeaweedFS分散FS** | QNAP 2台 (M.2 4TB×8枚) + SeaweedFS で高速分散ストレージ |
+| 🖥 **GPU分散レンダリング** | A6000 × 12枚を動的割当、並列レンダリング実行 |
+| 📦 **アーカイブ管理** | 250TB HDD × 4台 (1PB) への自動ライフサイクル管理 |
+| 📊 **Grafana監視** | GPU/ネットワーク/ストレージのリアルタイムダッシュボード |
+| 🌐 **外部公開** | Cloudflare Tunnel + 10Gbps NURO回線 |
 
 ---
 
 ## 🏗 システムアーキテクチャ
 
 ```
-外部ユーザー (HTTPS)
-       │
+【インターネット側】
+  エンドユーザー
+       │  HTTPS (S3 Presigned URL)
        ▼
-Cloudflare Tunnel
+  AWS S3 (ap-northeast-1)
+  ├── /incoming/  ← ユーザーアップロード (~5GB/ジョブ)
+  └── /results/   ← レンダリング完了データ
        │
-       ├──► WEB予約ポータル      (Port: 3000)
-       ├──► ユーザーワークスペース (Port: 動的割当)
-       └──► 管理者ダッシュボード   (Port: 3001)
-              │
-              ▼
-       Node.js + Express Backend
-       ├── 認証 (JWT)
-       ├── 予約管理 (SQLite)
-       ├── Pod管理 (ユーザー環境隔離)
-       ├── GPU管理 (nvidia-smi)
-       └── WebSocket (リアルタイム通信)
-              │
-       ┌──────┼──────┐
-       ▼      ▼      ▼
-    SQLite  GPU Pool  F:/gpu-rental/ (ストレージ)
+       │  10Gbps NURO回線 (rclone/s5cmd 並列転送)
+       ▼
+【データセンター】
+  10Gbps FIREWALL → 10Gbps SWITCH × 2
+       │
+  ┌────┼────────────────┐
+  │    │                │
+  ▼    ▼                ▼
+ QNAP  QNAP          GPU Server
+ NAS1  NAS2          A6000 × 12
+  │    │
+  └────┘ (SeaweedFS 分散FS)
+       │
+  アーカイバーHDD (250TB × 4台 = 1PB)
 ```
 
 ---
@@ -55,16 +60,19 @@ Cloudflare Tunnel
 
 | レイヤー | 技術 |
 |---------|------|
-| フロントエンド | HTML5 + Vanilla CSS + JavaScript |
-| バックエンド | Node.js + Express |
-| データベース | SQLite (better-sqlite3) |
-| リアルタイム通信 | Socket.io |
-| Webターミナル | xterm.js + node-pty |
-| GPU管理 | nvidia-smi CLI |
-| レンダリング | FFmpeg (NVENC) |
-| 認証 | JWT + bcrypt |
-| スケジューラ | node-cron |
+| クラウドストレージ | AWS S3 + Transfer Acceleration |
+| 分散FS | SeaweedFS (Master/Volume/Filer) |
+| ストレージ | QNAP NAS × 2台 (M.2 4TB × 8枚/台) |
+| アーカイブ | ZFS on HDD (250TB × 4台) |
+| GPU | NVIDIA A6000 PROMAX × 12枚 (CUDA/OptiX) |
+| レンダリング | Blender CLI / FFmpeg NVENC |
+| ジョブキュー | Redis + BullMQ |
+| バックエンド | Node.js + Fastify |
+| データベース | PostgreSQL |
+| フロントエンド | Next.js 15 + TypeScript |
+| 監視 | Prometheus + Grafana + Zabbix |
 | 外部公開 | Cloudflare Tunnel |
+| S3同期 | rclone / s5cmd |
 
 ---
 
@@ -92,37 +100,56 @@ gpu-platform/
 
 | 体制 | 期間 | 人月 |
 |------|------|------|
-| 1名開発 | 約 3.5ヶ月 | 3.75人月 |
-| 2名開発 | 約 2ヶ月 | 3.75人月 |
-| 3名開発 | 約 1.5ヶ月 | 3.75人月 |
+| 2名体制 (エンジニアA・B) | 約 5ヶ月 | 7.0人月 |
+| 3名体制 (+開発者1名) | 約 3.5ヶ月 | 7.0人月 |
+| 4名体制 (+開発者2名) | 約 2.5ヶ月 | 7.0人月 |
 
-詳細は [`docs/03_effort_estimation.md`](docs/03_effort_estimation.md) を参照。
+詳細は [`docs/05_system_development_flow.md`](docs/05_system_development_flow.md) を参照。
 
 ---
 
 ## 📅 実装フェーズ
 
-| # | フェーズ | 工数 | 難易度 |
-|---|---------|------|--------|
-| 0 | 環境確認・準備 | 1日 | ★☆☆☆☆ |
-| 1 | 基盤構築 (サーバー/DB/認証/GPU検出) | 10日 | ★★★☆☆ |
-| 2 | WEB予約システム | 15日 | ★★★☆☆ |
-| 3 | Pod管理 + ワークスペース | 20日 | ★★★★★ |
-| 4 | 管理者ダッシュボード | 15日 | ★★★☆☆ |
-| 5 | 外部公開 + セキュリティ | 5日 | ★★☆☆☆ |
+| # | フェーズ | 工数 | 状態 |
+|---|---------|------|------|
+| 0 | 環境検証・技術選定 | 160h | ✅ 完了 |
+| 1 | インフラ基盤構築 (NW/QNAP/SeaweedFS/GPU-OS) | 200h | 🔄 進行中 |
+| 2 | データパイプライン (S3↔SeaweedFS↔GPUキュー) | 120h | ⏳ 予定 |
+| 3 | レンダリングエンジン (GPU割当/Blender/分散) | 160h | ⏳ 予定 |
+| 4 | Webプラットフォーム (UI/API/管理画面) | 200h | ⏳ 予定 |
+| 5 | 監視・運用 (Grafana/Prometheus) | 80h | ⏳ 予定 |
+| 6 | セキュリティ・外部公開 | 60h | ⏳ 予定 |
+| 7 | アーカイブ・長期運用 (1PB HDD管理) | 40h | ⏳ 予定 |
 
 ---
 
 ## 📋 前提条件
 
 ```
+【インフラ】
+□ NVIDIA A6000 PROMAX × 12枚 + ドライバー (535+)
+□ CUDA Toolkit 12.x + NVIDIA Container Toolkit
+□ QNAP NAS (QTS最新版) × 2台
+□ M.2 NVMe SSD 4TB × 8枚/台
+□ 250TB HDD アーカイバー × 4台
+□ 10Gbps NURO インターネット回線
+□ 10Gbps ファイアウォール × 1台
+□ 10Gbps コアスイッチ × 2台
+□ 1Gbps 管理スイッチ × 1台
+
+【ソフトウェア】
+□ Ubuntu 22.04/24.04 LTS (GPUサーバー・VM)
+□ SeaweedFS (latest from GitHub)
+□ Docker + Docker Compose
 □ Node.js v18+
-□ npm v9+
-□ NVIDIA GPU + 最新ドライバー
-□ FFmpeg (NVENC対応ビルド)
-□ Git
-□ F:ドライブ (専用ストレージ領域)
-□ Cloudflare アカウント
+□ PostgreSQL 16+
+□ Redis 7+
+□ Blender (ヘッドレス対応版)
+□ rclone / s5cmd
+
+【クラウド】
+□ AWS アカウント (S3, SQS, CloudWatch)
+□ Cloudflare アカウント (Tunnel)
 ```
 
 ---
@@ -131,6 +158,7 @@ gpu-platform/
 
 | ドキュメント | 内容 |
 |------------|------|
+| **[🆕 完全開発フロー](docs/05_system_development_flow.md)** | **インフラ〜アプリ全体の開発フロー (最新版)** |
 | [プロジェクト概要](docs/01_project_overview.md) | アーキテクチャ・技術スタック・DB設計・API設計 |
 | [実装フェーズ詳細](docs/02_implementation_phases.md) | 全フェーズの詳細タスク |
 | [工数見積もり](docs/03_effort_estimation.md) | 人月・期間・コスト試算 |
