@@ -124,42 +124,106 @@
         </div>
     </section>
 
-    <!-- RESERVATION MODAL -->
+    <!-- RESERVATION MODAL — Calendar + Time Slot -->
     <div class="modal-overlay hidden" id="modalOverlay">
-        <div class="modal" id="reserveModal">
+        <div class="modal modal-cal" id="reserveModal">
             <button class="modal-close" id="modalClose">✕</button>
-            <h2 class="modal-title">GPU 予約</h2>
-            <div class="modal-gpu-info" id="modalGpuInfo"></div>
-            <form class="reserve-form" id="reserveForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>開始日時</label>
-                        <input type="datetime-local" id="startTime" required />
-                    </div>
-                    <div class="form-group">
-                        <label>終了日時</label>
-                        <input type="datetime-local" id="endTime" required />
-                    </div>
+
+            <!-- GPU Info Header -->
+            <div class="cal-modal-header">
+                <div class="cal-gpu-icon">🖥</div>
+                <div>
+                    <div class="cal-gpu-name" id="modalGpuName">—</div>
+                    <div class="cal-gpu-meta" id="modalGpuMeta">—</div>
                 </div>
-                <div class="form-group">
-                    <label>利用目的</label>
-                    <select id="notes">
-                        <option value="AI/機械学習">AI / 機械学習</option>
-                        <option value="動画レンダリング">動画レンダリング</option>
-                        <option value="3DCG">3DCG / VFX</option>
-                        <option value="科学計算">科学計算</option>
-                        <option value="その他">その他</option>
+                <div class="cal-gpu-price" id="modalGpuPrice">—</div>
+            </div>
+
+            <div class="cal-body">
+                <!-- LEFT: Calendar -->
+                <div class="cal-col">
+                    <div class="cal-section-title">📅 日付を選ぶ</div>
+                    <div class="cal-nav">
+                        <button class="cal-nav-btn" id="calPrev">‹</button>
+                        <span class="cal-month-label" id="calMonthLabel"></span>
+                        <button class="cal-nav-btn" id="calNext">›</button>
+                    </div>
+                    <div class="cal-grid">
+                        <div class="cal-day-hdr">日</div>
+                        <div class="cal-day-hdr">月</div>
+                        <div class="cal-day-hdr">火</div>
+                        <div class="cal-day-hdr">水</div>
+                        <div class="cal-day-hdr">木</div>
+                        <div class="cal-day-hdr">金</div>
+                        <div class="cal-day-hdr">土</div>
+                        <div id="calDays" style="display:contents"></div>
+                    </div>
+
+                    <!-- Purpose -->
+                    <div class="cal-section-title" style="margin-top:1.25rem">🎯 利用目的</div>
+                    <select id="notes" class="cal-select">
+                        <option value="AI/機械学習">🤖 AI / 機械学習</option>
+                        <option value="動画レンダリング">🎬 動画レンダリング</option>
+                        <option value="3DCG">🎨 3DCG / VFX</option>
+                        <option value="科学計算">🔬 科学計算</option>
+                        <option value="その他">📦 その他</option>
                     </select>
                 </div>
-                <div class="price-preview" id="pricePreview">
-                    <span>合計料金</span>
-                    <span class="price-val" id="priceVal">—</span>
+
+                <!-- RIGHT: Time slots -->
+                <div class="cal-col">
+                    <div class="cal-section-title">⏰ 開始時刻を選ぶ <span class="cal-hint">(1時間単位)</span></div>
+                    <div class="cal-time-grid" id="calTimeGrid">
+                        <!-- rendered by JS -->
+                    </div>
+
+                    <div class="cal-section-title" style="margin-top:1rem">⏱ 利用時間</div>
+                    <div class="cal-duration-row">
+                        <button class="cal-dur-btn" data-dur="1">1h</button>
+                        <button class="cal-dur-btn" data-dur="2">2h</button>
+                        <button class="cal-dur-btn" data-dur="3">3h</button>
+                        <button class="cal-dur-btn" data-dur="4">4h</button>
+                        <button class="cal-dur-btn" data-dur="6">6h</button>
+                        <button class="cal-dur-btn" data-dur="8">8h</button>
+                        <button class="cal-dur-btn" data-dur="12">12h</button>
+                        <button class="cal-dur-btn" data-dur="24">24h</button>
+                    </div>
+                    <div class="cal-custom-dur">
+                        <label>カスタム: </label>
+                        <input type="number" id="customDuration" min="1" max="168" value="1" class="cal-dur-input">
+                        <span>時間</span>
+                    </div>
                 </div>
-                <div class="form-error hidden" id="formError"></div>
-                <button type="submit" class="btn btn-primary btn-full" id="submitReserve">予約を確定する</button>
-            </form>
+            </div>
+
+            <!-- Summary / Confirm -->
+            <div class="cal-summary" id="calSummary">
+                <div class="cal-summary-row">
+                    <span class="cal-sum-label">📅 開始</span>
+                    <span class="cal-sum-val" id="sumStart">—</span>
+                </div>
+                <div class="cal-summary-row">
+                    <span class="cal-sum-label">🏁 終了</span>
+                    <span class="cal-sum-val" id="sumEnd">—</span>
+                </div>
+                <div class="cal-summary-row">
+                    <span class="cal-sum-label">⏱ 時間</span>
+                    <span class="cal-sum-val" id="sumHours">—</span>
+                </div>
+                <div class="cal-summary-row cal-sum-total">
+                    <span class="cal-sum-label">💰 合計</span>
+                    <span class="cal-sum-price" id="sumTotal">—</span>
+                </div>
+            </div>
+
+            <div class="form-error hidden" id="formError"></div>
+            <button class="btn btn-primary btn-full" id="submitReserve" disabled>
+                日付・時刻を選択してください
+            </button>
         </div>
     </div>
+
+
 
     <!-- AUTH MODAL -->
     <div class="modal-overlay hidden" id="authOverlay">

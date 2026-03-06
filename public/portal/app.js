@@ -253,28 +253,317 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     });
 });
 
-/* ─── Reserve Modal ─────────────────────────────────────────────── */
+/* ─── Reserve Modal — Calendar ──────────────────────────────────── */
+const calState = {
+    year: null, month: null,   // currently displayed month
+    selectedDate: null,        // Date object (year/month/day only)
+    selectedHour: null,        // 0–23
+    duration: 2,               // hours (minimum 1)
+    gpu: null,
+    // availability cache: key = 'YYYY-MM-DD', value = array of booked {start, end} ranges
+    availCache: {},
+    monthReservations: [],     // raw reservations for current month
+};
+
 function openReserveModal(gpuId) {
     if (!state.user) { openAuthModal('login'); return; }
     const gpu = state.gpus.find(g => g.id === gpuId);
     if (!gpu || gpu.status !== 'available') return;
+
     state.selectedGpuId = gpuId;
+    calState.gpu = gpu;
+    calState.selectedDate = null;
+    calState.selectedHour = null;
+    calState.duration = 2;
 
-    document.getElementById('modalGpuInfo').innerHTML = `
-    <strong>${gpu.name}</strong> · ${Math.round(gpu.vram_total / 1024)}GB VRAM · ¥${gpu.price_per_hour.toLocaleString()}/時間
-  `;
+    // GPU info header
+    document.getElementById('modalGpuName').textContent = gpu.name;
+    document.getElementById('modalGpuMeta').textContent =
+        `${Math.round((gpu.vram_total || 0) / 1024)} GB VRAM · ${gpu.location || 'Home PC'}`;
+    document.getElementById('modalGpuPrice').textContent =
+        `¥${gpu.price_per_hour.toLocaleString()}/h`;
 
-    // Default times: next hour for 2 hours
+    // Init calendar to current month
     const now = new Date();
-    now.setMinutes(0, 0, 0);
-    now.setHours(now.getHours() + 1);
-    const end = new Date(now.getTime() + 2 * 3600000);
-    document.getElementById('startTime').value = now.toISOString().slice(0, 16);
-    document.getElementById('endTime').value = end.toISOString().slice(0, 16);
-    updatePricePreview();
+    calState.year = now.getFullYear();
+    calState.month = now.getMonth();
+
+    calRenderCalendar();
+    calRenderTimeGrid();
+    calSetDuration(2);
+    calUpdateSummary();
 
     document.getElementById('modalOverlay').classList.remove('hidden');
+
+    // Fetch availability for current month in background
+    calFetchAvailability();
 }
+
+/* ── Calendar rendering ── */
+function calRenderCalendar() {
+    const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    document.getElementById('calMonthLabel').textContent =
+        `${calState.year}年 ${MONTHS[calState.month]}`;
+
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+
+    const firstDay = new Date(calState.year, calState.month, 1).getDay();
+    const daysInMonth = new Date(calState.year, calState.month + 1, 0).getDate();
+    const daysInPrev = new Date(calState.year, calState.month, 0).getDate();
+
+    let html = '';
+    // Previous month padding
+    for (let i = firstDay - 1; i >= 0; i--) {
+        html += `<div class="cal-day cal-day-other">${daysInPrev - i}</div>`;
+    }
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(calState.year, calState.month, d);
+        const isPast = date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const isToday = `${calState.year}-${calState.month}-${d}` === todayStr;
+        const isSel = calState.selectedDate &&
+            calState.selectedDate.getFullYear() === calState.year &&
+            calState.selectedDate.getMonth() === calState.month &&
+            calState.selectedDate.getDate() === d;
+
+        // Busy indicator
+        const booked = isPast ? 0 : calBookedHoursCount(calState.year, calState.month, d);
+        const isFull = booked >= 24;
+        const isBusy = booked >= 12;
+        const isPartial = booked > 0;
+
+        let cls = 'cal-day';
+        if (isPast) cls += ' cal-day-past';
+        else if (isSel) cls += ' cal-day-selected';
+        else if (isFull) cls += ' cal-day-full';
+        else if (isToday) cls += ' cal-day-today';
+
+        // Colored dots below date number
+        let dots = '';
+        if (!isPast && !isSel && isPartial) {
+            const dotColor = isFull ? '#ff4757' : isBusy ? '#ffb300' : '#00e5a0';
+            dots = `<span class="cal-dot" style="background:${dotColor}"></span>`;
+        }
+
+        const clickFn = (isPast || isFull) ? '' : `onclick="calSelectDay(${d})"`;
+        const title = isFull ? '予約満員' : booked > 0 ? `${booked}時間予約済み` : '';
+        html += `<div class="${cls}" ${clickFn} title="${title}">${d}${dots}</div>`;
+    }
+    // Next month padding
+    const total = firstDay + daysInMonth;
+    const rem = total % 7 === 0 ? 0 : 7 - (total % 7);
+    for (let i = 1; i <= rem; i++) {
+        html += `<div class="cal-day cal-day-other">${i}</div>`;
+    }
+    document.getElementById('calDays').innerHTML = html;
+}
+
+function calSelectDay(d) {
+    calState.selectedDate = new Date(calState.year, calState.month, d);
+    calState.selectedHour = null;
+    calRenderCalendar();
+    calRenderTimeGrid();
+    calUpdateSummary();
+}
+
+/* ── Availability fetch ── */
+async function calFetchAvailability() {
+    if (!calState.gpu) return;
+    const pad = n => String(n).padStart(2, '0');
+    const monthStr = `${calState.year}-${pad(calState.month + 1)}`;
+    try {
+        const slots = await apiFetch(`/gpus/${calState.gpu.id}/availability?month=${monthStr}`);
+        calState.monthReservations = slots;
+        // Build cache keyed by date
+        calState.availCache = {};
+        for (const s of slots) {
+            const st = new Date(s.start_time);
+            const en = new Date(s.end_time);
+            // Iterate each day the reservation spans
+            const cur = new Date(st);
+            while (cur < en) {
+                const key = `${cur.getFullYear()}-${pad(cur.getMonth() + 1)}-${pad(cur.getDate())}`;
+                if (!calState.availCache[key]) calState.availCache[key] = [];
+                const dayStart = new Date(cur); dayStart.setHours(0, 0, 0, 0);
+                const dayEnd = new Date(cur); dayEnd.setHours(23, 59, 59, 999);
+                calState.availCache[key].push({
+                    start: Math.max(st.getHours(), cur.toDateString() === st.toDateString() ? st.getHours() : 0),
+                    end: Math.min(en.getHours() + (en.getMinutes() > 0 ? 1 : 0), cur.toDateString() === en.toDateString() ? (en.getHours() + (en.getMinutes() > 0 ? 1 : 0)) : 24),
+                    status: s.status,
+                });
+                cur.setDate(cur.getDate() + 1);
+                cur.setHours(0, 0, 0, 0);
+            }
+        }
+        calRenderCalendar();
+        if (calState.selectedDate) calRenderTimeGrid();
+    } catch (e) {
+        // silently ignore
+    }
+}
+
+// Returns array of booked hour numbers for a given Date
+function calGetBookedHours(date) {
+    if (!date) return [];
+    const pad = n => String(n).padStart(2, '0');
+    const key = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    const ranges = calState.availCache[key] || [];
+    const booked = new Set();
+    for (const r of ranges) {
+        for (let h = r.start; h < r.end; h++) booked.add(h);
+    }
+    return booked;
+}
+
+// Returns how many hours are booked on a given day (0–24)
+function calBookedHoursCount(year, month, day) {
+    const pad = n => String(n).padStart(2, '0');
+    const key = `${year}-${pad(month + 1)}-${pad(day)}`;
+    const ranges = calState.availCache[key] || [];
+    let count = 0;
+    for (const r of ranges) count += (r.end - r.start);
+    return Math.min(24, count);
+}
+
+/* ── Time slot rendering (0:00 – 23:00, 1h blocks) ── */
+function calRenderTimeGrid() {
+    // Show placeholder if no date selected
+    if (!calState.selectedDate) {
+        document.getElementById('calTimeGrid').innerHTML =
+            '<div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:0.78rem;padding:1.5rem 0.5rem">← まず左のカレンダーで日付を選んでください</div>';
+        return;
+    }
+
+    const now = new Date();
+    const isToday = calState.selectedDate.toDateString() === now.toDateString();
+    const bookedHours = calGetBookedHours(calState.selectedDate); // Set of booked hours
+
+    let html = '';
+    for (let h = 0; h < 24; h++) {
+        const isPast = isToday && h <= now.getHours();
+        const isBooked = bookedHours.has(h);
+        const isActive = calState.selectedHour === h;
+        const hh = String(h).padStart(2, '0');
+
+        let cls = 'cal-time-slot';
+        let label = `${hh}:00`;
+        let onclick = '';
+        let title = '';
+
+        if (isPast) {
+            cls += ' past';
+            label = `${hh}:00`;
+        } else if (isBooked) {
+            cls += ' booked';
+            label = `${hh}:00<br><span class="slot-tag">予約済</span>`;
+            title = `${hh}:00 は予約済みです`;
+        } else if (isActive) {
+            cls += ' active';
+            onclick = `onclick="calSelectHour(${h})"`;
+        } else {
+            cls += ' free';
+            onclick = `onclick="calSelectHour(${h})"`;
+            title = `${hh}:00 から予約可能`;
+        }
+
+        html += `<div class="${cls}" ${onclick} title="${title}">${label}</div>`;
+    }
+
+    // Legend
+    html += `<div class="cal-time-legend">
+        <span class="ctl-item"><span class="ctl-dot free"></span>空き</span>
+        <span class="ctl-item"><span class="ctl-dot booked"></span>予約済</span>
+        <span class="ctl-item"><span class="ctl-dot past"></span>過去</span>
+    </div>`;
+
+    document.getElementById('calTimeGrid').innerHTML = html;
+}
+
+function calSelectHour(h) {
+    calState.selectedHour = h;
+    calRenderTimeGrid();
+    calUpdateSummary();
+}
+
+/* ── Duration ── */
+function calSetDuration(hrs) {
+    calState.duration = Math.max(1, parseInt(hrs) || 1);
+    // update duration buttons
+    document.querySelectorAll('.cal-dur-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.dur) === calState.duration);
+    });
+    // update custom input
+    const input = document.getElementById('customDuration');
+    if (input) input.value = calState.duration;
+    calUpdateSummary();
+}
+
+// Duration button events
+document.querySelectorAll('.cal-dur-btn').forEach(btn => {
+    btn.addEventListener('click', () => calSetDuration(parseInt(btn.dataset.dur)));
+});
+document.getElementById('customDuration')?.addEventListener('input', function () {
+    calSetDuration(parseInt(this.value) || 1);
+});
+
+/* ── Summary + Submit button ── */
+function calUpdateSummary() {
+    const gpu = calState.gpu;
+    const ready = calState.selectedDate !== null && calState.selectedHour !== null && gpu;
+
+    if (!ready) {
+        document.getElementById('sumStart').textContent = '—';
+        document.getElementById('sumEnd').textContent = '—';
+        document.getElementById('sumHours').textContent = '—';
+        document.getElementById('sumTotal').textContent = '—';
+        const btn = document.getElementById('submitReserve');
+        btn.disabled = true;
+        btn.textContent = calState.selectedDate
+            ? '開始時刻を選んでください'
+            : '日付・時刻を選択してください';
+        return;
+    }
+
+    const startDt = new Date(calState.selectedDate);
+    startDt.setHours(calState.selectedHour, 0, 0, 0);
+    const endDt = new Date(startDt.getTime() + calState.duration * 3600000);
+
+    const fmtDt = dt => {
+        const y = dt.getFullYear(), mo = dt.getMonth() + 1, d = dt.getDate();
+        const h = String(dt.getHours()).padStart(2, '0');
+        return `${y}/${mo}/${d} ${h}:00`;
+    };
+
+    const total = Math.round(calState.duration * gpu.price_per_hour);
+
+    document.getElementById('sumStart').textContent = fmtDt(startDt);
+    document.getElementById('sumEnd').textContent = fmtDt(endDt);
+    document.getElementById('sumHours').textContent = `${calState.duration}時間`;
+    document.getElementById('sumTotal').textContent = `¥${total.toLocaleString()}`;
+
+    const btn = document.getElementById('submitReserve');
+    btn.disabled = false;
+    btn.textContent = `✅ 予約を確定する（¥${total.toLocaleString()}）`;
+}
+
+/* ── Calendar nav ── */
+document.getElementById('calPrev')?.addEventListener('click', () => {
+    calState.month--;
+    if (calState.month < 0) { calState.month = 11; calState.year--; }
+    calState.availCache = {};
+    calRenderCalendar();
+    calFetchAvailability();
+});
+document.getElementById('calNext')?.addEventListener('click', () => {
+    calState.month++;
+    if (calState.month > 11) { calState.month = 0; calState.year++; }
+    calState.availCache = {};
+    calRenderCalendar();
+    calFetchAvailability();
+});
+
+/* ── Modal open/close ── */
 document.getElementById('modalClose').addEventListener('click', () => {
     document.getElementById('modalOverlay').classList.add('hidden');
 });
@@ -283,40 +572,53 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
         document.getElementById('modalOverlay').classList.add('hidden');
 });
 
-function updatePricePreview() {
-    const gpu = state.gpus.find(g => g.id === state.selectedGpuId);
-    if (!gpu) return;
-    const s = document.getElementById('startTime').value;
-    const e = document.getElementById('endTime').value;
-    if (s && e) {
-        const hours = (new Date(e) - new Date(s)) / 3600000;
-        const price = hours > 0 ? Math.round(hours * gpu.price_per_hour) : 0;
-        document.getElementById('priceVal').textContent = hours > 0 ? `¥${price.toLocaleString()}` : '—';
-    }
-}
-document.getElementById('startTime').addEventListener('change', updatePricePreview);
-document.getElementById('endTime').addEventListener('change', updatePricePreview);
+/* ── Submit reservation ── */
+document.getElementById('submitReserve').addEventListener('click', async () => {
+    if (!calState.selectedDate || calState.selectedHour === null) return;
 
-document.getElementById('reserveForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
     const errEl = document.getElementById('formError');
     errEl.classList.add('hidden');
     const btn = document.getElementById('submitReserve');
     btn.disabled = true;
     btn.textContent = '処理中...';
 
+    const startDt = new Date(calState.selectedDate);
+    startDt.setHours(calState.selectedHour, 0, 0, 0);
+    const endDt = new Date(startDt.getTime() + calState.duration * 3600000);
+
+    // Validate minimum 1 hour
+    if (calState.duration < 1) {
+        errEl.textContent = '最低1時間以上を選択してください';
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        calUpdateSummary();
+        return;
+    }
+    // Validate not in the past
+    if (startDt <= new Date()) {
+        errEl.textContent = '過去の時刻は選択できません';
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        calUpdateSummary();
+        return;
+    }
+
     try {
+        const toISO = dt => {
+            const pad = n => String(n).padStart(2, '0');
+            return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:00`;
+        };
         const data = await apiFetch('/reservations', {
             method: 'POST',
             body: JSON.stringify({
                 gpu_id: state.selectedGpuId,
-                start_time: document.getElementById('startTime').value,
-                end_time: document.getElementById('endTime').value,
+                start_time: toISO(startDt),
+                end_time: toISO(endDt),
                 notes: document.getElementById('notes').value,
             }),
         });
         document.getElementById('modalOverlay').classList.add('hidden');
-        showToast(`✅ ${data.gpu_name} の予約が完了しました！`, 'success');
+        showToast(`✅ ${data.gpu_name} の予約が完了しました！（${calState.duration}時間）`, 'success');
         loadMyReservations();
         loadGpus();
     } catch (err) {
@@ -324,9 +626,11 @@ document.getElementById('reserveForm').addEventListener('submit', async (e) => {
         errEl.classList.remove('hidden');
     } finally {
         btn.disabled = false;
-        btn.textContent = '予約を確定する';
+        calUpdateSummary();
     }
 });
+
+
 
 /* ─── My Reservations ───────────────────────────────────────────── */
 async function loadMyReservations() {
