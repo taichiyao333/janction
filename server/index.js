@@ -21,6 +21,8 @@ const reservationRoutes = require('./routes/reservations');
 const podRoutes = require('./routes/pods');
 const adminRoutes = require('./routes/admin');
 const fileRoutes = require('./routes/files');
+const paymentRoutes = require('./routes/payments');
+const providerRoutes = require('./routes/providers');
 
 // ─── App Setup ───────────────────────────────────────────────────────────────
 const app = express();
@@ -57,11 +59,13 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/portal', express.static(path.join(__dirname, '../public/portal')));
 app.use('/workspace', express.static(path.join(__dirname, '../public/workspace')));
 app.use('/admin', express.static(path.join(__dirname, '../public/admin')));
+app.use('/provider', express.static(path.join(__dirname, '../public/provider')));
 
 // SPA fallback routes
 app.get('/portal/*', (req, res) => res.sendFile(path.join(__dirname, '../public/portal/index.html')));
 app.get('/workspace/*', (req, res) => res.sendFile(path.join(__dirname, '../public/workspace/index.html')));
 app.get('/admin/*', (req, res) => res.sendFile(path.join(__dirname, '../public/admin/index.html')));
+app.get('/provider/*', (req, res) => res.sendFile(path.join(__dirname, '../public/provider/index.html')));
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
@@ -69,6 +73,8 @@ app.use('/api/gpus', gpuRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/pods', podRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/providers', providerRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Health check

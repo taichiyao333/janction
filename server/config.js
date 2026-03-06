@@ -33,4 +33,14 @@ module.exports = {
         login: { windowMs: 60 * 1000, max: 5 },
         upload: { windowMs: 60 * 1000, max: 10 },
     },
+
+    stripe: {
+        secretKey: process.env.STRIPE_SECRET_KEY || '',
+        webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || '',
+        publishableKey: process.env.STRIPE_PK || '',
+    },
+
+    baseUrl: process.env.BASE_URL || 'http://localhost:3000',
+    providerPayoutRate: parseFloat(process.env.PROVIDER_PAYOUT_RATE) || 0.8,
 };
+

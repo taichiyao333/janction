@@ -14,6 +14,7 @@ if (!fs.existsSync(dbDir)) {
 
 let _db = null;
 let _SQL = null;
+let _dirty = false;
 
 /**
  * Initialize sql.js and open/create the database
@@ -32,12 +33,12 @@ async function initDb() {
         _db = new _SQL.Database();
     }
 
-    // Enable WAL-equivalent and foreign keys
     _db.run('PRAGMA foreign_keys = ON;');
-    _db.run('PRAGMA journal_mode = DELETE;'); // sql.js doesn't support WAL
 
-    // Auto-save to disk every 2 seconds (sql.js is in-memory)
-    setInterval(() => saveToDisk(), 2000);
+    // Auto-save to disk every 3 seconds when dirty
+    setInterval(() => {
+        if (_dirty) saveToDisk();
+    }, 3000);
 
     return _db;
 }
@@ -46,83 +47,76 @@ function saveToDisk() {
     if (!_db) return;
     try {
         const data = _db.export();
-        const buffer = Buffer.from(data);
-        fs.writeFileSync(config.storage.dbPath, buffer);
+        fs.writeFileSync(config.storage.dbPath, Buffer.from(data));
+        _dirty = false;
     } catch (err) {
         console.error('DB save error:', err.message);
     }
 }
 
-/**
- * Synchronous wrapper - returns a better-sqlite3-compatible interface
- * All methods are synchronous from the caller's perspective.
- */
 function getDb() {
-    if (!_db) {
-        throw new Error('Database not initialized. Call initDb() first.');
-    }
+    if (!_db) throw new Error('Database not initialized. Call initDb() first.');
     return makeProxy(_db);
 }
 
-/**
- * Create a proxy object that wraps sql.js with a better-sqlite3-like API:
- *  db.prepare(sql).all(...params)
- *  db.prepare(sql).get(...params)
- *  db.prepare(sql).run(...params)  -> { lastInsertRowid, changes }
- *  db.exec(sql)
- */
 function makeProxy(db) {
     return {
         exec(sql) {
             db.run(sql);
-            saveToDisk();
+            _dirty = true;
         },
 
         prepare(sql) {
             return {
-                /**
-                 * Return all rows as array of objects
-                 */
                 all(...params) {
                     const flat = flattenParams(params);
                     const stmt = db.prepare(sql);
                     const results = [];
-                    stmt.bind(flat);
-                    while (stmt.step()) {
-                        results.push(stmt.getAsObject());
+                    try {
+                        stmt.bind(flat);
+                        while (stmt.step()) results.push(stmt.getAsObject());
+                    } finally {
+                        stmt.free();
                     }
-                    stmt.free();
                     return results;
                 },
 
-                /**
-                 * Return first matching row or undefined
-                 */
                 get(...params) {
                     const flat = flattenParams(params);
                     const stmt = db.prepare(sql);
-                    stmt.bind(flat);
-                    let result = null;
-                    if (stmt.step()) {
-                        result = stmt.getAsObject();
+                    let result = undefined;
+                    try {
+                        stmt.bind(flat);
+                        if (stmt.step()) result = stmt.getAsObject();
+                    } finally {
+                        stmt.free();
                     }
-                    stmt.free();
-                    return result || undefined;
+                    return result;
                 },
 
-                /**
-                 * Execute a write statement
-                 */
                 run(...params) {
                     const flat = flattenParams(params);
-                    db.run(sql, flat);
-                    saveToDisk();
-                    // Get last insert rowid
-                    const meta = db.exec('SELECT last_insert_rowid() as id, changes() as ch');
+                    // Use prepared statement for run to get row id correctly
+                    const stmt = db.prepare(sql);
+                    try {
+                        stmt.bind(flat);
+                        stmt.step();
+                    } finally {
+                        stmt.free();
+                    }
+                    _dirty = true;
+
+                    // Retrieve last_insert_rowid immediately after, in same session
                     let lastInsertRowid = 0, changes = 0;
-                    if (meta.length > 0 && meta[0].values.length > 0) {
-                        lastInsertRowid = meta[0].values[0][0];
-                        changes = meta[0].values[0][1];
+                    const metaStmt = db.prepare('SELECT last_insert_rowid() as rid, changes() as ch');
+                    try {
+                        if (metaStmt.step()) {
+                            const row = metaStmt.getAsObject();
+                            lastInsertRowid = row.rid || 0;
+                            changes = row.ch || 0;
+                        }
+                    } finally {
+                        metaStmt.free();
                     }
                     return { lastInsertRowid, changes };
                 },
@@ -131,9 +125,6 @@ function makeProxy(db) {
     };
 }
 
-/**
- * Flatten params: support both positional args and single array/object
- */
 function flattenParams(params) {
     if (params.length === 0) return [];
     if (params.length === 1 && Array.isArray(params[0])) return params[0];
