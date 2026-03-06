@@ -144,8 +144,35 @@ async function runMigrations() {
     console.log('\u2705 RTX A4500 registered');
   }
 
+  // ─── Bank Accounts (出金口座) ─────────────────────────────────────────
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS bank_accounts (
+      id              INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id         INTEGER NOT NULL,
+      bank_name       TEXT NOT NULL,       -- 銀行名
+      bank_code       TEXT,                -- 銀行コード（4桁）
+      branch_name     TEXT NOT NULL,       -- 支店名
+      branch_code     TEXT,                -- 支店コード（3桁）
+      account_type    TEXT DEFAULT 'ordinary', -- 'ordinary'=普通 | 'checking'=当座
+      account_number  TEXT NOT NULL,       -- 口座番号
+      account_holder  TEXT NOT NULL,       -- 口座名義（カタカナ）
+      is_default      INTEGER DEFAULT 0,   -- デフォルト口座フラグ
+      created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+  `);
+
+  // payouts に bank_account_id / notes カラムを追加（既存DBへのALTER）
+  try {
+    db.exec(`ALTER TABLE payouts ADD COLUMN bank_account_id INTEGER REFERENCES bank_accounts(id)`);
+  } catch (e) { /* already exists */ }
+  try {
+    db.exec(`ALTER TABLE payouts ADD COLUMN notes TEXT`);
+  } catch (e) { /* already exists */ }
+
   console.log('✅ Database migrations complete');
 }
+
 
 module.exports = { runMigrations };
 

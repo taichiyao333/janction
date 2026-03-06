@@ -871,3 +871,210 @@ document.getElementById('heroProvide')?.addEventListener('click', openGuidePanel
 // 初期化
 calcEarnings();
 
+
+/* ═══════════════════════════════════════════════════════════════
+   出金管理モーダル (Withdraw Management)
+═══════════════════════════════════════════════════════════════ */
+
+function updateWithdrawBtn() {
+    const btn = document.getElementById('btnWithdraw');
+    if (!btn) return;
+    btn.style.display = (state.user && (state.user.role === 'provider' || state.user.role === 'admin')) ? '' : 'none';
+}
+
+document.getElementById('btnWithdraw')?.addEventListener('click', openWithdrawModal);
+
+function openWithdrawModal() {
+    document.getElementById('withdrawModal')?.classList.remove('hidden');
+    document.getElementById('withdrawOverlay')?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    switchWdTab(0);
+    loadWalletBalance();
+    loadBankAccounts();
+}
+function closeWithdrawModal() {
+    document.getElementById('withdrawModal')?.classList.add('hidden');
+    document.getElementById('withdrawOverlay')?.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWithdrawModal(); });
+
+function switchWdTab(idx) {
+    [0,1,2].forEach(i => {
+        document.getElementById('wdTab'+i)?.classList.toggle('active', i===idx);
+        document.getElementById('wdPane'+i)?.classList.toggle('hidden', i!==idx);
+    });
+    if (idx === 1) { loadBankAccountsForSelect(); loadWalletBalance(); }
+    if (idx === 2) loadPayoutHistory();
+}
+
+async function loadWalletBalance() {
+    try {
+        const me = await apiFetch('/auth/me');
+        const bal = Math.round(me.wallet_balance || 0);
+        const fmt = 'Y' + bal.toLocaleString();
+        const lbl = 'Zandaka: ' + fmt;
+        const el1 = document.getElementById('walletBalanceLabel');
+        const el2 = document.getElementById('payoutAvailAmt');
+        if (el1) el1.textContent = lbl;
+        if (el2) el2.textContent = fmt;
+        return bal;
+    } catch { return 0; }
+}
+
+let _bankAccounts = [];
+
+async function loadBankAccounts() {
+    const list = document.getElementById('bankAccountList');
+    if (!list) return;
+    list.innerHTML = '<div class="wd-empty">Reading...</div>';
+    try {
+        _bankAccounts = await apiFetch('/bank-accounts');
+        if (!_bankAccounts.length) {
+            list.innerHTML = '<div class="wd-empty">No accounts registered.<br><small>Click below to add one.</small></div>';
+            return;
+        }
+        list.innerHTML = _bankAccounts.map(function(a) {
+            var typeLabel = a.account_type === 'checking' ? 'Toza' : 'Futsuu';
+            var masked = a.account_number.slice(-4).padStart(a.account_number.length, '*');
+            var defBadge = a.is_default ? '<span class="badge-default">Default</span>' : '';
+            var defBtn = !a.is_default ? '<button class="btn btn-ghost btn-sm" onclick="setDefaultAccount('+a.id+')">Set Default</button>' : '';
+            return '<div class="bank-account-card '+(a.is_default?'is-default':'')+'" id="bac-'+a.id+'">'
+                + '<div class="bac-main">'
+                + '<div class="bac-bank">  '+a.bank_name+(a.bank_code?' ('+a.bank_code+')':'')+defBadge+'</div>'
+                + '<div class="bac-detail">'+a.branch_name+(a.branch_code?' ('+a.branch_code+')':'')+'  '+typeLabel+'  '+masked+'</div>'
+                + '<div class="bac-holder">'+a.account_holder+'</div>'
+                + '</div>'
+                + '<div class="bac-actions">'
+                + defBtn
+                + '<button class="btn btn-danger btn-sm" onclick="deleteAccount('+a.id+', \''+a.bank_name+'\')">Delete</button>'
+                + '</div></div>';
+        }).join('');
+    } catch(e) {
+        list.innerHTML = '<div class="wd-empty">Load failed: '+e.message+'</div>';
+    }
+}
+
+async function loadBankAccountsForSelect() {
+    var sel = document.getElementById('payoutBankSelect');
+    if (!sel) return;
+    try {
+        _bankAccounts = await apiFetch('/bank-accounts');
+        sel.innerHTML = '<option value="">Select account</option>'
+            + _bankAccounts.map(function(a) {
+                var typeLabel = a.account_type === 'checking' ? 'Toza' : 'Futsuu';
+                var masked = a.account_number.slice(-4).padStart(a.account_number.length, '*');
+                return '<option value="'+a.id+'" '+(a.is_default?'selected':'')+'>'+a.bank_name+' '+a.branch_name+' '+typeLabel+' '+masked+' ('+a.account_holder+')</option>';
+            }).join('');
+    } catch(e) {}
+}
+
+function openAddAccountForm() {
+    document.getElementById('addAccountForm')?.classList.remove('hidden');
+    ['bfBankName','bfBankCode','bfBranchName','bfBranchCode','bfAccountNumber','bfAccountHolder'].forEach(function(id){
+        var el = document.getElementById(id); if(el) el.value = '';
+    });
+    var chk = document.getElementById('bfIsDefault'); if(chk) chk.checked = !_bankAccounts.length;
+    var f = document.getElementById('bfBankName'); if(f) f.focus();
+}
+function closeAddAccountForm() { document.getElementById('addAccountForm')?.classList.add('hidden'); }
+
+async function submitAddAccount() {
+    var body = {
+        bank_name: document.getElementById('bfBankName').value.trim(),
+        bank_code: document.getElementById('bfBankCode').value.trim(),
+        branch_name: document.getElementById('bfBranchName').value.trim(),
+        branch_code: document.getElementById('bfBranchCode').value.trim(),
+        account_type: document.getElementById('bfAccountType').value,
+        account_number: document.getElementById('bfAccountNumber').value.trim(),
+        account_holder: document.getElementById('bfAccountHolder').value.trim(),
+        is_default: document.getElementById('bfIsDefault').checked ? 1 : 0,
+    };
+    if (!body.bank_name || !body.branch_name || !body.account_number || !body.account_holder) {
+        showToast('Please fill all required fields', 'error'); return;
+    }
+    try {
+        await apiFetch('/bank-accounts', { method: 'POST', body: JSON.stringify(body) });
+        closeAddAccountForm(); await loadBankAccounts(); showToast('Account registered!', 'success');
+    } catch(e) { showToast('Error: '+e.message, 'error'); }
+}
+
+async function setDefaultAccount(id) {
+    try {
+        await apiFetch('/bank-accounts/'+id+'/default', { method: 'PATCH' });
+        await loadBankAccounts(); showToast('Default account updated', 'success');
+    } catch(e) { showToast('Error: '+e.message, 'error'); }
+}
+
+async function deleteAccount(id, bankName) {
+    if (!confirm('Delete account "'+bankName+'"?')) return;
+    try {
+        await apiFetch('/bank-accounts/'+id, { method: 'DELETE' });
+        document.getElementById('bac-'+id)?.remove();
+        _bankAccounts = _bankAccounts.filter(function(a){ return a.id !== id; });
+        showToast('Account deleted', 'success');
+        if (!_bankAccounts.length) loadBankAccounts();
+    } catch(e) { showToast('Error: '+e.message, 'error'); }
+}
+
+async function submitPayout() {
+    var bankAccountId = document.getElementById('payoutBankSelect')?.value;
+    var amount = parseFloat(document.getElementById('payoutAmount')?.value || 0);
+    var notes = document.getElementById('payoutNotes')?.value || '';
+    if (!bankAccountId) { showToast('Select a bank account', 'error'); return; }
+    if (!amount || amount < 1000) { showToast('Minimum withdrawal: 1000 yen', 'error'); return; }
+    var btn = document.querySelector('#payoutForm .btn-primary');
+    if (btn) { btn.disabled = true; btn.textContent = 'Applying...'; }
+    try {
+        var result = await apiFetch('/bank-accounts/payout', {
+            method: 'POST', body: JSON.stringify({ bank_account_id: parseInt(bankAccountId), amount: amount, notes: notes })
+        });
+        document.getElementById('payoutForm').classList.add('hidden');
+        document.getElementById('payoutSuccess').classList.remove('hidden');
+        var acct = _bankAccounts.find(function(a){ return a.id === parseInt(bankAccountId); });
+        var typeLabel = acct && acct.account_type === 'checking' ? 'Toza' : 'Futsuu';
+        var masked = acct ? acct.account_number.slice(-4).padStart(acct.account_number.length, '*') : '****';
+        var detail = document.getElementById('payoutSuccessDetail');
+        if (detail) detail.innerHTML =
+            '<div>Application #: #'+result.id+'</div>'
+            + '<div>Amount: <strong>'+Math.round(amount).toLocaleString()+' yen</strong></div>'
+            + '<div>Bank: '+(acct?acct.bank_name:'')+' '+(acct?acct.branch_name:'')+' '+typeLabel+' '+masked+'</div>'
+            + '<div>Holder: '+(acct?acct.account_holder:'')+'</div>';
+        loadWalletBalance();
+        showToast('Withdrawal application submitted!', 'success');
+    } catch(e) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Withdrawal'; }
+        showToast('Error: '+e.message, 'error');
+    }
+}
+
+function resetPayoutForm() {
+    document.getElementById('payoutForm').classList.remove('hidden');
+    document.getElementById('payoutSuccess').classList.add('hidden');
+    var btn = document.querySelector('#payoutForm .btn-primary');
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit Withdrawal'; }
+    var amt = document.getElementById('payoutAmount'); if(amt) amt.value = '';
+    var notes = document.getElementById('payoutNotes'); if(notes) notes.value = '';
+}
+
+async function loadPayoutHistory() {
+    var el = document.getElementById('payoutHistoryList');
+    if (!el) return;
+    el.innerHTML = '<div class="wd-empty">Loading...</div>';
+    try {
+        var list = await apiFetch('/bank-accounts/payouts');
+        if (!list.length) { el.innerHTML = '<div class="wd-empty">No withdrawal history</div>'; return; }
+        el.innerHTML = list.map(function(p) {
+            var statusLabels = { pending: 'Under Review', paid: 'Paid', rejected: 'Rejected' };
+            var statusBadges = { pending: 'b-warning', paid: 'b-success', rejected: 'b-danger' };
+            return '<div class="payout-history-row">'
+                + '<div>'
+                + '<div style="font-weight:600">'+Math.round(p.amount).toLocaleString()+' yen</div>'
+                + '<div class="phr-bank">'+(p.bank_name||'')+'  '+(p.branch_name||'')+'  #'+p.id+'</div>'
+                + '<div style="font-size:0.72rem;color:var(--text3)">'+new Date(p.created_at).toLocaleDateString('ja-JP')+'</div>'
+                + '</div>'
+                + '<span class="badge '+(statusBadges[p.status]||'b-muted')+'">'+(statusLabels[p.status]||p.status)+'</span>'
+                + '</div>';
+        }).join('');
+    } catch(e) { el.innerHTML = '<div class="wd-empty">Error: '+e.message+'</div>'; }
+}

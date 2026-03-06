@@ -260,6 +260,49 @@ function mailSessionExpired({ to, username, pod }) {
   });
 }
 
+/**
+ * 6. 出金申請完了メール
+ */
+function mailPayoutRequest({ to, username, amount, account, payout }) {
+  const typeLabel = account.account_type === 'checking' ? '当座' : '普通';
+  const fmtJp = dt => new Date(dt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const maskedNum = account.account_number.slice(-4).padStart(account.account_number.length, '*');
+
+  return sendMail({
+    to,
+    subject: `💰 出金申請を受け付けました — ¥${Math.round(amount).toLocaleString()}`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+<div class="wrap">
+  <div class="card">
+    <div class="header" style="background:linear-gradient(135deg,#00b894,#00d4ff)">
+      <h1>💰 出金申請 受付完了</h1>
+      <p>お振込みまで 3〜5 営業日お待ちください</p>
+    </div>
+    <div class="body">
+      <p><strong>${username}</strong> さん</p>
+      <p>以下の内容で出金申請を受け付けました。</p>
+      <div class="info-row"><span class="info-label">申請番号</span><span class="info-val mono">#${payout.id}</span></div>
+      <div class="info-row"><span class="info-label">申請日時</span><span class="info-val">📅 ${fmtJp(payout.created_at)}</span></div>
+      <div class="price">¥${Math.round(amount).toLocaleString()}</div>
+      <div class="info-row"><span class="info-label">振込先銀行</span><span class="info-val">🏦 ${account.bank_name}${account.bank_code ? ` (${account.bank_code})` : ''}</span></div>
+      <div class="info-row"><span class="info-label">支店</span><span class="info-val">${account.branch_name}${account.branch_code ? ` (${account.branch_code})` : ''}</span></div>
+      <div class="info-row"><span class="info-label">口座種類</span><span class="info-val">${typeLabel}</span></div>
+      <div class="info-row"><span class="info-label">口座番号</span><span class="info-val mono">${maskedNum}</span></div>
+      <div class="info-row"><span class="info-label">口座名義</span><span class="info-val">${account.account_holder}</span></div>
+      <div class="warn" style="margin-top:20px">
+        ⏱ <strong>お振込みの目安:</strong> 申請受付から <strong>3〜5 営業日以内</strong>に指定口座へ振込いたします。<br>
+        銀行の営業時間・休業日により前後する場合があります。<br>
+        ご不明な点は <a href="mailto:info@miningdatalab.com" style="color:#ffcc44">info@miningdatalab.com</a> までお問い合わせください。
+      </div>
+    </div>
+    <div class="footer">© 2026 GPU Rental Platform · <a href="${process.env.BASE_URL || 'http://localhost:3000'}/portal/" style="color:#6c47ff">マイページ</a></div>
+  </div>
+</div>
+</body></html>`,
+    text: `出金申請受付完了\n金額: ¥${Math.round(amount).toLocaleString()}\n振込先: ${account.bank_name} ${account.branch_name} ${typeLabel} ${maskedNum}\n3〜5営業日以内にお振込みいたします。`,
+  });
+}
+
 module.exports = {
   sendMail,
   mailWelcome,
@@ -267,4 +310,6 @@ module.exports = {
   mailReminderStart,
   mailReminderEnd,
   mailSessionExpired,
+  mailPayoutRequest,
 };
+
