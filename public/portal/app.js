@@ -413,6 +413,7 @@ function connectSocket() {
     });
 }
 
+
 /* ─── Init ──────────────────────────────────────────────────────── */
 updateNavAuth();
 loadGpus();
@@ -421,3 +422,148 @@ if (state.token) {
     connectSocket();
     loadMyReservations();
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   GPU公開ガイド パネル
+═══════════════════════════════════════════════════════════════════ */
+let guideStep = 1;
+const GUIDE_TOTAL = 5;
+
+function openGuidePanel() {
+    document.getElementById('guideOverlay').classList.remove('hidden');
+    document.getElementById('guidePanel').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    guideSetStep(guideStep);
+    updateStep2Status();
+}
+
+function closeGuidePanel() {
+    document.getElementById('guideOverlay').classList.add('hidden');
+    document.getElementById('guidePanel').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+function guideNav(dir) {
+    guideStep = Math.max(1, Math.min(GUIDE_TOTAL, guideStep + dir));
+    guideSetStep(guideStep);
+}
+
+function guideSetStep(n) {
+    guideStep = n;
+    // コンテンツ切り替え
+    document.querySelectorAll('.guide-step').forEach(el => {
+        el.classList.toggle('active', parseInt(el.dataset.step) === n);
+    });
+    // インジケーター更新
+    document.querySelectorAll('.gsn-item').forEach(el => {
+        const s = parseInt(el.dataset.step);
+        el.classList.toggle('active', s === n);
+        el.classList.toggle('done', s < n);
+    });
+    // ドット更新
+    const dots = document.getElementById('guideNavDots');
+    dots.innerHTML = Array.from({ length: GUIDE_TOTAL }, (_, i) =>
+        `<span class="${i + 1 === n ? 'active' : ''}"></span>`
+    ).join('');
+    // ボタン状態
+    document.getElementById('guidePrev').disabled = n === 1;
+    const nextBtn = document.getElementById('guideNext');
+    if (n === GUIDE_TOTAL) {
+        nextBtn.textContent = '✓ 完了';
+        nextBtn.onclick = closeGuidePanel;
+    } else {
+        nextBtn.textContent = '次へ →';
+        nextBtn.onclick = () => guideNav(1);
+    }
+    // Step 2はログイン状態を更新
+    if (n === 2) updateStep2Status();
+}
+
+function updateStep2Status() {
+    const title = document.getElementById('step2Title');
+    const desc = document.getElementById('step2Desc');
+    const btn = document.getElementById('step2Btn');
+    if (!title) return;
+    if (state.user) {
+        const card = document.getElementById('step2Status');
+        card.style.borderColor = 'rgba(0,229,160,0.3)';
+        card.style.background = 'rgba(0,229,160,0.06)';
+        document.querySelector('#step2Status .gs-ac-icon').textContent = '✅';
+        title.textContent = `ログイン済み: ${state.user.username}`;
+        desc.textContent = 'アカウントの準備ができています。次のステップへ進んでください。';
+        btn.textContent = 'Step 3へ →';
+        btn.onclick = () => guideNav(1);
+    } else {
+        document.querySelector('#step2Status .gs-ac-icon').textContent = '🔐';
+        title.textContent = 'ログインしてください';
+        desc.textContent = 'プロバイダーとして登録するにはアカウントが必要です。';
+        btn.textContent = 'ログイン / 登録';
+        btn.onclick = openAuthFromGuide;
+    }
+}
+
+function openAuthFromGuide() {
+    closeGuidePanel();
+    document.getElementById('authOverlay').classList.remove('hidden');
+}
+
+// GPU自動検出（APIから取得）
+async function checkGpuLocal() {
+    const btn = document.querySelector('.gs-check-btn');
+    const result = document.getElementById('gpuDetectResult');
+    btn.textContent = '🔍 検出中...';
+    btn.disabled = true;
+    result.classList.add('hidden');
+    try {
+        const gpus = await apiFetch('/gpus');
+        result.classList.remove('hidden');
+        if (gpus && gpus.length > 0) {
+            const g = gpus[0];
+            result.innerHTML = `✅ <strong>GPU検出成功！</strong><br>
+<strong>GPU:</strong> ${g.name}<br>
+<strong>VRAM:</strong> ${Math.round((g.vram_total || 0) / 1024)} GB<br>
+<strong>ドライバー:</strong> ${g.driver_version || '不明'}<br>
+<strong>ステータス:</strong> ${g.status}<br>
+<br>
+→ このシステムのGPUはすでに登録済みです。<br>
+あなた自身のPCのGPUを登録するには、Step 3へ進んでください。`;
+            // チェック項目をチェック済みに
+            document.getElementById('chkGpu').querySelector('.gs-check-icon').textContent = '✅';
+        } else {
+            result.innerHTML = `⬜ プラットフォームに接続中のGPUは検出されませんでした。<br>
+→ 自分のPCのNVIDIA GPUを <code>nvidia-smi</code> で確認してから Step 3に進んでください。`;
+        }
+    } catch {
+        result.innerHTML = `⚠️ サーバーに接続できません。localhost:3000 が起動しているか確認してください。`;
+    }
+    btn.textContent = '🔍 再検出する';
+    btn.disabled = false;
+}
+
+// 月収シミュレーター
+function calcEarnings() {
+    const h = parseInt(document.getElementById('earnHours')?.value || 8);
+    const p = parseInt(document.getElementById('earnPrice')?.value || 800);
+    const monthly = h * p * 30 * 0.8;
+    if (document.getElementById('earnHoursVal')) document.getElementById('earnHoursVal').textContent = `${h}h/日`;
+    if (document.getElementById('earnPriceVal')) document.getElementById('earnPriceVal').textContent = `¥${p.toLocaleString()}/h`;
+    if (document.getElementById('earnResult')) document.getElementById('earnResult').textContent = `¥${Math.round(monthly).toLocaleString()}`;
+}
+
+// ガイドの gsn-item クリックで直接ステップ移動
+document.querySelectorAll('.gsn-item').forEach(el => {
+    el.addEventListener('click', () => guideSetStep(parseInt(el.dataset.step)));
+});
+
+// ボタンイベント（ログイン済み・未ログイン両方に表示するボタン）
+document.getElementById('btnProvideGuide')?.addEventListener('click', openGuidePanel);
+document.getElementById('btnProvideGuidePublic')?.addEventListener('click', openGuidePanel);
+document.getElementById('guideClose')?.addEventListener('click', closeGuidePanel);
+document.getElementById('guideOverlay')?.addEventListener('click', closeGuidePanel);
+
+// ヒーローの「GPUを貸し出す」ボタンもガイドを開く
+document.getElementById('heroProvide')?.addEventListener('click', openGuidePanel);
+
+// 初期化
+calcEarnings();
+

@@ -31,10 +31,13 @@
         </div>
         <div class="nav-user hidden" id="navUser">
             <span class="nav-username" id="navUsername"></span>
+            <button class="btn btn-secondary" id="btnProvideGuide" title="自分のGPUを公開する手順">🏭 GPUを公開する</button>
             <a href="/workspace/" class="btn btn-ghost" id="btnWorkspace">ワークスペース</a>
             <a href="/admin/" class="btn btn-ghost hidden" id="btnAdmin">管理画面</a>
             <button class="btn btn-ghost" id="btnLogout">ログアウト</button>
         </div>
+        <!-- ナビバー: ログイン不要でも表示するGPU公開ボタン -->
+        <button class="btn btn-provide" id="btnProvideGuidePublic" title="自分のPCのGPUを貸し出す">🏭 GPUを公開する</button>
     </nav>
 
     <!-- HERO -->
@@ -206,6 +209,227 @@
             <button class="modal-close" id="panelClose">✕</button>
         </div>
         <div id="myReservationsList" class="reservations-list"></div>
+    </div>
+
+    <!-- GPU公開ガイド パネル -->
+    <div class="guide-overlay hidden" id="guideOverlay"></div>
+    <div class="guide-panel hidden" id="guidePanel">
+        <div class="guide-header">
+            <div>
+                <div class="guide-title">🏭 GPUを公開する</div>
+                <div class="guide-sub">自分のPCのGPUをレンタル市場に登録する手順</div>
+            </div>
+            <button class="guide-close" id="guideClose">✕</button>
+        </div>
+
+        <!-- ステップインジケーター -->
+        <div class="guide-steps-nav">
+            <div class="gsn-item active" data-step="1"><span class="gsn-num">1</span><span class="gsn-label">必要環境</span>
+            </div>
+            <div class="gsn-line"></div>
+            <div class="gsn-item" data-step="2"><span class="gsn-num">2</span><span class="gsn-label">アカウント</span></div>
+            <div class="gsn-line"></div>
+            <div class="gsn-item" data-step="3"><span class="gsn-num">3</span><span class="gsn-label">GPU登録</span></div>
+            <div class="gsn-line"></div>
+            <div class="gsn-item" data-step="4"><span class="gsn-num">4</span><span class="gsn-label">ネット公開</span></div>
+            <div class="gsn-line"></div>
+            <div class="gsn-item" data-step="5"><span class="gsn-num">5</span><span class="gsn-label">収益受取</span></div>
+        </div>
+
+        <!-- ステップコンテンツ -->
+        <div class="guide-content" id="guideContent">
+
+            <!-- STEP 1 -->
+            <div class="guide-step active" data-step="1">
+                <h3 class="gs-title">⚙️ 必要な環境・条件</h3>
+                <p class="gs-desc">以下の条件を満たしているか確認してください。</p>
+                <div class="gs-checklist">
+                    <div class="gs-check" id="chkGpu">
+                        <span class="gs-check-icon">⬜</span>
+                        <div>
+                            <div class="gs-check-title">NVIDIA GPU（GTX 1060以上推奨）</div>
+                            <div class="gs-check-desc">RTX 3090・4090・A4500・A100など。AMD GPUは非対応。</div>
+                        </div>
+                    </div>
+                    <div class="gs-check">
+                        <span class="gs-check-icon">✅</span>
+                        <div>
+                            <div class="gs-check-title">Windows 10/11 または Ubuntu 20.04+</div>
+                            <div class="gs-check-desc">64bit OS。macOSは非対応。</div>
+                        </div>
+                    </div>
+                    <div class="gs-check">
+                        <span class="gs-check-icon">⬜</span>
+                        <div>
+                            <div class="gs-check-title">NVIDIA Driver 520以上</div>
+                            <div class="gs-check-desc"><code>nvidia-smi</code> で確認できる状態。</div>
+                        </div>
+                    </div>
+                    <div class="gs-check">
+                        <span class="gs-check-icon">⬜</span>
+                        <div>
+                            <div class="gs-check-title">Node.js 18以上インストール済み</div>
+                            <div class="gs-check-desc"><a href="https://nodejs.org" target="_blank">nodejs.org</a>
+                                からダウンロード。</div>
+                        </div>
+                    </div>
+                    <div class="gs-check">
+                        <span class="gs-check-icon">⬜</span>
+                        <div>
+                            <div class="gs-check-title">常時接続インターネット環境</div>
+                            <div class="gs-check-desc">上り帯域10Mbps以上推奨。光回線が理想的。</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="gs-check-btn" onclick="checkGpuLocal()">🔍 GPUを自動検出する</button>
+                <div id="gpuDetectResult" class="gs-detect-result hidden"></div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="guide-step" data-step="2">
+                <h3 class="gs-title">👤 アカウント登録・ログイン</h3>
+                <p class="gs-desc">GPU Rental Platformのアカウントが必要です。</p>
+                <div class="gs-action-card" id="step2Status">
+                    <div class="gs-ac-icon">🔐</div>
+                    <div class="gs-ac-body">
+                        <div class="gs-ac-title" id="step2Title">ログインしてください</div>
+                        <div class="gs-ac-desc" id="step2Desc">プロバイダーとして登録するにはアカウントが必要です。</div>
+                    </div>
+                    <button class="btn btn-primary" id="step2Btn" onclick="openAuthFromGuide()">ログイン / 登録</button>
+                </div>
+                <div class="gs-info">
+                    <div class="gs-info-item">📧 登録はメールアドレスのみで完結</div>
+                    <div class="gs-info-item">🔐 パスワードはbcryptで安全に保護</div>
+                    <div class="gs-info-item">💰 プロバイダー登録後、収益80%があなたの取り分</div>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="guide-step" data-step="3">
+                <h3 class="gs-title">🖥 GPUを登録する</h3>
+                <p class="gs-desc">プロバイダーポータルでGPUの情報と価格を設定します。</p>
+                <div class="gs-terminal">
+                    <div class="gs-terminal-bar"><span>GPU登録ページ</span></div>
+                    <div class="gs-terminal-body">
+                        <div class="gt-line gt-comment"># プロバイダーポータルで以下を設定:</div>
+                        <div class="gt-line"><span class="gt-key">GPU名</span> : NVIDIA RTX A4500</div>
+                        <div class="gt-line"><span class="gt-key">VRAM</span> : 20 GB</div>
+                        <div class="gt-line"><span class="gt-key">価格</span> : ¥800 / 時間 (自由設定)</div>
+                        <div class="gt-line"><span class="gt-key">場所</span> : Home PC</div>
+                        <div class="gt-line"><span class="gt-key">温度閾値</span> : 85°C (超えると自動停止)</div>
+                    </div>
+                </div>
+                <a href="/provider/" target="_blank" class="btn btn-primary"
+                    style="display:block;text-align:center;margin-top:1rem">
+                    🏭 プロバイダーポータルを開く →
+                </a>
+                <p class="gs-note">※ ログインが必要です。Step 2を先に完了してください。</p>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="guide-step" data-step="4">
+                <h3 class="gs-title">🌐 インターネットに公開する</h3>
+                <p class="gs-desc">Cloudflare Tunnelを使って自宅PCを外部から安全にアクセス可能にします。</p>
+
+                <div class="gs-steps-mini">
+                    <div class="gs-mini-step">
+                        <div class="gs-mini-num">A</div>
+                        <div>
+                            <div class="gs-mini-title">cloudflared をインストール</div>
+                            <div class="gs-terminal" style="margin-top:0.5rem">
+                                <div class="gs-terminal-bar"><span>PowerShell (管理者)</span></div>
+                                <div class="gs-terminal-body">
+                                    <div class="gt-line"><span class="gt-cmd">winget install
+                                            Cloudflare.cloudflared</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gs-mini-step">
+                        <div class="gs-mini-num">B</div>
+                        <div>
+                            <div class="gs-mini-title">サーバーをトンネルで公開</div>
+                            <div class="gs-terminal" style="margin-top:0.5rem">
+                                <div class="gs-terminal-bar"><span>PowerShell</span></div>
+                                <div class="gs-terminal-body">
+                                    <div class="gt-line gt-comment"># GPUサーバーを起動</div>
+                                    <div class="gt-line"><span class="gt-cmd">cd F:\antigravity\gpu-platform</span>
+                                    </div>
+                                    <div class="gt-line"><span class="gt-cmd">node server/index.js</span></div>
+                                    <div class="gt-line gt-comment"># 別ウィンドウでトンネル起動</div>
+                                    <div class="gt-line"><span class="gt-cmd">cloudflared tunnel --url
+                                            http://localhost:3000</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gs-mini-step">
+                        <div class="gs-mini-num">C</div>
+                        <div>
+                            <div class="gs-mini-title">公開URLをプラットフォームに登録</div>
+                            <div class="gs-desc">自動発行されるURLを管理者に連絡するか、固定ドメインを設定してください。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gs-warn">
+                    ⚠️ <strong>セキュリティ注意:</strong> Cloudflare Tunnelは暗号化されますが、サーバーのJWT_SECRETを必ず変更してください。
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="guide-step" data-step="5">
+                <h3 class="gs-title">💰 収益を受け取る</h3>
+                <p class="gs-desc">GPU貸し出し後、自動的に報酬が積算されます。</p>
+
+                <div class="gs-earn-flow">
+                    <div class="gs-earn-box">
+                        <div class="gs-earn-icon">⏱</div>
+                        <div class="gs-earn-label">GPU稼働</div>
+                        <div class="gs-earn-val">¥800/時間</div>
+                    </div>
+                    <div class="gs-earn-arrow">→</div>
+                    <div class="gs-earn-box">
+                        <div class="gs-earn-icon">🏦</div>
+                        <div class="gs-earn-label">ウォレット積算</div>
+                        <div class="gs-earn-val">80% = ¥640</div>
+                    </div>
+                    <div class="gs-earn-arrow">→</div>
+                    <div class="gs-earn-box gs-earn-highlight">
+                        <div class="gs-earn-icon">💴</div>
+                        <div class="gs-earn-label">出金申請</div>
+                        <div class="gs-earn-val">振込</div>
+                    </div>
+                </div>
+
+                <div class="gs-earn-calc">
+                    <div class="gs-ec-title">📈 月収シミュレーション</div>
+                    <div class="gs-ec-row"><span>稼働時間</span><input type="range" id="earnHours" min="1" max="24"
+                            value="8" oninput="calcEarnings()"><span id="earnHoursVal">8h/日</span></div>
+                    <div class="gs-ec-row"><span>価格</span><input type="range" id="earnPrice" min="300" max="5000"
+                            step="100" value="800" oninput="calcEarnings()"><span id="earnPriceVal">¥800/h</span></div>
+                    <div class="gs-ec-result">月収見込み: <span id="earnResult">¥153,600</span></div>
+                </div>
+
+                <div class="gs-info">
+                    <div class="gs-info-item">✅ 最低出金額なし（1円から申請可）</div>
+                    <div class="gs-info-item">✅ プロバイダー取り分は <strong>80%</strong></div>
+                    <div class="gs-info-item">✅ プロバイダーポータルでリアルタイム収益確認</div>
+                </div>
+
+                <a href="/provider/" target="_blank" class="btn btn-primary"
+                    style="display:block;text-align:center;margin-top:1.5rem">
+                    🚀 今すぐプロバイダーに登録する
+                </a>
+            </div>
+        </div>
+
+        <!-- ナビゲーションボタン -->
+        <div class="guide-nav">
+            <button class="btn btn-ghost" id="guidePrev" onclick="guideNav(-1)" disabled>← 前へ</button>
+            <span class="guide-nav-dots" id="guideNavDots"></span>
+            <button class="btn btn-primary" id="guideNext" onclick="guideNav(1)">次へ →</button>
+        </div>
     </div>
 
     <!-- FOOTER -->
