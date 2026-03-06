@@ -9,19 +9,21 @@ const nodemailer = require('nodemailer');
 
 // Transporter（環境変数から読み込み）
 function createTransporter() {
-    if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-        return nodemailer.createTransport({
-            host: process.env.SMTP_HOST || 'smtp.gmail.com',
-            port: parseInt(process.env.SMTP_PORT || '587'),
-            secure: process.env.SMTP_SECURE === 'true',
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
-        });
-    }
-    // メール設定がない場合はコンソールログに出力
-    return null;
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+      // さくらなど共用サーバーはホスト名と証明書が異なる場合がある
+      tls: { rejectUnauthorized: false },
+    });
+  }
+  // メール設定がない場合はコンソールログに出力
+  return null;
 }
 
 let transporter = createTransporter();
@@ -30,26 +32,26 @@ let transporter = createTransporter();
  * メール送信（設定なし時はコンソール出力）
  */
 async function sendMail({ to, subject, html, text }) {
-    const from = `GPU Rental Platform <${process.env.SMTP_USER || 'noreply@gpu-rental.local'}>`;
+  const from = `GPU Rental Platform <${process.env.SMTP_USER || 'noreply@gpu-rental.local'}>`;
 
-    if (!transporter) {
-        // 開発時はコンソールに表示
-        console.log('\n📧 ─── [EMAIL MOCK] ─────────────────────────────');
-        console.log(`To:      ${to}`);
-        console.log(`Subject: ${subject}`);
-        console.log(`Body:\n${text || html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()}`);
-        console.log('─────────────────────────────────────────────────\n');
-        return { mock: true };
-    }
+  if (!transporter) {
+    // 開発時はコンソールに表示
+    console.log('\n📧 ─── [EMAIL MOCK] ─────────────────────────────');
+    console.log(`To:      ${to}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Body:\n${text || html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()}`);
+    console.log('─────────────────────────────────────────────────\n');
+    return { mock: true };
+  }
 
-    try {
-        const info = await transporter.sendMail({ from, to, subject, html, text });
-        console.log(`📧 Email sent to ${to}: ${subject} [${info.messageId}]`);
-        return info;
-    } catch (err) {
-        console.error(`❌ Email failed to ${to}:`, err.message);
-        return null;
-    }
+  try {
+    const info = await transporter.sendMail({ from, to, subject, html, text });
+    console.log(`📧 Email sent to ${to}: ${subject} [${info.messageId}]`);
+    return info;
+  } catch (err) {
+    console.error(`❌ Email failed to ${to}:`, err.message);
+    return null;
+  }
 }
 
 // ─── Email Templates ────────────────────────────────────────────────────────
@@ -76,10 +78,10 @@ const BASE_STYLE = `
  * 1. 新規登録完了メール
  */
 function mailWelcome({ to, username }) {
-    return sendMail({
-        to,
-        subject: '🎉 GPU Rental Platform へようこそ！',
-        html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+  return sendMail({
+    to,
+    subject: '🎉 GPU Rental Platform へようこそ！',
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
 <div class="wrap">
   <div class="card">
     <div class="header">
@@ -105,23 +107,23 @@ function mailWelcome({ to, username }) {
   </div>
 </div>
 </body></html>`,
-        text: `GPU Rental Platformへようこそ、${username}さん！\n登録が完了しました。\n${process.env.BASE_URL || 'http://localhost:3000'}/portal/`,
-    });
+    text: `GPU Rental Platformへようこそ、${username}さん！\n登録が完了しました。\n${process.env.BASE_URL || 'http://localhost:3000'}/portal/`,
+  });
 }
 
 /**
  * 2. 予約完了メール
  */
 function mailReservationConfirmed({ to, username, reservation }) {
-    const start = new Date(reservation.start_time);
-    const end = new Date(reservation.end_time);
-    const fmtJp = dt => dt.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-    const hours = Math.round((end - start) / 3600000 * 10) / 10;
+  const start = new Date(reservation.start_time);
+  const end = new Date(reservation.end_time);
+  const fmtJp = dt => dt.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const hours = Math.round((end - start) / 3600000 * 10) / 10;
 
-    return sendMail({
-        to,
-        subject: `✅ 予約確定: ${reservation.gpu_name} (${fmtJp(start)})`,
-        html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+  return sendMail({
+    to,
+    subject: `✅ 予約確定: ${reservation.gpu_name} (${fmtJp(start)})`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
 <div class="wrap">
   <div class="card">
     <div class="header">
@@ -149,21 +151,21 @@ function mailReservationConfirmed({ to, username, reservation }) {
   </div>
 </div>
 </body></html>`,
-        text: `予約確定\nGPU: ${reservation.gpu_name}\n開始: ${fmtJp(start)}\n終了: ${fmtJp(end)}\n料金: ¥${Math.round(reservation.total_price || 0).toLocaleString()}`,
-    });
+    text: `予約確定\nGPU: ${reservation.gpu_name}\n開始: ${fmtJp(start)}\n終了: ${fmtJp(end)}\n料金: ¥${Math.round(reservation.total_price || 0).toLocaleString()}`,
+  });
 }
 
 /**
  * 3. 予約開始10分前リマインダー
  */
 function mailReminderStart({ to, username, reservation }) {
-    const start = new Date(reservation.start_time);
-    const fmtJp = dt => dt.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit' });
+  const start = new Date(reservation.start_time);
+  const fmtJp = dt => dt.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit' });
 
-    return sendMail({
-        to,
-        subject: `⏰ 【10分前】${reservation.gpu_name} の利用開始まであと10分`,
-        html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+  return sendMail({
+    to,
+    subject: `⏰ 【10分前】${reservation.gpu_name} の利用開始まであと10分`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
 <div class="wrap">
   <div class="card">
     <div class="header">
@@ -183,21 +185,21 @@ function mailReminderStart({ to, username, reservation }) {
   </div>
 </div>
 </body></html>`,
-        text: `${reservation.gpu_name} の利用開始まであと10分です（${fmtJp(start)}）`,
-    });
+    text: `${reservation.gpu_name} の利用開始まであと10分です（${fmtJp(start)}）`,
+  });
 }
 
 /**
  * 4. 利用終了10分前警告
  */
 function mailReminderEnd({ to, username, pod }) {
-    const expires = new Date(pod.expires_at);
-    const fmtJp = dt => dt.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit' });
+  const expires = new Date(pod.expires_at);
+  const fmtJp = dt => dt.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit' });
 
-    return sendMail({
-        to,
-        subject: `🚨 【終了10分前】セッションが間もなく強制終了されます`,
-        html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+  return sendMail({
+    to,
+    subject: `🚨 【終了10分前】セッションが間もなく強制終了されます`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
 <div class="wrap">
   <div class="card">
     <div class="header" style="background:linear-gradient(135deg,#ff4757,#ff6b6b)">
@@ -224,18 +226,18 @@ function mailReminderEnd({ to, username, pod }) {
   </div>
 </div>
 </body></html>`,
-        text: `セッションが${fmtJp(expires)}に強制終了されます。データを今すぐ保存してください。`,
-    });
+    text: `セッションが${fmtJp(expires)}に強制終了されます。データを今すぐ保存してください。`,
+  });
 }
 
 /**
  * 5. セッション強制終了通知
  */
 function mailSessionExpired({ to, username, pod }) {
-    return sendMail({
-        to,
-        subject: `⛔ セッション終了: ${pod.gpu_name || 'GPU'} のセッションが終了しました`,
-        html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+  return sendMail({
+    to,
+    subject: `⛔ セッション終了: ${pod.gpu_name || 'GPU'} のセッションが終了しました`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
 <div class="wrap">
   <div class="card">
     <div class="header" style="background:linear-gradient(135deg,#4a4a7a,#2a2a5a)">
@@ -254,15 +256,15 @@ function mailSessionExpired({ to, username, pod }) {
   </div>
 </div>
 </body></html>`,
-        text: `セッションが終了しました。新しい予約: ${process.env.BASE_URL || 'http://localhost:3000'}/portal/`,
-    });
+    text: `セッションが終了しました。新しい予約: ${process.env.BASE_URL || 'http://localhost:3000'}/portal/`,
+  });
 }
 
 module.exports = {
-    sendMail,
-    mailWelcome,
-    mailReservationConfirmed,
-    mailReminderStart,
-    mailReminderEnd,
-    mailSessionExpired,
+  sendMail,
+  mailWelcome,
+  mailReservationConfirmed,
+  mailReminderStart,
+  mailReminderEnd,
+  mailSessionExpired,
 };
