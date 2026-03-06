@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { getDb } = require('../db/database');
 const config = require('../config');
+const { mailWelcome } = require('../services/email');
 
 // POST /api/auth/register
 router.post('/register', (req, res) => {
@@ -25,6 +26,8 @@ router.post('/register', (req, res) => {
         ).run(username, email, hash, 'active');
         const user = db.prepare('SELECT id, username, email, role, wallet_balance, created_at FROM users WHERE id = ?').get(result.lastInsertRowid);
         const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, config.jwt.secret, { expiresIn: config.jwt.expiresIn });
+        // ウェルカムメールを非同期送信（失敗しても登録は完了させる）
+        mailWelcome({ to: user.email, username: user.username }).catch(e => console.error('Welcome mail error:', e.message));
         res.status(201).json({ token, user });
     } catch (err) {
         if (err.message.includes('UNIQUE')) return res.status(409).json({ error: 'このユーザー名またはメールアドレスはすでに使用されています' });
