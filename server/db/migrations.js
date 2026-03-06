@@ -1,12 +1,13 @@
-const { getDb } = require('./database');
+const { getDb, initDb } = require('./database');
 const bcrypt = require('bcryptjs');
 const config = require('../config');
 
-function runMigrations() {
-    const db = getDb();
+async function runMigrations() {
+  await initDb();
+  const db = getDb();
 
-    // ─── Users ───────────────────────────────────────────────────────────
-    db.exec(`
+  // ─── Users ───────────────────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       username    TEXT    UNIQUE NOT NULL,
@@ -20,8 +21,8 @@ function runMigrations() {
     );
   `);
 
-    // ─── GPU Nodes (provider machines) ───────────────────────────────────
-    db.exec(`
+  // ─── GPU Nodes (provider machines) ───────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS gpu_nodes (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       provider_id     INTEGER NOT NULL,         -- user who owns this GPU
@@ -41,8 +42,8 @@ function runMigrations() {
     );
   `);
 
-    // ─── Reservations ────────────────────────────────────────────────────
-    db.exec(`
+  // ─── Reservations ────────────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS reservations (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       renter_id   INTEGER NOT NULL,
@@ -58,8 +59,8 @@ function runMigrations() {
     );
   `);
 
-    // ─── Active Pods ─────────────────────────────────────────────────────
-    db.exec(`
+  // ─── Active Pods ─────────────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS pods (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       reservation_id  INTEGER NOT NULL,
@@ -77,8 +78,8 @@ function runMigrations() {
     );
   `);
 
-    // ─── Usage Logs ──────────────────────────────────────────────────────
-    db.exec(`
+  // ─── Usage Logs ──────────────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS usage_logs (
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       pod_id          INTEGER NOT NULL,
@@ -96,8 +97,8 @@ function runMigrations() {
     );
   `);
 
-    // ─── Alerts ──────────────────────────────────────────────────────────
-    db.exec(`
+  // ─── Alerts ──────────────────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS alerts (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       type        TEXT NOT NULL,    -- 'temperature'|'timeout'|'error'|'system'
@@ -111,8 +112,8 @@ function runMigrations() {
     );
   `);
 
-    // ─── Payouts ─────────────────────────────────────────────────────────
-    db.exec(`
+  // ─── Payouts ─────────────────────────────────────────────────────────
+  db.exec(`
     CREATE TABLE IF NOT EXISTS payouts (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       provider_id INTEGER NOT NULL,
@@ -125,41 +126,30 @@ function runMigrations() {
     );
   `);
 
-    // ─── Seed admin user ─────────────────────────────────────────────────
-    const existing = db.prepare('SELECT id FROM users WHERE role = ?').get('admin');
-    if (!existing) {
-        const hash = bcrypt.hashSync(config.admin.password, 10);
-        db.prepare(`
+  // ─── Seed admin/provider user ────────────────────────────────────────
+  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(config.admin.email);
+  if (!existing) {
+    const hash = bcrypt.hashSync(config.admin.password, 10);
+    const res = db.prepare(`
       INSERT INTO users (username, email, password_hash, role)
       VALUES (?, ?, ?, 'admin')
-    `).run('admin', config.admin.email, hash);
-        console.log('✅ Admin user created:', config.admin.email);
-    }
+    `).run('taichiyao333', config.admin.email, hash);
+    console.log('\u2705 Admin created:', config.admin.email);
 
-    // ─── Seed provider user (the owner of RTX A4500) ─────────────────────
-    const existingProvider = db.prepare("SELECT id FROM users WHERE username = 'taichiyao333'").get();
-    if (!existingProvider) {
-        const hash = bcrypt.hashSync('provider123', 10);
-        const res = db.prepare(`
-      INSERT INTO users (username, email, password_hash, role)
-      VALUES ('taichiyao333', 'taichi.yao@gmail.com', ?, 'provider')
-    `).run(hash);
-
-        // Register the RTX A4500
-        db.prepare(`
+    // Register the RTX A4500 under the admin account
+    db.prepare(`
       INSERT INTO gpu_nodes (provider_id, device_index, name, vram_total, driver_version, price_per_hour, location)
       VALUES (?, 0, 'NVIDIA RTX A4500', 20470, '552.74', 800, 'Home PC')
     `).run(res.lastInsertRowid);
+    console.log('\u2705 RTX A4500 registered');
+  }
 
-        console.log('✅ Provider user and RTX A4500 registered');
-    }
-
-    console.log('✅ Database migrations complete');
+  console.log('✅ Database migrations complete');
 }
 
 module.exports = { runMigrations };
 
 // Run directly: node server/db/migrations.js
 if (require.main === module) {
-    runMigrations();
+  runMigrations().catch(console.error);
 }

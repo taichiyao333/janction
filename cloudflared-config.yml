@@ -1,0 +1,14 @@
+tunnel: gpu-rental-platform
+credentials-file: C:\Users\taich\.cloudflared\gpu-rental-platform.json
+
+ingress:
+  # メインポータル + API + ワークスペース + 管理画面
+  - hostname: gpu-rental.example.com
+    service: http://localhost:3000
+
+  # 管理画面専用ドメイン（オプション）
+  # - hostname: admin.gpu-rental.example.com
+  #   service: http://localhost:3000
+
+  # デフォルトキャッチオール（必須）
+  - service: http_status:404

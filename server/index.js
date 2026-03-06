@@ -10,6 +10,7 @@ const rateLimit = require('express-rate-limit');
 
 const config = require('./config');
 const { runMigrations } = require('./db/migrations');
+const { initDb } = require('./db/database');
 const { startGpuMonitor } = require('./services/gpuManager');
 const { startScheduler } = require('./services/scheduler');
 
@@ -19,6 +20,7 @@ const gpuRoutes = require('./routes/gpus');
 const reservationRoutes = require('./routes/reservations');
 const podRoutes = require('./routes/pods');
 const adminRoutes = require('./routes/admin');
+const fileRoutes = require('./routes/files');
 
 // ─── App Setup ───────────────────────────────────────────────────────────────
 const app = express();
@@ -66,6 +68,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/gpus', gpuRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/pods', podRoutes);
+app.use('/api/files', fileRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Health check
@@ -97,8 +100,8 @@ io.on('connection', (socket) => {
 async function start() {
     console.log('\n🚀 GPU Rental Platform starting...\n');
 
-    // DB Migrations
-    runMigrations();
+    // DB Init & Migrations
+    await runMigrations();
 
     // Start GPU monitor
     startGpuMonitor(io);
