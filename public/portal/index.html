@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPU Rental — High-Performance GPU Cloud</title>
+    <meta name="description" content="個人・企業・データセンターのGPUを時間単位でレンタル。RTX A4500から始まるオープンGPUマーケットプレイス。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <!-- NAV -->
+    <nav class="nav" id="nav">
+        <div class="nav-brand">
+            <span class="nav-logo">⚡</span>
+            <span class="nav-title">GPU<span class="accent">Rental</span></span>
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="#gpus" class="nav-link">GPU一覧</a>
+            <a href="#how" class="nav-link">使い方</a>
+            <a href="#pricing" class="nav-link">料金</a>
+        </div>
+        <div class="nav-auth" id="navAuth">
+            <button class="btn btn-ghost" id="btnLogin">ログイン</button>
+            <button class="btn btn-primary" id="btnRegister">無料登録</button>
+        </div>
+        <div class="nav-user hidden" id="navUser">
+            <span class="nav-username" id="navUsername"></span>
+            <a href="/workspace/" class="btn btn-ghost" id="btnWorkspace">ワークスペース</a>
+            <a href="/admin/" class="btn btn-ghost hidden" id="btnAdmin">管理画面</a>
+            <button class="btn btn-ghost" id="btnLogout">ログアウト</button>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <div class="hero-badge">🚀 Today: RTX A4500 · 20GB VRAM Available</div>
+            <h1 class="hero-title">あなたのGPUを<br /><span class="gradient-text">世界に貸し出す</span></h1>
+            <p class="hero-sub">個人・企業・データセンターのGPUを時間単位でレンタル。<br />AI学習・動画レンダリング・研究計算に最適。</p>
+            <div class="hero-actions">
+                <button class="btn btn-primary btn-lg" id="heroReserve">今すぐ予約する</button>
+                <button class="btn btn-outline btn-lg" id="heroProvide">GPUを貸し出す</button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><span class="stat-val" id="statGpus">1</span><span class="stat-label">GPU</span></div>
+                <div class="stat-div"></div>
+                <div class="stat"><span class="stat-val" id="statUsers">-</span><span class="stat-label">ユーザー</span>
+                </div>
+                <div class="stat-div"></div>
+                <div class="stat"><span class="stat-val">24/7</span><span class="stat-label">稼働</span></div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="gpu-card-3d">
+                <div class="gpu-card-inner">
+                    <div class="gpu-chip"></div>
+                    <div class="gpu-label">RTX A4500</div>
+                    <div class="gpu-vram">20 GB VRAM</div>
+                    <div class="gpu-status-dot"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GPU LIST -->
+    <section class="section" id="gpus">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">利用可能な GPU</h2>
+                <p class="section-sub">リアルタイムで空き状況を確認できます</p>
+                <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all">すべて</button>
+                    <button class="filter-btn" data-filter="available">空きあり</button>
+                    <button class="filter-btn" data-filter="home">個人PC</button>
+                </div>
+            </div>
+            <div class="gpu-grid" id="gpuGrid">
+                <div class="gpu-skeleton"></div>
+                <div class="gpu-skeleton"></div>
+                <div class="gpu-skeleton"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section section-dark" id="how">
+        <div class="container">
+            <h2 class="section-title">使い方</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">📅</div>
+                    <h3>1. 予約</h3>
+                    <p>GPUを選んで利用時間を予約。カレンダーで空き状況を確認。</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step">
+                    <div class="step-icon">🔌</div>
+                    <h3>2. 接続</h3>
+                    <p>予約時間になると自動でPodが起動。ブラウザからターミナルに接続。</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step">
+                    <div class="step-icon">⚡</div>
+                    <h3>3. GPU利用</h3>
+                    <p>AI学習・レンダリング・計算処理を自由に実行。ファイルもアップ可能。</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step">
+                    <div class="step-icon">📦</div>
+                    <h3>4. ダウンロード</h3>
+                    <p>処理完了後、成果物をダウンロード。データは一定期間保持。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESERVATION MODAL -->
+    <div class="modal-overlay hidden" id="modalOverlay">
+        <div class="modal" id="reserveModal">
+            <button class="modal-close" id="modalClose">✕</button>
+            <h2 class="modal-title">GPU 予約</h2>
+            <div class="modal-gpu-info" id="modalGpuInfo"></div>
+            <form class="reserve-form" id="reserveForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>開始日時</label>
+                        <input type="datetime-local" id="startTime" required />
+                    </div>
+                    <div class="form-group">
+                        <label>終了日時</label>
+                        <input type="datetime-local" id="endTime" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>利用目的</label>
+                    <select id="notes">
+                        <option value="AI/機械学習">AI / 機械学習</option>
+                        <option value="動画レンダリング">動画レンダリング</option>
+                        <option value="3DCG">3DCG / VFX</option>
+                        <option value="科学計算">科学計算</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+                <div class="price-preview" id="pricePreview">
+                    <span>合計料金</span>
+                    <span class="price-val" id="priceVal">—</span>
+                </div>
+                <div class="form-error hidden" id="formError"></div>
+                <button type="submit" class="btn btn-primary btn-full" id="submitReserve">予約を確定する</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div class="modal-overlay hidden" id="authOverlay">
+        <div class="modal modal-sm" id="authModal">
+            <button class="modal-close" id="authClose">✕</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin">ログイン</button>
+                <button class="auth-tab" id="tabRegister">新規登録</button>
+            </div>
+            <!-- Login -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>メールアドレス</label>
+                    <input type="email" id="loginEmail" placeholder="you@example.com" required />
+                </div>
+                <div class="form-group">
+                    <label>パスワード</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required />
+                </div>
+                <div class="form-error hidden" id="loginError"></div>
+                <button type="submit" class="btn btn-primary btn-full">ログイン</button>
+            </form>
+            <!-- Register -->
+            <form id="registerForm" class="auth-form hidden">
+                <div class="form-group">
+                    <label>ユーザー名</label>
+                    <input type="text" id="regUsername" placeholder="username" required />
+                </div>
+                <div class="form-group">
+                    <label>メールアドレス</label>
+                    <input type="email" id="regEmail" placeholder="you@example.com" required />
+                </div>
+                <div class="form-group">
+                    <label>パスワード</label>
+                    <input type="password" id="regPassword" placeholder="6文字以上" required minlength="6" />
+                </div>
+                <div class="form-error hidden" id="regError"></div>
+                <button type="submit" class="btn btn-primary btn-full">登録する</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MY RESERVATIONS PANEL -->
+    <div class="side-panel hidden" id="myPanel">
+        <div class="side-panel-header">
+            <h3>マイ予約</h3>
+            <button class="modal-close" id="panelClose">✕</button>
+        </div>
+        <div id="myReservationsList" class="reservations-list"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand">⚡ GPU<span class="accent">Rental</span></div>
+            <p class="footer-copy">© 2026 GPU Rental Platform. RTX A4500 · 20GB VRAM</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

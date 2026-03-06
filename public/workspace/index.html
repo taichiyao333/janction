@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPU Workspace</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <!-- TOP BAR -->
+    <header class="ws-header">
+        <div class="ws-header-left">
+            <a href="/portal/" class="ws-brand">⚡ GPU<span>Rental</span></a>
+            <span class="ws-divider">|</span>
+            <span class="ws-pod-info" id="wsPodInfo">接続中...</span>
+        </div>
+        <div class="ws-header-center">
+            <div class="ws-timer-wrap">
+                <span class="ws-timer-label">残り時間</span>
+                <span class="ws-timer" id="wsTimer">--:--:--</span>
+            </div>
+        </div>
+        <div class="ws-header-right">
+            <span class="ws-cost" id="wsCost">¥0</span>
+            <button class="btn btn-danger btn-sm" id="btnStopPod">⏹ セッション終了</button>
+        </div>
+    </header>
+
+    <!-- PANELS -->
+    <div class="ws-layout">
+        <!-- LEFT: File Manager -->
+        <aside class="ws-sidebar" id="wsSidebar">
+            <div class="ws-panel-header">
+                <span>📁 ファイル</span>
+                <div class="ws-panel-actions">
+                    <button class="icon-btn" id="btnUpload" title="アップロード">⬆</button>
+                    <button class="icon-btn" id="btnRefreshFiles" title="更新">↻</button>
+                </div>
+            </div>
+            <div class="ws-file-tree" id="fileTree">
+                <div class="file-loading">読み込み中...</div>
+            </div>
+            <input type="file" id="fileInput" multiple style="display:none" />
+        </aside>
+
+        <!-- CENTER: Terminal -->
+        <main class="ws-main">
+            <div class="ws-terminal-header">
+                <div class="ws-tabs">
+                    <button class="ws-tab active" id="tabTerminal">ターミナル</button>
+                    <button class="ws-tab" id="tabRender">🎬 レンダリング</button>
+                </div>
+                <div class="ws-terminal-actions">
+                    <button class="icon-btn" id="btnClearTerm" title="クリア">✕</button>
+                </div>
+            </div>
+            <div id="terminalPane" class="terminal-pane">
+                <div id="terminal"></div>
+            </div>
+            <div id="renderPane" class="render-pane hidden">
+                <!-- Render settings panel -->
+                <div class="render-layout">
+                    <div class="render-settings">
+                        <h3 class="render-section-title">出力設定</h3>
+                        <div class="render-form">
+                            <div class="rform-group">
+                                <label>入力ファイル</label>
+                                <div class="file-select-row">
+                                    <input type="text" id="renderInput" placeholder="ファイルを選択..." readonly />
+                                    <button class="btn btn-ghost btn-sm" id="btnSelectRenderFile">選択</button>
+                                </div>
+                            </div>
+                            <div class="rform-group">
+                                <label>出力フォーマット</label>
+                                <select id="renderFormat">
+                                    <option value="h264">H.264 (MP4)</option>
+                                    <option value="h265">H.265 / HEVC</option>
+                                    <option value="prores">Apple ProRes</option>
+                                    <option value="dnxhr">Avid DNxHR</option>
+                                    <option value="vp9">VP9 (WebM)</option>
+                                </select>
+                            </div>
+                            <div class="rform-row">
+                                <div class="rform-group">
+                                    <label>解像度</label>
+                                    <select id="renderRes">
+                                        <option>1280x720</option>
+                                        <option selected>1920x1080</option>
+                                        <option>2560x1440</option>
+                                        <option>3840x2160</option>
+                                    </select>
+                                </div>
+                                <div class="rform-group">
+                                    <label>フレームレート</label>
+                                    <select id="renderFps">
+                                        <option>24</option>
+                                        <option>30</option>
+                                        <option selected>60</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="rform-row">
+                                <div class="rform-group">
+                                    <label>ビットレートモード</label>
+                                    <select id="renderBitrateMode">
+                                        <option value="cbr">CBR</option>
+                                        <option value="vbr" selected>VBR</option>
+                                    </select>
+                                </div>
+                                <div class="rform-group">
+                                    <label>ビットレート (Mbps)</label>
+                                    <input type="number" id="renderBitrate" value="20" min="1" max="200" />
+                                </div>
+                            </div>
+                            <div class="rform-group">
+                                <label>エンコーダー</label>
+                                <select id="renderEncoder">
+                                    <option value="nvenc">NVENC (GPU) ⚡ 推奨</option>
+                                    <option value="software">Software (CPU)</option>
+                                </select>
+                            </div>
+                            <div class="rform-group">
+                                <label>品質プリセット</label>
+                                <select id="renderPreset">
+                                    <option value="p7">P7 - 最高品質</option>
+                                    <option value="p5" selected>P5 - バランス</option>
+                                    <option value="p3">P3 - 高速</option>
+                                    <option value="p1">P1 - 最速</option>
+                                </select>
+                            </div>
+                            <div class="rform-row">
+                                <div class="rform-group">
+                                    <label>オーディオコーデック</label>
+                                    <select id="renderAudio">
+                                        <option>AAC</option>
+                                        <option>PCM</option>
+                                        <option>Copy</option>
+                                    </select>
+                                </div>
+                                <div class="rform-group">
+                                    <label>オーディオビットレート</label>
+                                    <select id="renderAudioBr">
+                                        <option>128k</option>
+                                        <option selected>192k</option>
+                                        <option>320k</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-full" id="btnStartRender">🚀 レンダリング開始</button>
+                        </div>
+                    </div>
+                    <div class="render-queue">
+                        <h3 class="render-section-title">レンダリングキュー</h3>
+                        <div id="renderQueue" class="queue-list">
+                            <p class="queue-empty">キューは空です</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT: GPU Monitor -->
+        <aside class="ws-monitor">
+            <div class="ws-panel-header"><span>📊 GPU モニター</span></div>
+            <div class="monitor-body" id="monitorBody">
+                <div class="monitor-gauge">
+                    <div class="gauge-label">GPU 使用率</div>
+                    <div class="gauge-val" id="monGpuUtil">0%</div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill fill-gpu" id="barGpuUtil" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="monitor-gauge">
+                    <div class="gauge-label">VRAM</div>
+                    <div class="gauge-val" id="monVram">0 / 0 GB</div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill fill-vram" id="barVram" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="monitor-gauge">
+                    <div class="gauge-label">温度</div>
+                    <div class="gauge-val" id="monTemp">0°C</div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill fill-temp" id="barTemp" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="monitor-gauge">
+                    <div class="gauge-label">電力</div>
+                    <div class="gauge-val" id="monPower">0W</div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill fill-power" id="barPower" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="monitor-divider"></div>
+                <div class="monitor-info">
+                    <div class="info-row"><span>GPU名</span><span id="monGpuName">-</span></div>
+                    <div class="info-row"><span>ドライバー</span><span id="monDriver">-</span></div>
+                    <div class="info-row"><span>P-State</span><span id="monPstate">-</span></div>
+                </div>
+                <div class="monitor-divider"></div>
+                <div class="monitor-chart-wrap">
+                    <div class="gauge-label">使用率推移 (2分)</div>
+                    <canvas id="gpuChart" height="80"></canvas>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Upload Progress -->
+    <div class="upload-toast hidden" id="uploadToast">
+        <span id="uploadFile">アップロード中...</span>
+        <div class="upload-bar">
+            <div class="upload-fill" id="uploadFill"></div>
+        </div>
+        <span id="uploadPct">0%</span>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

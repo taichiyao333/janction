@@ -1,0 +1,616 @@
+:root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f18;
+    --bg3: #12121e;
+    --panel: #0d0d1a;
+    --border: rgba(100, 100, 180, 0.15);
+    --primary: #6c47ff;
+    --accent: #00d4ff;
+    --success: #00e5a0;
+    --warning: #ffb300;
+    --danger: #ff4757;
+    --text: #e8e8f0;
+    --text2: #8888aa;
+    --text3: #4a4a6a;
+    --radius: 8px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden {
+    display: none !important;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Header */
+.ws-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    padding: 0 1rem;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    gap: 1rem;
+}
+
+.ws-brand {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.ws-brand span {
+    color: var(--accent);
+}
+
+.ws-divider {
+    color: var(--text3);
+}
+
+.ws-pod-info {
+    font-size: 0.8rem;
+    color: var(--text2);
+}
+
+.ws-header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ws-timer-wrap {
+    text-align: center;
+}
+
+.ws-timer-label {
+    font-size: 0.65rem;
+    color: var(--text3);
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ws-timer {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--success);
+}
+
+.ws-timer.warning {
+    color: var(--warning);
+}
+
+.ws-timer.danger {
+    color: var(--danger);
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.ws-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ws-cost {
+    font-size: 0.85rem;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Layout */
+.ws-layout {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Sidebar (File Manager) */
+.ws-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ws-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text2);
+    flex-shrink: 0;
+}
+
+.ws-panel-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.icon-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text2);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+.ws-file-tree {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.25rem;
+}
+
+.file-loading {
+    padding: 1rem;
+    font-size: 0.8rem;
+    color: var(--text3);
+    text-align: center;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text2);
+    transition: background 0.15s;
+    user-select: none;
+}
+
+.file-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+}
+
+.file-item.selected {
+    background: rgba(108, 71, 255, 0.15);
+    color: var(--text);
+}
+
+.file-icon {
+    font-size: 0.9rem;
+}
+
+.file-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-size {
+    font-size: 0.7rem;
+    color: var(--text3);
+}
+
+/* Main Terminal Area */
+.ws-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.ws-terminal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 36px;
+    padding: 0 0.75rem;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.ws-tabs {
+    display: flex;
+    gap: 2px;
+}
+
+.ws-tab {
+    padding: 4px 12px;
+    background: transparent;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 0.8rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+}
+
+.ws-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--primary);
+}
+
+.ws-tab:hover:not(.active) {
+    color: var(--text2);
+}
+
+.ws-terminal-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.terminal-pane {
+    flex: 1;
+    overflow: hidden;
+    background: #0d0d14;
+}
+
+#terminal {
+    height: 100%;
+}
+
+.xterm {
+    padding: 8px !important;
+}
+
+/* Render Pane */
+.render-pane {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bg);
+}
+
+.render-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 900px;
+}
+
+.render-section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.render-settings,
+.render-queue {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+}
+
+.render-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.rform-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.rform-group label {
+    font-size: 0.75rem;
+    color: var(--text2);
+}
+
+.rform-group input,
+.rform-group select {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    color: var(--text);
+    font-size: 0.8rem;
+    width: 100%;
+}
+
+.rform-group input:focus,
+.rform-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.rform-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+
+.file-select-row {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.file-select-row input {
+    flex: 1;
+}
+
+.queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.queue-empty {
+    font-size: 0.8rem;
+    color: var(--text3);
+}
+
+.queue-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.queue-item-name {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.queue-progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0.4rem 0;
+}
+
+.queue-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transition: width 0.3s;
+}
+
+.queue-meta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text3);
+}
+
+/* Right Monitor */
+.ws-monitor {
+    width: 200px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.monitor-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.monitor-gauge {}
+
+.gauge-label {
+    font-size: 0.7rem;
+    color: var(--text3);
+    margin-bottom: 2px;
+}
+
+.gauge-val {
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 4px;
+}
+
+.gauge-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.gauge-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s;
+}
+
+.fill-gpu {
+    background: linear-gradient(90deg, var(--primary), #8b5cf6);
+}
+
+.fill-vram {
+    background: linear-gradient(90deg, var(--accent), #0099cc);
+}
+
+.fill-temp {
+    background: linear-gradient(90deg, var(--success), var(--warning));
+}
+
+.fill-power {
+    background: linear-gradient(90deg, var(--warning), #ff6b35);
+}
+
+.monitor-divider {
+    height: 1px;
+    background: var(--border);
+}
+
+.monitor-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text2);
+    gap: 4px;
+}
+
+.info-row span:last-child {
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.monitor-chart-wrap {}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+}
+
+.btn-danger {
+    background: rgba(255, 71, 87, 0.12);
+    color: var(--danger);
+    border: 1px solid rgba(255, 71, 87, 0.25);
+}
+
+.btn-danger:hover {
+    background: rgba(255, 71, 87, 0.2);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success), #00b37a);
+    color: #000;
+    font-weight: 600;
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.6rem;
+}
+
+.btn-sm {
+    padding: 3px 8px;
+    font-size: 0.75rem;
+}
+
+/* Upload Toast */
+.upload-toast {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 999;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    min-width: 280px;
+}
+
+.upload-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.upload-fill {
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.3s;
+}
