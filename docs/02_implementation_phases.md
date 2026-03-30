@@ -232,7 +232,7 @@ UI構成:
 作業内容:
 ├── Pod 作成
 │   ├── ユーザー専用ディレクトリ作成
-│   │   F:/gpu-rental/users/{userId}/
+│   │   F:/janction/users/{userId}/
 │   │   ├── workspace/ (作業領域)
 │   │   ├── uploads/   (アップロード)
 │   │   └── outputs/   (出力)

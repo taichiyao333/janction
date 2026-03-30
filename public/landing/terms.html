@@ -1,124 +1,856 @@
 ﻿<!DOCTYPE html>
 <html lang="ja">
+
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>利用規約 — GPU Rental Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#05050f;--card:#0f0f20;--border:rgba(108,71,255,0.15);--primary:#6c47ff;--accent:#00d4ff;--text:#f0f0ff;--text2:#9898c0;--text3:#4a4a7a;--danger:#ff4757;--warn:#ffb300}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Inter",sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
-header{height:64px;display:flex;align-items:center;padding:0 2rem;background:rgba(5,5,15,0.9);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
-.brand{font-size:1.1rem;font-weight:800}.brand span{color:var(--accent)}
-.container{max-width:820px;margin:0 auto;padding:4rem 2rem}
-h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;margin-bottom:0.5rem;background:linear-gradient(135deg,#fff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.updated{font-size:0.82rem;color:var(--text3);margin-bottom:3rem}
-h2{font-size:1.15rem;font-weight:700;margin:2.5rem 0 0.75rem;color:var(--text)}
-p,li{font-size:0.9rem;color:var(--text2);margin-bottom:0.75rem}
-ul{padding-left:1.5rem} a{color:var(--accent)}
-.box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.5rem 0}
-.warn-box{background:rgba(255,179,0,0.08);border:1px solid rgba(255,179,0,0.3);border-radius:12px;padding:1.25rem 1.5rem;margin:1.5rem 0}
-.warn-box strong{color:var(--warn)}
-.danger-box{background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.3);border-radius:12px;padding:1.25rem 1.5rem;margin:1.5rem 0}
-.danger-box strong{color:var(--danger)}
-.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:0.72rem;font-weight:700;margin-left:8px}
-.badge-new{background:rgba(0,229,160,0.15);color:#00e5a0;border:1px solid rgba(0,229,160,0.3)}
-footer{text-align:center;padding:2rem;font-size:0.78rem;color:var(--text3);border-top:1px solid var(--border)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>利用規約 — Janction by METADATALAB.INC</title>
+    <meta name="description" content="METADATALAB.INCが提供するGPUクラウドサービス「Janction」の利用規約です。">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05050f;
+            --card: #0b0b1e;
+            --card2: #0f0f24;
+            --border: rgba(108, 71, 255, 0.15);
+            --primary: #6c47ff;
+            --accent: #00d4ff;
+            --success: #00e5a0;
+            --text: #f0f0ff;
+            --text2: #9898c0;
+            --text3: #4a4a7a;
+            --danger: #ff4757;
+            --warn: #ffb300;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.75;
+            font-size: 15px
+        }
+
+        /* Header */
+        header {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.5rem;
+            background: rgba(5, 5, 15, 0.92);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+
+        .brand {
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text)
+        }
+
+        .brand span {
+            color: var(--accent)
+        }
+
+        .header-links {
+            display: flex;
+            gap: 1.5rem
+        }
+
+        .header-links a {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s
+        }
+
+        .header-links a:hover {
+            color: var(--accent)
+        }
+
+        /* Layout */
+        .page-wrap {
+            display: flex;
+            gap: 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem
+        }
+
+        /* TOC Sidebar */
+        .toc {
+            width: 230px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 80px;
+            align-self: flex-start;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .toc h4 {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text3);
+            margin-bottom: 0.75rem;
+            font-weight: 700
+        }
+
+        .toc a {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text2);
+            text-decoration: none;
+            padding: 5px 0 5px 12px;
+            border-left: 2px solid transparent;
+            transition: all 0.15s;
+            line-height: 1.4;
+            margin-bottom: 2px;
+        }
+
+        .toc a:hover {
+            color: var(--accent);
+            border-color: var(--accent)
+        }
+
+        /* Main */
+        .main {
+            flex: 1;
+            min-width: 0
+        }
+
+        .hero {
+            margin-bottom: 3rem
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.4rem;
+            background: linear-gradient(135deg, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .company-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(108, 71, 255, 0.12);
+            border: 1px solid rgba(108, 71, 255, 0.3);
+            border-radius: 99px;
+            padding: 4px 14px;
+            font-size: 0.78rem;
+            color: #a78bfa;
+            margin-bottom: 1rem;
+        }
+
+        .updated {
+            font-size: 0.8rem;
+            color: var(--text3)
+        }
+
+        /* Article sections */
+        .article-section {
+            margin-bottom: 2.5rem;
+            scroll-margin-top: 90px
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2 .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(108, 71, 255, 0.2);
+            border: 1px solid rgba(108, 71, 255, 0.3);
+            font-size: 0.72rem;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 1.25rem 0 0.5rem
+        }
+
+        p {
+            font-size: 0.88rem;
+            color: var(--text2);
+            margin-bottom: 0.75rem
+        }
+
+        ul,
+        ol {
+            padding-left: 1.5rem;
+            margin-bottom: 0.75rem
+        }
+
+        li {
+            font-size: 0.88rem;
+            color: var(--text2);
+            margin-bottom: 0.4rem;
+            line-height: 1.6
+        }
+
+        a {
+            color: var(--accent)
+        }
+
+        strong {
+            color: var(--text);
+            font-weight: 600
+        }
+
+        /* Boxes */
+        .box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0
+        }
+
+        .intro-box {
+            background: rgba(108, 71, 255, 0.06);
+            border: 1px solid rgba(108, 71, 255, 0.2);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            line-height: 1.8
+        }
+
+        .warn-box {
+            background: rgba(255, 179, 0, 0.07);
+            border: 1px solid rgba(255, 179, 0, 0.3);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0
+        }
+
+        .warn-box .box-title {
+            color: var(--warn);
+            font-weight: 700;
+            font-size: 0.88rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .danger-box {
+            background: rgba(255, 71, 87, 0.07);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0
+        }
+
+        .danger-box .box-title {
+            color: var(--danger);
+            font-weight: 700;
+            font-size: 0.88rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .success-box {
+            background: rgba(0, 229, 160, 0.06);
+            border: 1px solid rgba(0, 229, 160, 0.25);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0
+        }
+
+        .success-box .box-title {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 0.88rem;
+            margin-bottom: 0.5rem
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 99px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            margin-left: 6px;
+            vertical-align: middle
+        }
+
+        .badge-imp {
+            background: rgba(255, 71, 87, 0.15);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3)
+        }
+
+        .badge-new {
+            background: rgba(0, 229, 160, 0.12);
+            color: #00e5a0;
+            border: 1px solid rgba(0, 229, 160, 0.3)
+        }
+
+        /* Company info table */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin: 1rem 0
+        }
+
+        .info-table tr {
+            border-bottom: 1px solid var(--border)
+        }
+
+        .info-table td:first-child {
+            padding: 10px 12px 10px 0;
+            color: var(--text3);
+            white-space: nowrap;
+            width: 140px;
+            font-size: 0.8rem
+        }
+
+        .info-table td:last-child {
+            padding: 10px 0;
+            color: var(--text2)
+        }
+
+        /* Contact */
+        .contact-card {
+            background: var(--card2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-top: 1.5rem
+        }
+
+        .contact-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.75rem
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.78rem;
+            color: var(--text3);
+            border-top: 1px solid var(--border)
+        }
+
+        @media(max-width:768px) {
+            .toc {
+                display: none
+            }
+
+            .page-wrap {
+                padding: 2rem 1rem
+            }
+        }
+    </style>
 </head>
+
 <body>
-<header><a class="brand" href="/">&#9889; GPU<span>Rental</span></a></header>
-<div class="container">
-<h1>利用規約</h1>
-<div class="updated">最終更新: 2026年3月7日</div>
-<div class="box">本利用規約（以下「本規約」）は、GPU Rental Platform（以下「本サービス」）の利用に関する条件を定めるものです。本サービスを利用することで、本規約に同意したものとみなします。</div>
+    <header>
+        <a class="brand" href="/">⚡ GPU<span>Rental</span></a>
+        <div class="header-links">
+            <a href="/landing/privacy.html">プライバシーポリシー</a>
+            <a href="/portal/">ポータル</a>
+        </div>
+    </header>
 
-<h2>第1条（定義）</h2>
-<ul>
-<li><strong>「本サービス」</strong>: GPU Rental Platformが提供するGPU時間貸しサービス全般</li>
-<li><strong>「利用者」</strong>: 本サービスを利用してGPUをレンタルする者</li>
-<li><strong>「プロバイダー」</strong>: 本サービスを通じてGPUリソースを提供する者</li>
-<li><strong>「Pod」</strong>: プロバイダーのGPUへの接続セッション</li>
-<li><strong>「予約時間」</strong>: 利用者が事前に指定した利用開始時刻〜終了時刻の区間</li>
-</ul>
+    <div class="page-wrap">
 
-<h2>第2条（利用登録）</h2>
-<p>利用者は正確な情報で登録を行い、アカウントの管理に責任を持つものとします。18歳未満の方は保護者の同意が必要です。</p>
-<p>登録完了時には、登録いただいたメールアドレスへ確認メールが自動送信されます。</p>
+        <!-- 目次 -->
+        <aside class="toc">
+            <h4>目次</h4>
+            <a href="#intro">はじめに</a>
+            <a href="#s1">第1条 定義</a>
+            <a href="#s2">第2条 利用登録・アカウント</a>
+            <a href="#s3">第3条 サービスの内容</a>
+            <a href="#s4">第4条 料金・支払い・返金</a>
+            <a href="#s5">第5条 セッション管理・自動終了</a>
+            <a href="#s6">第6条 プロバイダーの権利・義務</a>
+            <a href="#s7">第7条 禁止事項</a>
+            <a href="#s8">第8条 データ・セキュリティ</a>
+            <a href="#s9">第9条 知的財産権</a>
+            <a href="#s10">第10条 個人情報の取り扱い</a>
+            <a href="#s11">第11条 免責事項</a>
+            <a href="#s12">第12条 損害賠償の制限</a>
+            <a href="#s13">第13条 サービスの変更・終了</a>
+            <a href="#s14">第14条 アカウント停止・強制退会</a>
+            <a href="#s15">第15条 反社会的勢力の排除</a>
+            <a href="#s16">第16条 輸出規制</a>
+            <a href="#s17">第17条 規約の変更</a>
+            <a href="#s18">第18条 準拠法・管轄裁判所</a>
+            <a href="#contact">お問い合わせ</a>
+        </aside>
 
-<h2>第3条（禁止事項）</h2>
-<p>以下の行為を禁止します：</p>
-<ul>
-<li>暗号資産のマイニング（明示的に許可された場合を除く）</li>
-<li>他ユーザーへの攻撃・不正アクセス</li>
-<li>違法なコンテンツの生成・配布</li>
-<li>著作権侵害コンテンツの取り扱い</li>
-<li>サービスに過度な負荷をかける行為</li>
-<li>アカウントの第三者への譲渡・売買</li>
-</ul>
+        <!-- 本文 -->
+        <main class="main">
+            <div class="hero">
+                <div class="company-badge">🏢 METADATALAB.INC 提供</div>
+                <h1>利用規約</h1>
+                <p class="updated">最終更新日：2026年3月8日　／　施行日：2026年3月8日</p>
+            </div>
 
-<h2>第4条（料金・支払い）</h2>
-<p>利用料金は予約時間に基づく従量課金制です。Stripeで安全に処理されます。一度開始したセッションの料金は返金できません。最低レンタル単位は1時間です。</p>
+            <div class="intro-box" id="intro">
+                <p>本利用規約（以下「本規約」）は、株式会社METADATALAB（英語表記：METADATALAB.INC、以下「当社」）が提供するGPUクラウドサービス「<strong>Janction</strong>」（以下「本サービス」）の利用条件を定めるものです。
+                </p>
+                <p>本サービスにアクセスし、またはこれを利用することにより、あなた（以下「利用者」）は本規約のすべての条件に同意したものとみなします。<strong>本規約に同意しない場合は、本サービスを利用することはできません。</strong>
+                </p>
+                <p>本規約は日本語を正文とします。</p>
+            </div>
 
-<h2>第5条（セッション管理・自動終了）<span class="badge badge-new">重要</span></h2>
+            <!-- 第1条 -->
+            <section class="article-section" id="s1">
+                <h2><span class="num">1</span>定義</h2>
+                <p>本規約において、次の各号に掲げる用語は、それぞれ当該各号に定める意味を有します。</p>
+                <ul>
+                    <li><strong>「本サービス」</strong>：当社が運営するGPUクラウドプラットフォーム「Janction」。Webサイト、API、ワークスペース、管理画面その他の関連サービスを含む。
+                    </li>
+                    <li><strong>「利用者」</strong>：本規約に同意の上、本サービスを利用する個人または法人。</li>
+                    <li><strong>「レンタルユーザー（Renter）」</strong>：本サービスを通じてGPUリソースをレンタルする利用者。</li>
+                    <li><strong>「プロバイダー（Provider）」</strong>：本サービスを通じて自己所有のGPUリソースを提供する利用者。</li>
+                    <li><strong>「Pod」</strong>：プロバイダーのGPUへの接続セッション。SSH・ターミナルアクセス、ファイル転送機能を含む。</li>
+                    <li><strong>「予約」</strong>：レンタルユーザーが指定する利用開始時刻から終了時刻までの区間の確保。</li>
+                    <li><strong>「コンテンツ」</strong>：利用者が本サービス上にアップロード、生成、または保存するあらゆるデータ、ファイル、情報。</li>
+                    <li><strong>「利用料金」</strong>：本サービスの利用の対価として利用者が支払う金銭。</li>
+                    <li><strong>「当社」</strong>：METADATALAB.INC（以下に会社情報を記載）。</li>
+                </ul>
 
-<div class="warn-box">
-<strong>&#9888;&#65039; メール通知ポリシー</strong>
-<ul style="margin-top:0.5rem">
-<li>新規登録完了時に<strong>ウェルカムメール</strong>が送信されます</li>
-<li>予約確定時に<strong>予約確定メール</strong>（GPU名・開始・終了・料金）が送信されます</li>
-<li>予約開始の<strong>10分前</strong>にリマインダーメールが送信されます</li>
-<li>予約終了の<strong>10分前</strong>に終了警告メール（データ保存を促す）が送信されます</li>
-<li>セッション強制終了後に<strong>終了通知メール</strong>が送信されます</li>
-</ul>
-</div>
+                <div class="box">
+                    <table class="info-table">
+                        <tr>
+                            <td>会社名</td>
+                            <td>METADATALAB.INC（英語表記）</td>
+                        </tr>
+                        <tr>
+                            <td>サービス名</td>
+                            <td>Janction</td>
+                        </tr>
+                        <tr>
+                            <td>サービス提供国</td>
+                            <td>日本（Japan）</td>
+                        </tr>
+                        <tr>
+                            <td>準拠法</td>
+                            <td>日本法</td>
+                        </tr>
+                        <tr>
+                            <td>お問い合わせ</td>
+                            <td><a href="mailto:info@metadatalab.net">info@metadatalab.net</a></td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
 
-<div class="danger-box">
-<strong>&#128680; セッションの強制終了ルール</strong>
-<ul style="margin-top:0.5rem">
-<li>予約終了時刻を過ぎると、<strong>セッションは自動的かつ即座に強制切断されます</strong></li>
-<li>強制終了時、実行中の全プロセスは即時停止されます</li>
-<li>保存されていない作業データは<strong>失われる場合があります</strong></li>
-<li>強制終了によるデータ損失について、当サービスは一切の責任を負いません</li>
-<li>時間延長はリアルタイムには対応しておらず、別途新規予約が必要です</li>
-</ul>
-</div>
+            <!-- 第2条 -->
+            <section class="article-section" id="s2">
+                <h2><span class="num">2</span>利用登録・アカウント</h2>
+                <h3>2.1 登録資格</h3>
+                <p>本サービスの利用登録は、以下の要件を満たす方に限り行うことができます。</p>
+                <ul>
+                    <li>日本国内に在住または日本法上の法人格を有する者</li>
+                    <li>満18歳以上の個人、またはこれに相当する法的権限を有する法人の代表者・担当者</li>
+                    <li>本規約のすべての条件に同意できる者</li>
+                    <li>過去に当社から利用停止・強制退会処分を受けていない者</li>
+                </ul>
 
-<p>利用者は以下の事項を十分に理解した上でご利用ください：</p>
-<ul>
-<li>予約終了時刻の<strong>10分前</strong>には、必ず全作業データをダウンロード・保存してください</li>
-<li>継続利用が必要な場合は、終了前に新しい予約を入れてください</li>
-<li>最低レンタル時間は<strong>1時間単位</strong>です（1時間未満の利用でも1時間分の料金が発生します）</li>
-</ul>
+                <h3>2.2 登録情報の正確性</h3>
+                <p>利用者は、登録時に正確かつ最新の情報を提供する義務を負います。登録情報に変更が生じた場合は、速やかにマイページから情報を更新してください。<strong>虚偽の情報による登録は、アカウント停止の理由となります。</strong>
+                </p>
 
-<h2>第6条（プロバイダーの義務）</h2>
-<ul>
-<li>登録したGPUの可用性を適切に管理すること</li>
-<li>GPUの温度・電力が安全範囲内に収まるよう管理すること</li>
-<li>利用者のデータを不正にアクセス・取得しないこと</li>
-<li>プラットフォームの収益配分（80%）を受け入れること</li>
-</ul>
+                <h3>2.3 アカウントの管理</h3>
+                <ul>
+                    <li>利用者は、自己のアカウントとパスワードを厳重に管理する責任を負います。</li>
+                    <li>アカウントを第三者に譲渡・貸与・売買することは禁止します。</li>
+                    <li>アカウントへの不正アクセスを発見した場合は、直ちに当社へご報告ください。</li>
+                    <li>パスワード漏洩等による損害について、当社は責任を負いかねます。</li>
+                </ul>
 
-<h2>第7条（免責事項）</h2>
-<p>本サービスは現状有姿で提供されます。法令上の責任を除き、当社は以下について責任を負いません：</p>
-<ul>
-<li>予約時間終了による強制セッション切断に起因するデータ損失</li>
-<li>ネットワーク障害・GPU故障によるサービス中断</li>
-<li>メール通知の遅延・未達</li>
-</ul>
+                <h3>2.4 法人利用</h3>
+                <p>法人を代理して本サービスを利用する場合、その担当者は当該法人を代表する権限を有することを表明・保証します。</p>
+            </section>
 
-<h2>第8条（知的財産）</h2>
-<p>本サービス上で利用者が作成したデータは利用者に帰属します。本サービスのシステム・デザインの著作権は運営者に帰属します。</p>
+            <!-- 第3条 -->
+            <section class="article-section" id="s3">
+                <h2><span class="num">3</span>サービスの内容</h2>
+                <h3>3.1 提供内容</h3>
+                <p>本サービスは、以下の機能を提供します。</p>
+                <ul>
+                    <li><strong>GPUレンタル</strong>：プロバイダーが提供するGPUリソースを時間単位でレンタルする機能</li>
+                    <li><strong>ワークスペース</strong>：SSH・ターミナルアクセス、ファイル管理、GPU使用状況モニタリング、レンダリング機能</li>
+                    <li><strong>プロバイダー管理</strong>：自己所有GPUの登録・公開・収益管理機能</li>
+                    <li><strong>管理ポータル</strong>：予約管理、支払い履歴、サポート機能</li>
+                </ul>
 
-<h2>第9条（サービス変更・終了）</h2>
-<p>運営者は事前通知の上、サービス内容の変更・終了を行う権利を持ちます。</p>
+                <h3>3.2 サービスの可用性</h3>
+                <p>当社はサービスの継続的な提供に努めますが、メンテナンス・障害・不可抗力により、予告なくサービスが中断される場合があります。<strong>当社はサービスの100%可用性を保証しません。</strong>
+                </p>
 
-<h2>第10条（準拠法・管轄）</h2>
-<p>本規約は日本法に準拠し、東京地方裁判所を第一審の専属管轄裁判所とします。</p>
+                <div class="warn-box">
+                    <div class="box-title">⚠️ GPUリソースはプロバイダーが独立して管理</div>
+                    <p style="margin:0;font-size:0.85rem;color:#9898c0">
+                        本サービスを通じて提供されるGPUは、独立した第三者（プロバイダー）が所有・管理するハードウェアです。当社はプロバイダーが用意するハードウェアの品質・性能・安定性を直接管理しておらず、これらに関する保証を行いません。
+                    </p>
+                </div>
+            </section>
 
-<h2>第11条（お問い合わせ）</h2>
-<p>本規約に関するお問い合わせ: <a href="mailto:taichi.yao@gmail.com">taichi.yao@gmail.com</a></p>
-</div>
-<footer>&#169; 2026 GPU Rental Platform</footer>
+            <!-- 第4条 -->
+            <section class="article-section" id="s4">
+                <h2><span class="num">4</span>料金・支払い・返金 <span class="badge badge-imp">重要</span></h2>
+                <h3>4.1 料金体系</h3>
+                <ul>
+                    <li>利用料金は、<strong>予約した時間数 × GPU単価（円/時間）</strong> に基づく従量課金制です。</li>
+                    <li>最低レンタル単位は<strong>1時間</strong>です。1時間未満の利用でも1時間分の料金が発生します。</li>
+                    <li>料金はすべて<strong>税込み（消費税10%）</strong>で表示されます。</li>
+                </ul>
+
+                <h3>4.2 支払い方法</h3>
+                <ul>
+                    <li>支払いはStripe株式会社（Stripe, Inc.）の決済システムにより安全に処理されます。</li>
+                    <li>現在対応するお支払い方法：
+                        <ul>
+                            <li>クレジットカード（Visa・Mastercard・JCB・American Express・Diners Club・Discover）</li>
+                            <li>コンビニ決済（セブン-イレブン・FamilyMart・Lawson・ミニストップ等）</li>
+                            <li>銀行振込（インターネットバンキング）</li>
+                        </ul>
+                    </li>
+                    <li>お支払い情報は当社のサーバーには保存されません（Stripeが安全に管理します）。</li>
+                </ul>
+
+                <h3>4.3 収益配分（プロバイダー向け）</h3>
+                <ul>
+                    <li>レンタル料金のうち、<strong>80%</strong> がプロバイダーに配分されます。</li>
+                    <li>残りの<strong>20%</strong> は当社のプラットフォーム運営費として収受します。</li>
+                    <li>支払いはプロバイダーが指定した銀行口座への振込にて行います。最低振込金額は1,000円です。</li>
+                </ul>
+
+                <div class="danger-box">
+                    <div class="box-title">🚫 返金ポリシー</div>
+                    <ul style="margin:0">
+                        <li>予約確定後、セッションを開始した時点から料金は確定し、<strong>原則として返金はできません。</strong></li>
+                        <li>ただし、当社都合によるサービス中断（プロバイダー側の障害を除く）が生じた場合は、当社の判断により利用料金の一部または全部を返金することがあります。</li>
+                        <li>予約開始前のキャンセルは、マイページから手続きいただけます。この場合の返金可否は、キャンセルポリシーに準じます。</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 第5条 -->
+            <section class="article-section" id="s5">
+                <h2><span class="num">5</span>セッション管理・自動終了 <span class="badge badge-imp">重要</span></h2>
+
+                <div class="danger-box">
+                    <div class="box-title">🚨 セッション強制終了ルール（必ずお読みください）</div>
+                    <ul style="margin:0">
+                        <li>予約終了時刻を経過すると、<strong>システムが自動的にセッションを即座に切断します。</strong></li>
+                        <li>セッション切断時、実行中の全プロセスは即時停止されます。</li>
+                        <li>保存されていない作業データは<strong>失われる場合があります。</strong></li>
+                        <li>予約時間中のGPU料金は、セッション使用の有無にかかわらず発生します。</li>
+                        <li>強制終了によるデータ損失について、当社は一切の責任を負いません。</li>
+                    </ul>
+                </div>
+
+                <div class="warn-box">
+                    <div class="box-title">📧 メール通知ポリシー</div>
+                    <ul style="margin:0">
+                        <li>新規登録完了時：<strong>ウェルカムメール</strong>を送信</li>
+                        <li>予約確定時：<strong>予約確定メール</strong>（GPU名・開始・終了時刻・料金情報）を送信</li>
+                        <li>予約開始の<strong>10分前</strong>：リマインダーメールを送信</li>
+                        <li>予約終了の<strong>10分前</strong>：終了警告メール（データ保存を促す内容）を送信</li>
+                        <li>セッション終了後：<strong>終了通知メール</strong>を送信</li>
+                    </ul>
+                </div>
+
+                <h3>5.1 利用者の注意義務</h3>
+                <ul>
+                    <li>予約終了時刻の<strong>10分前には必ず</strong>、全作業データをダウンロード・保存してください。</li>
+                    <li>継続利用が必要な場合は、終了前に新しい予約を作成してください。</li>
+                    <li>当社は、メール通知の遅延・未達について責任を負いません。</li>
+                </ul>
+
+                <h3>5.2 一時停止・再接続</h3>
+                <p>予約時間内であれば、セッションを一時停止後に再接続することができます。ただし、予約時間が終了した後は再接続できません。</p>
+            </section>
+
+            <!-- 第6条 -->
+            <section class="article-section" id="s6">
+                <h2><span class="num">6</span>プロバイダーの権利・義務</h2>
+                <h3>6.1 プロバイダーの義務</h3>
+                <ul>
+                    <li>登録したGPUの可用性を適切に維持・管理すること。</li>
+                    <li>GPUの温度・電力消費・稼働状態を安全な範囲内に管理すること。</li>
+                    <li>レンタルユーザーのコンテンツ・データへ不正にアクセスしないこと。</li>
+                    <li>本プラットフォームを通じた収益配分（80%）に同意すること。</li>
+                    <li>予告なくGPUをオフラインにしないこと（やむを得ない場合は速やかに連絡すること）。</li>
+                </ul>
+
+                <h3>6.2 プロバイダーの権利</h3>
+                <ul>
+                    <li>提供するGPUの単価・スペックを自由に設定する権利。</li>
+                    <li>本規約に反する利用者の利用を当社に報告する権利。</li>
+                    <li>収益配分を受領する権利。</li>
+                </ul>
+
+                <h3>6.3 プロバイダーの責任</h3>
+                <p>プロバイダーは、自己のGPUリソースの安定稼働に責任を負います。プロバイダー側の障害により予約が正常に利用できなかった場合、当社はその損害について責任を負わず、プロバイダー自身が利用者に対して説明・補償を行う義務を負う場合があります。
+                </p>
+            </section>
+
+            <!-- 第7条 -->
+            <section class="article-section" id="s7">
+                <h2><span class="num">7</span>禁止事項</h2>
+                <p>利用者は、本サービスの利用において、以下の行為を行ってはなりません。</p>
+
+                <h3>7.1 法令違反・公序良俗に反する行為</h3>
+                <ul>
+                    <li>日本国内法または適用される外国法・国際条約に違反する行為</li>
+                    <li>違法なコンテンツ（不法薬物情報、児童性的虐待画像（CSAM）等）の生成・保存・配布</li>
+                    <li>他者の名誉毀損、プライバシー侵害、ハラスメント行為</li>
+                    <li>詐欺・フィッシング等の不正行為</li>
+                </ul>
+
+                <h3>7.2 セキュリティ・インフラへの攻撃</h3>
+                <ul>
+                    <li>他の利用者・プロバイダーへの不正アクセス・攻撃</li>
+                    <li>DDoS（分散型サービス拒否）攻撃、ポートスキャン等</li>
+                    <li>当社のサーバー・インフラへの侵害行為</li>
+                    <li>マルウェアの設置・配布</li>
+                </ul>
+
+                <h3>7.3 プラットフォームポリシー違反</h3>
+                <ul>
+                    <li>暗号資産マイニング（当社が明示的に許可した場合を除く）</li>
+                    <li>アカウントの第三者への譲渡・売買・貸与</li>
+                    <li>複数アカウントの不正作成（サービス回避目的）</li>
+                    <li>本サービスに過度な負荷をかける行為</li>
+                    <li>当社の競合サービスを目的とした情報収集・スクレイピング</li>
+                    <li>本サービスをリバースエンジニアリング・逆コンパイルする行為</li>
+                </ul>
+
+                <div class="danger-box">
+                    <div class="box-title">🚫 児童保護に関する方針</div>
+                    <p style="margin:0;font-size:0.85rem;color:#9898c0">
+                        児童性的虐待コンテンツ（CSAM）を含む、未成年者を害するあらゆるコンテンツは厳禁です。当該コンテンツが確認された場合、当社は即時アカウント停止・法執行機関への通報を行います。</p>
+                </div>
+            </section>
+
+            <!-- 第8条 -->
+            <section class="article-section" id="s8">
+                <h2><span class="num">8</span>データ・セキュリティ</h2>
+                <h3>8.1 共有責任モデル</h3>
+                <p>データセキュリティは当社と利用者の共同責任です。役割分担は以下の通りです。</p>
+                <div class="box">
+                    <p><strong>当社が責任を負う範囲：</strong></p>
+                    <ul>
+                        <li>プラットフォームを構成するサーバー・ネットワーク機器・仮想化基盤の物理的・論理的セキュリティ</li>
+                        <li>API認証・セッション管理のセキュリティ</li>
+                        <li>決済情報の安全な処理（Stripe委託）</li>
+                    </ul>
+                    <p style="margin-top:0.75rem"><strong>利用者が責任を負う範囲：</strong></p>
+                    <ul style="margin-bottom:0">
+                        <li>Pod内にアップロード・作成したコンテンツのバックアップ・管理</li>
+                        <li>アカウントの認証情報（パスワード・トークン）の管理</li>
+                        <li>Pod上で実行するアプリケーションのセキュリティ</li>
+                        <li>コンテンツの送受信における暗号化</li>
+                    </ul>
+                </div>
+
+                <h3>8.2 データ保存期間</h3>
+                <p>Pod内のファイルはセッション終了後も一定期間保存される場合がありますが、<strong>当社はデータの永続的な保存を保証しません。</strong>重要なデータは必ずローカルに保存してください。
+                </p>
+
+                <h3>8.3 プロバイダーによるデータアクセス</h3>
+                <p>プロバイダーはシステム管理者権限を有する場合があります。プロバイダーが利用者のデータへ不正にアクセスした場合、当社は当該プロバイダーへの措置を講じますが、<strong>プロバイダーによる不正行為について当社は責任を負いません。</strong>
+                </p>
+            </section>
+
+            <!-- 第9条 -->
+            <section class="article-section" id="s9">
+                <h2><span class="num">9</span>知的財産権</h2>
+                <h3>9.1 利用者コンテンツ</h3>
+                <p>本サービス上で利用者が作成・アップロードしたコンテンツの著作権その他の知的財産権は、<strong>利用者に帰属します。</strong>当社はこれらを無断で使用・公開しません。</p>
+
+                <h3>9.2 当社の知的財産</h3>
+                <p>本サービスのシステム・デザイン・ロゴ・文章・ソースコードに関する著作権・商標権その他の知的財産権は、当社または正当な権限を有する第三者に帰属します。利用者は、当社の書面による事前承諾なく、これらを複製・改変・配布することはできません。
+                </p>
+
+                <h3>9.3 フィードバック</h3>
+                <p>利用者が当社に対しサービス改善に関するフィードバックを提供した場合、当社は当該フィードバックを報酬の支払いなく自由に利用できるものとします。</p>
+            </section>
+
+            <!-- 第10条 -->
+            <section class="article-section" id="s10">
+                <h2><span class="num">10</span>個人情報の取り扱い</h2>
+                <p>当社は、利用者の個人情報を<strong>個人情報の保護に関する法律（個人情報保護法）</strong>および当社プライバシーポリシーに従って適切に取り扱います。</p>
+                <div class="success-box">
+                    <div class="box-title">🔒 収集する主な個人情報</div>
+                    <ul style="margin:0">
+                        <li>氏名・メールアドレス（アカウント管理）</li>
+                        <li>決済情報（Stripeを通じた安全な処理、当社は保存しません）</li>
+                        <li>IPアドレス・ログ情報（セキュリティ・不正防止目的）</li>
+                        <li>サービス利用状況（品質改善目的）</li>
+                    </ul>
+                </div>
+                <p style="margin-top:0.75rem">詳細は<a href="/landing/privacy.html">プライバシーポリシー</a>をご確認ください。</p>
+            </section>
+
+            <!-- 第11条 -->
+            <section class="article-section" id="s11">
+                <h2><span class="num">11</span>免責事項</h2>
+                <p>本サービスは<strong>現状有姿（as-is）</strong>で提供されます。法令上の責任を除き、当社は以下について責任を負いません。</p>
+                <ul>
+                    <li>予約時間終了による強制セッション切断に起因するデータ損失・業務損失</li>
+                    <li>プロバイダー側のGPU故障・ネットワーク障害・ハードウェア異常によるサービス中断</li>
+                    <li>メール通知の遅延・未達（メールサーバーの障害・スパムフィルター等による）</li>
+                    <li>利用者が本サービス上で行った行為に起因する第三者からの請求</li>
+                    <li>第三者によるアカウントへの不正アクセス（利用者の管理の不備による場合）</li>
+                    <li>当社の合理的な支配外にある事由（天災地変・停電・通信障害・法令変更等）による損害</li>
+                </ul>
+                <p>本規約のいかなる規定も、法律上免除できない責任（消費者契約法に基づく消費者の権利等）を排除するものではありません。</p>
+            </section>
+
+            <!-- 第12条 -->
+            <section class="article-section" id="s12">
+                <h2><span class="num">12</span>損害賠償の制限</h2>
+                <p>当社の責に帰すべき事由により利用者に損害が生じた場合であっても、当社の損害賠償責任は、<strong>損害の原因となった事由が発生した直近3ヶ月間に利用者が当社に支払った利用料金の総額</strong>を上限とします。
+                </p>
+                <p>ただし、当社の故意または重大な過失による場合はこの限りではありません。</p>
+                <p>間接損害・特別損害・逸失利益・データ損失については、当社は責任を負いません（当社の故意または重大な過失による場合を除く）。</p>
+            </section>
+
+            <!-- 第13条 -->
+            <section class="article-section" id="s13">
+                <h2><span class="num">13</span>サービスの変更・終了</h2>
+                <ul>
+                    <li>当社は、原則として<strong>30日前</strong>にメール等で通知した上で、サービスの内容変更・提供終了を行う権利を有します。</li>
+                    <li>緊急の必要性（セキュリティ上の理由等）がある場合は、予告なくサービスを変更または一時停止することがあります。</li>
+                    <li>サービス終了の場合、利用者への影響を最小限にするよう配慮します。</li>
+                </ul>
+            </section>
+
+            <!-- 第14条 -->
+            <section class="article-section" id="s14">
+                <h2><span class="num">14</span>アカウント停止・強制退会</h2>
+                <h3>14.1 停止・退会の理由</h3>
+                <p>当社は、利用者が以下に該当する場合、事前通知なくアカウントを停止または強制退会させることができます。</p>
+                <ul>
+                    <li>本規約に定める禁止事項に違反した場合</li>
+                    <li>登録情報に虚偽・不正が発見された場合</li>
+                    <li>支払いが行われない場合</li>
+                    <li>当社・他の利用者・第三者に損害を与えた場合または与えるおそれがある場合</li>
+                    <li>その他、当社が利用者として不適当と合理的に判断した場合</li>
+                </ul>
+
+                <h3>14.2 停止・退会後の取り扱い</h3>
+                <ul>
+                    <li>アカウント停止・退会後、未提供のサービスに係る料金は返金します（支払い済み分の残余がある場合）。</li>
+                    <li>禁止事項違反による強制退会の場合、返金は行いません。</li>
+                    <li>アカウント退会後は、保存されているデータへのアクセスはできません。</li>
+                </ul>
+            </section>
+
+            <!-- 第15条 -->
+            <section class="article-section" id="s15">
+                <h2><span class="num">15</span>反社会的勢力の排除</h2>
+                <p>利用者は、現在および将来にわたって、自身が暴力団員、暴力団関係者、総会屋、社会運動標榜ゴロその他の反社会的勢力（以下「反社会的勢力等」）に該当しないことを表明・保証するものとします。</p>
+                <p>当社は、利用者が反社会的勢力等と判明した場合、予告なく当該利用者のアカウントを停止するとともに、必要に応じて法的措置を講じます。</p>
+            </section>
+
+            <!-- 第16条 -->
+            <section class="article-section" id="s16">
+                <h2><span class="num">16</span>輸出規制</h2>
+                <p>利用者は、本サービスの利用が日本の外国為替及び外国貿易法（外為法）、その他適用される輸出関連法令に適合することを確認の上、ご利用ください。本サービスを経由して取得したソフトウェア・技術その他リソースを、法令に反して輸出・移転することを禁じます。
+                </p>
+            </section>
+
+            <!-- 第17条 -->
+            <section class="article-section" id="s17">
+                <h2><span class="num">17</span>規約の変更</h2>
+                <p>当社は、本規約を随時変更できるものとします。変更の場合は、変更内容・施行日を本サービス上に掲載し、かつ登録メールアドレスへ通知します。</p>
+                <p>変更後も本サービスを継続利用した場合、変更後の規約に同意したものとみなします。重要な変更については、施行日の<strong>14日前以上</strong>に通知するよう努めます。</p>
+            </section>
+
+            <!-- 第18条 -->
+            <section class="article-section" id="s18">
+                <h2><span class="num">18</span>準拠法・管轄裁判所</h2>
+                <ul>
+                    <li>本規約は<strong>日本法</strong>に準拠し、日本法に従い解釈されます。</li>
+                    <li>本規約または本サービスに関連して生じた紛争については、<strong>大阪地方裁判所</strong>を第一審の専属的合意管轄裁判所とします。</li>
+                    <li>訴訟提起前に、当事者は誠意をもって協議による解決を試みるものとします。</li>
+                </ul>
+            </section>
+
+            <!-- お問い合わせ -->
+            <section class="article-section" id="contact">
+                <h2>お問い合わせ</h2>
+                <div class="contact-card">
+                    <h3>METADATALAB.INC サポート</h3>
+                    <table class="info-table">
+                        <tr>
+                            <td>メール</td>
+                            <td><a href="mailto:info@metadatalab.net">info@metadatalab.net</a></td>
+                        </tr>
+                        <tr>
+                            <td>対応言語</td>
+                            <td>日本語・English</td>
+                        </tr>
+                        <tr>
+                            <td>対応時間</td>
+                            <td>平日 10:00〜18:00（日本時間・JST）</td>
+                        </tr>
+                    </table>
+                    <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--text3)">本規約に関するご質問・異議申し立ては、上記よりご連絡ください。
+                    </p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <footer>
+        <p>© 2026 METADATALAB.INC — Janction. All rights reserved.</p>
+        <p style="margin-top:0.4rem"><a href="/landing/privacy.html">プライバシーポリシー</a>&nbsp;｜&nbsp;<a
+                href="/landing/terms.html">利用規約</a></p>
+    </footer>
 </body>
+
 </html>

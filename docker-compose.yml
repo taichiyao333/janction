@@ -1,0 +1,53 @@
+version: '3.8'
+
+# Janction Platform — Docker Compose設定
+# GPU提供PCでの本番運用用
+
+services:
+  # ─── Janction メインサーバー ───────────────────────────────
+  gpu-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: janction-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - "F:/janction:/data"           # データベース・ユーザーファイル
+      - "/var/run/docker.sock:/var/run/docker.sock"  # Docker-in-Docker
+      - ".env:/app/.env:ro"
+    environment:
+      - NODE_ENV=production
+      - STORAGE_PATH=/data
+      - DB_PATH=/data/db/platform.db
+    devices:
+      - "/dev/nvidia0:/dev/nvidia0"
+      - "/dev/nvidiactl:/dev/nvidiactl"
+      - "/dev/nvidia-uvm:/dev/nvidia-uvm"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - janction-net
+
+  # ─── Cloudflare Tunnel（HTTPS公開）────────────────────────
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: janction-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - gpu-platform
+    networks:
+      - janction-net
+
+networks:
+  janction-net:
+    driver: bridge

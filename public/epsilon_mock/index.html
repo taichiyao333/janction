@@ -1,0 +1,597 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>クレジットカード決済 — Janction (審査確認用デモ)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Noto Sans JP", "Inter", sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 24px 16px 48px;
+            color: #1a1a2e;
+        }
+
+        /* Header */
+        .epsilon-header {
+            width: 100%;
+            max-width: 560px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .epsilon-logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a56db;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .epsilon-logo img {
+            height: 28px;
+        }
+
+        .epsilon-secure {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: #555;
+        }
+
+        .epsilon-secure svg {
+            width: 16px;
+            height: 16px;
+            color: #16a34a;
+        }
+
+        /* Card */
+        .pay-card {
+            width: 100%;
+            max-width: 560px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+            overflow: hidden;
+        }
+
+        /* Order summary */
+        .order-summary {
+            background: #1a56db;
+            color: #fff;
+            padding: 20px 28px;
+        }
+
+        .order-summary .shop-name {
+            font-size: 0.78rem;
+            opacity: 0.75;
+            margin-bottom: 4px;
+        }
+
+        .order-summary .item-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .order-summary .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .order-summary .price {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .order-summary .price-tax {
+            font-size: 0.78rem;
+            opacity: 0.8;
+        }
+
+        .order-summary .order-num {
+            font-size: 0.72rem;
+            opacity: 0.65;
+            margin-top: 6px;
+        }
+
+        /* Test mode badge */
+        .test-badge {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 10px 20px;
+            font-size: 0.78rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Review banner */
+        .review-banner {
+            background: linear-gradient(135deg, #1e40af, #1d4ed8);
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #3b82f6;
+        }
+        .review-banner strong { font-size: 0.88rem; }
+        .review-banner a {
+            margin-left: auto;
+            color: #bfdbfe;
+            text-decoration: underline;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        /* Form */
+        .pay-form {
+            padding: 28px;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-label .required {
+            color: #dc2626;
+            font-size: 0.7rem;
+            margin-left: 4px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            color: #111;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #1a56db;
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.12);
+        }
+
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .card-icons {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-icon {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 5px;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .card-icon.visa {
+            color: #1a1f71;
+        }
+
+        .card-icon.master {
+            color: #eb001b;
+        }
+
+        .card-icon.jcb {
+            color: #003087;
+        }
+
+        .card-icon.amex {
+            color: #007bc1;
+        }
+
+        /* Submit button */
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #1a56db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            background: #1e40af;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .cancel-link {
+            display: block;
+            text-align: center;
+            margin-top: 14px;
+            font-size: 0.82rem;
+            color: #6b7280;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .cancel-link:hover {
+            color: #374151;
+        }
+
+        /* Security notice */
+        .security-notice {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 12px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: #166534;
+        }
+
+        /* Footer */
+        .epsilon-footer {
+            width: 100%;
+            max-width: 560px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #9ca3af;
+            line-height: 1.6;
+        }
+
+        /* Loading overlay */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 1rem;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        #loadingOverlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e5e7eb;
+            border-top-color: #1a56db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="epsilon-header">
+        <div class="epsilon-logo">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <rect width="28" height="28" rx="6" fill="#1a56db" />
+                <text x="6" y="20" font-family="Arial" font-size="15" font-weight="bold" fill="white">ε</text>
+            </svg>
+            Stripe
+        </div>
+        <div class="epsilon-secure">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" fill="#16a34a" stroke="none" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#16a34a" />
+            </svg>
+            SSL 256bit 暗号化通信
+        </div>
+    </div>
+
+    <div class="pay-card">
+        <!-- Order summary -->
+        <div class="order-summary">
+            <div class="shop-name">Janction — High-Performance GPU Cloud</div>
+            <div class="item-name" id="itemName">1時間チケット</div>
+            <div class="price-row">
+                <div class="price">¥<span id="itemPrice">800</span></div>
+                <div class="price-tax">（税込）</div>
+            </div>
+            <div class="order-num">注文番号: <span id="orderNum">GPU-TEST</span></div>
+        </div>
+
+        <!-- Review notice -->
+        <div class="review-banner">
+            📋 <div><strong>Stripe 審査確認用ページ</strong><br>Janction (janction.net) の決済フロー確認用デモ画面です。</div>
+            <a href="https://janction.net/" target="_blank">サービストップ →</a>
+        </div>
+
+        <!-- Test mode notice -->
+        <div class="test-badge">
+            ⚠️ <strong>テスト環境 — 実際のカード情報は不要です。</strong>下の「テストデータを自動入力」ボタンを押してそのまま送信できます。実際の課金は一切発生しません。
+        </div>
+
+        <!-- Payment form -->
+        <div class="pay-form">
+            <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">
+                <span>💳 クレジットカード情報</span>
+                <button type="button" id="autoFillBtn" onclick="autoFillTestCard()" style="
+                    font-size:0.75rem;font-weight:600;padding:5px 12px;
+                    background:linear-gradient(135deg,#059669,#10b981);
+                    color:#fff;border:none;border-radius:6px;cursor:pointer;
+                    display:flex;align-items:center;gap:5px;
+                    transition:opacity 0.2s,transform 0.1s;
+                " onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                    ✨ テストデータを自動入力
+                </button>
+            </div>
+            <div id="testCardHint" style="
+                background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;
+                padding:10px 14px;margin-bottom:16px;font-size:0.78rem;color:#166534;
+                display:flex;align-items:flex-start;gap:8px;
+            ">
+                <span style="font-size:1rem;">💡</span>
+                <span>実際のカード情報は入力しないでください。上の「テストデータを自動入力」ボタンを押すと、テスト用ダミーカード情報が自動入力されます。</span>
+            </div>
+
+            <div class="card-icons">
+                <span class="card-icon visa">VISA</span>
+                <span class="card-icon master">Master</span>
+                <span class="card-icon jcb">JCB</span>
+                <span class="card-icon amex">AMEX</span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">カード番号 <span class="required">必須</span></label>
+                <input type="text" class="form-control" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19"
+                    inputmode="numeric">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">カード名義人 <span class="required">必須</span></label>
+                <input type="text" class="form-control" id="cardName" placeholder="TARO YAMADA"
+                    style="text-transform:uppercase">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">有効期限 <span class="required">必須</span></label>
+                    <input type="text" class="form-control" id="cardExpiry" placeholder="MM / YY" maxlength="7"
+                        inputmode="numeric">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">セキュリティコード <span class="required">必須</span></label>
+                    <input type="text" class="form-control" id="cardCvc" placeholder="●●●" maxlength="4"
+                        inputmode="numeric">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">支払回数</label>
+                <select class="form-control">
+                    <option>1回払い</option>
+                    <option>3回払い</option>
+                    <option>6回払い</option>
+                    <option>12回払い</option>
+                </select>
+            </div>
+
+            <button class="submit-btn" onclick="processPayment()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" />
+                    <line x1="1" y1="10" x2="23" y2="10" />
+                </svg>
+                ¥<span id="btnPrice">800</span> を支払う
+            </button>
+
+            <a class="cancel-link" onclick="cancelPayment()">キャンセルしてショップに戻る</a>
+
+            <div class="security-notice">
+                🔒 あなたのカード情報は SSL/TLS で暗号化され、安全に送信されます。Stripe株式会社が決済処理を行います。
+            </div>
+        </div>
+    </div>
+
+    <div class="epsilon-footer">
+        Powered by Stripe, Inc. | プライバシーポリシー | 特定商取引法<br>
+        © Stripe株式会社 All Rights Reserved.
+    </div>
+
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div>決済処理中... しばらくお待ちください</div>
+    </div>
+
+    <script>
+        // Parse URL params
+        var params = new URLSearchParams(location.search);
+        var itemName = decodeURIComponent(params.get('item_name') || 'GPUクラウドポイント 1,000pt（¥1,000相当）');
+        var itemPrice = params.get('item_price') || '1000';
+        var orderNum = params.get('order_number') || 'REVIEW-' + Math.random().toString(36).substr(2,6).toUpperCase();
+        var successUrl = params.get('success_url') || '/portal/?payment=success';
+        var cancelUrl = params.get('cancel_url') || '/portal/?payment=cancelled';
+        var purchaseId = params.get('purchase_id') || '0';
+        var contractCode = params.get('contract_code') || '74359780'; // Janction審査用コード
+
+        // Set display values
+        document.getElementById('itemName').textContent = itemName;
+        document.getElementById('itemPrice').textContent = parseInt(itemPrice).toLocaleString();
+        document.getElementById('orderNum').textContent = orderNum;
+        document.getElementById('btnPrice').textContent = parseInt(itemPrice).toLocaleString();
+
+        // Format card number as user types
+        document.getElementById('cardNumber').addEventListener('input', function (e) {
+            var v = e.target.value.replace(/\D/g, '').substring(0, 16);
+            e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+        });
+
+        // Format expiry
+        document.getElementById('cardExpiry').addEventListener('input', function (e) {
+            var v = e.target.value.replace(/\D/g, '').substring(0, 4);
+            if (v.length >= 2) v = v.substring(0, 2) + ' / ' + v.substring(2);
+            e.target.value = v;
+        });
+
+        // Only digits for CVC
+        document.getElementById('cardCvc').addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+        });
+
+        function validateForm() {
+            var num = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            var name = document.getElementById('cardName').value.trim();
+            var exp = document.getElementById('cardExpiry').value.replace(/\s/g, '');
+            var cvc = document.getElementById('cardCvc').value.trim();
+
+            if (num.length < 15) { alert('カード番号を正しく入力してください'); return false; }
+            if (!name) { alert('カード名義人を入力してください'); return false; }
+            if (exp.replace('/', '').length < 4) { alert('有効期限を正しく入力してください'); return false; }
+            if (cvc.length < 3) { alert('セキュリティコードを入力してください'); return false; }
+            return true;
+        }
+
+        function processPayment() {
+            if (!validateForm()) return;
+
+            // Show loading
+            document.getElementById('loadingOverlay').classList.add('active');
+
+            // Simulate payment processing (1.5 seconds)
+            setTimeout(function () {
+                // Redirect to success callback
+                // In real mode: Epsilon would redirect here
+                // In test mode: we redirect directly to simulate success
+                var url = successUrl;
+                if (url.indexOf('?') === -1) {
+                    url += '?status=success&order=' + orderNum + '&purchase_id=' + purchaseId;
+                }
+                location.href = url;
+            }, 1800);
+        }
+
+        // ── Auto-fill test card data ─────────────────────────────────────────
+        function autoFillTestCard() {
+            // Standard test card numbers (no real charge possible)
+            var testCards = [
+                { num: '4111 1111 1111 1111', brand: 'VISA' },
+                { num: '5555 5555 5555 4444', brand: 'Mastercard' },
+                { num: '3530 1113 3330 0000', brand: 'JCB' },
+            ];
+            var card = testCards[0]; // VISA by default
+
+            document.getElementById('cardNumber').value = card.num;
+            document.getElementById('cardName').value = 'REVIEW TARO';
+            document.getElementById('cardExpiry').value = '12 / 28';
+            document.getElementById('cardCvc').value = '123';
+
+            // Visual feedback on button
+            var btn = document.getElementById('autoFillBtn');
+            btn.textContent = '✅ 入力済み (' + card.brand + ')';
+            btn.style.background = 'linear-gradient(135deg,#0284c7,#0369a1)';
+
+            // Hide the hint box
+            var hint = document.getElementById('testCardHint');
+            if (hint) hint.style.display = 'none';
+
+            // Show filled card badge
+            var badge = document.createElement('div');
+            badge.style.cssText = 'background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:0.78rem;color:#1d4ed8;display:flex;align-items:center;gap:8px;';
+            badge.innerHTML = '<span style="font-size:1rem;">💳</span>' +
+                '<span><strong>' + card.brand + ' テストカード</strong>  ' + card.num + '<br>' +
+                '名義: REVIEW TARO &nbsp;|&nbsp; 有効期限: 12/28 &nbsp;|&nbsp; CVC: 123<br>' +
+                '<span style="color:#6b7280;font-size:0.72rem;">※ このカード番号は業界標準のテスト番号です。実際の課金は発生しません。</span></span>';
+            btn.closest('.section-title').insertAdjacentElement('afterend', badge);
+        }
+
+        function cancelPayment() {
+            if (confirm('決済をキャンセルしてショップに戻りますか？')) {
+                location.href = cancelUrl;
+            }
+        }
+    </script>
+</body>
+
+</html>

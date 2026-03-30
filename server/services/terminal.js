@@ -120,7 +120,7 @@ function attachMockTerminal(socket, workspacePath, user) {
         'ls': () => { const files = fs.existsSync(cwd) ? fs.readdirSync(cwd).join('  ') : ''; return files || '(empty)'; },
         'pwd': () => cwd,
         'nvidia-smi': () => 'GPU 0: NVIDIA RTX A4500 (UUID: GPU-xxx)\n| 45°C | 35W / 200W | 2048MiB / 20470MiB |',
-        'df -h': () => `Filesystem   Size  Used Avail Use%\nF:/gpu-rental  100G   2G   98G   2%`,
+        'df -h': () => `Filesystem   Size  Used Avail Use%\nF:/janction  100G   2G   98G   2%`,
         'whoami': () => user.username,
         'date': () => new Date().toLocaleString('ja-JP'),
         'help': () => 'Available: ls, pwd, nvidia-smi, df -h, whoami, date, clear',

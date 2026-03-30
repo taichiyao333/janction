@@ -1,0 +1,13 @@
+{
+  "name": "gpu-provider-agent",
+  "version": "1.0.0",
+  "description": "GPU Provider Agent - Reverse tunnel for GPU rental platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.7.0"
+  }
+}

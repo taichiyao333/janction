@@ -7,7 +7,11 @@ const state = {
     reservations: [],
 };
 
-const API = '';  // relative path, served from same origin
+// API base: '' = same origin (works for both local dev and any production domain/tunnel)
+const API = (function () {
+    // Always use relative paths — same-origin works for all environments
+    return '';
+})();
 let socket = null;
 
 /* ─── Utilities ─────────────────────────────────────────────────── */
@@ -29,14 +33,26 @@ function showToast(msg, type = 'info') {
 async function apiFetch(path, opts = {}) {
     const headers = { 'Content-Type': 'application/json' };
     if (state.token) headers['Authorization'] = `Bearer ${state.token}`;
-    const res = await fetch(`/api${path}`, { ...opts, headers: { ...headers, ...opts.headers } });
+    const res = await fetch(`${API}/api${path}`, { ...opts, headers: { ...headers, ...opts.headers } });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'API Error');
     return data;
 }
 
+
+// JST共通フォーマット関数
+const JST = { timeZone: 'Asia/Tokyo' };
 function formatDate(d) {
-    return new Date(d).toLocaleString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return new Date(d).toLocaleString('ja-JP', { ...JST, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+function fmtJp(d) {
+    return new Date(d).toLocaleString('ja-JP', { ...JST, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+function fmtJpDate(d) {
+    return new Date(d).toLocaleDateString('ja-JP', { ...JST, year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+function fmtJpTime(d) {
+    return new Date(d).toLocaleTimeString('ja-JP', { ...JST, hour: '2-digit', minute: '2-digit' });
 }
 
 function formatMins(mins) {
@@ -119,11 +135,19 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const errEl = document.getElementById('loginError');
     errEl.classList.add('hidden');
     try {
+        // reCAPTCHA v3 token
+        let captcha_token = null;
+        if (window.grecaptcha && window._recaptchaSiteKey) {
+            captcha_token = await new Promise(r => window.grecaptcha.ready(() =>
+                window.grecaptcha.execute(window._recaptchaSiteKey, { action: 'login' }).then(r)
+            ));
+        }
         const data = await apiFetch('/auth/login', {
             method: 'POST',
             body: JSON.stringify({
                 email: document.getElementById('loginEmail').value,
                 password: document.getElementById('loginPassword').value,
+                captcha_token,
             }),
         });
         state.token = data.token;
@@ -147,12 +171,20 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const errEl = document.getElementById('regError');
     errEl.classList.add('hidden');
     try {
+        // reCAPTCHA v3 token
+        let captcha_token = null;
+        if (window.grecaptcha && window._recaptchaSiteKey) {
+            captcha_token = await new Promise(r => window.grecaptcha.ready(() =>
+                window.grecaptcha.execute(window._recaptchaSiteKey, { action: 'register' }).then(r)
+            ));
+        }
         const data = await apiFetch('/auth/register', {
             method: 'POST',
             body: JSON.stringify({
                 username: document.getElementById('regUsername').value,
                 email: document.getElementById('regEmail').value,
                 password: document.getElementById('regPassword').value,
+                captcha_token,
             }),
         });
         state.token = data.token;
@@ -169,15 +201,175 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     }
 });
 
+/* ─── パスワードリセット ───────────────────────────────────────────── */
+
+// 「パスワードをお忘れの方」リンク
+document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('authOverlay').classList.add('hidden');
+    openResetModal();
+});
+
+// リセットモーダルを開く
+function openResetModal(showStep2 = false) {
+    const overlay = document.getElementById('resetOverlay');
+    overlay.classList.remove('hidden');
+    if (showStep2) {
+        document.getElementById('resetStep1').classList.add('hidden');
+        document.getElementById('resetStep2').classList.remove('hidden');
+    } else {
+        document.getElementById('resetStep1').classList.remove('hidden');
+        document.getElementById('resetStep2').classList.add('hidden');
+    }
+    // エラー・成功メッセージをクリア
+    ['forgotError', 'forgotSuccess', 'resetError', 'resetSuccess'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.add('hidden');
+        el.textContent = '';
+    });
+}
+
+// リセットモーダルを閉じる
+document.getElementById('resetClose').addEventListener('click', () => {
+    document.getElementById('resetOverlay').classList.add('hidden');
+    // URLからreset_tokenを除去
+    const url = new URL(window.location.href);
+    url.searchParams.delete('reset_token');
+    window.history.replaceState({}, '', url.toString());
+});
+document.getElementById('resetOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('resetOverlay')) {
+        document.getElementById('resetOverlay').classList.add('hidden');
+    }
+});
+document.getElementById('backToLoginLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('resetOverlay').classList.add('hidden');
+    openAuthModal('login');
+});
+
+// Step1: メールアドレスを送信してリセットメールを要求
+document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('forgotError');
+    const successEl = document.getElementById('forgotSuccess');
+    const btn = document.getElementById('forgotSubmitBtn');
+    errEl.classList.add('hidden');
+    successEl.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = '送信中...';
+    try {
+        const data = await apiFetch('/auth/forgot-password', {
+            method: 'POST',
+            body: JSON.stringify({ email: document.getElementById('forgotEmail').value }),
+        });
+        successEl.textContent = data.message || 'リセットメールを送信しました。メールをご確認ください。';
+        successEl.classList.remove('hidden');
+        btn.textContent = '送信済み ✓';
+    } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'リセットメールを送信';
+    }
+});
+
+// Step2: 新しいパスワードを設定
+document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = document.getElementById('resetError');
+    const successEl = document.getElementById('resetSuccess');
+    errEl.classList.add('hidden');
+    successEl.classList.add('hidden');
+
+    const newPw = document.getElementById('newPassword').value;
+    const newPwConfirm = document.getElementById('newPasswordConfirm').value;
+    if (newPw !== newPwConfirm) {
+        errEl.textContent = 'パスワードが一致しません';
+        errEl.classList.remove('hidden');
+        return;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const resetToken = urlParams.get('reset_token');
+    if (!resetToken) {
+        errEl.textContent = 'リセットトークンが見つかりません。メールのリンクを再度クリックしてください。';
+        errEl.classList.remove('hidden');
+        return;
+    }
+
+    try {
+        const data = await apiFetch('/auth/reset-password', {
+            method: 'POST',
+            body: JSON.stringify({ token: resetToken, password: newPw }),
+        });
+        successEl.textContent = data.message || 'パスワードを変更しました！';
+        successEl.classList.remove('hidden');
+        // URLからトークンを除去
+        const url = new URL(window.location.href);
+        url.searchParams.delete('reset_token');
+        window.history.replaceState({}, '', url.toString());
+        // 3秒後にログインモーダルを表示
+        setTimeout(() => {
+            document.getElementById('resetOverlay').classList.add('hidden');
+            openAuthModal('login');
+            showToast('パスワードを変更しました。新しいパスワードでログインしてください。', 'success');
+        }, 2500);
+    } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+    }
+});
+
+// ページ読み込み時: URLに reset_token がある場合は自動でStep2を表示
+(function checkResetToken() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('reset_token')) {
+        // ページ読み込み後にモーダルを開く
+        window.addEventListener('DOMContentLoaded', () => openResetModal(true), { once: true });
+        if (document.readyState !== 'loading') openResetModal(true);
+    }
+})();
+
+
 /* ─── GPU List ──────────────────────────────────────────────────── */
 async function loadGpus() {
     try {
         const gpus = await apiFetch('/gpus');
         state.gpus = gpus;
         renderGpuGrid(gpus);
-        document.getElementById('statGpus').textContent = gpus.length;
+        // GPU登録数を更新（フォールバック）
+        const el = document.getElementById('statGpus');
+        if (el && el.textContent === '—') el.textContent = gpus.length;
     } catch (err) {
         console.error('Failed to load GPUs:', err);
+    }
+}
+
+/* ─── Hero Statistics (live counts) ─────────────────────────────── */
+function animateCount(el, target, suffix = '') {
+    if (!el) return;
+    const start = 0;
+    const duration = 800;
+    const startTime = performance.now();
+    const tick = (now) => {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        el.textContent = Math.round(start + (target - start) * eased) + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+}
+
+async function loadHeroStats() {
+    try {
+        const stats = await fetch(`${API}/api/gpus/stats`).then(r => r.json());
+        animateCount(document.getElementById('statGpus'), stats.gpu_total || 0);
+        animateCount(document.getElementById('statAvail'), stats.gpu_avail || 0);
+        animateCount(document.getElementById('statUsers'), stats.user_count || 0);
+    } catch (err) {
+        // フォールバック: loadGpus の結果を使う
+        console.warn('Stats API not available, using GPU list fallback');
     }
 }
 
@@ -196,6 +388,13 @@ function renderGpuGrid(gpus) {
         const statusClass = `status-${gpu.status}`;
         const statusLabel = { available: '空きあり', rented: '使用中', maintenance: 'メンテ中', offline: 'オフライン' }[gpu.status] || gpu.status;
         const vramGB = Math.round(gpu.vram_total / 1024);
+
+        // 接続率 (uptime_rate)
+        const uptime = gpu.uptime_rate !== undefined && gpu.uptime_rate !== null ? parseFloat(gpu.uptime_rate) : 100;
+        const sessionCount = gpu.session_count || 0;
+        const uptimeColor = uptime >= 99.5 ? '#00e5a0' : uptime >= 98 ? '#a3e635' : uptime >= 95 ? '#fbbf24' : '#ff4757';
+        const uptimeLabel = sessionCount === 0 ? '新規' : uptime.toFixed(1) + '%';
+        const uptimeBar = sessionCount === 0 ? 100 : uptime;
 
         return `
       <div class="gpu-node-card ${statusClass}" data-gpu-id="${gpu.id}" onclick="openReserveModal(${gpu.id})">
@@ -229,6 +428,18 @@ function renderGpuGrid(gpus) {
             <span class="usage-val">${temp ? temp + '°' : '-'}</span>
           </div>
         </div>
+        <!-- 接続率バー -->
+        <div class="uptime-section">
+          <div class="uptime-header">
+            <span class="uptime-label-text">📶 接続率</span>
+            <span class="uptime-value" style="color:${uptimeColor}">${uptimeLabel}</span>
+            <span class="uptime-sessions">${sessionCount > 0 ? sessionCount + 'セッション実績' : '初回'}</span>
+          </div>
+          <div class="uptime-bar">
+            <div class="uptime-fill" style="width:${uptimeBar}%; background:${uptimeColor}"></div>
+          </div>
+          ${uptime < 99.5 && sessionCount > 0 ? `<div class="uptime-warn">⚠️ 過去に接続が途切れたことがあります</div>` : ''}
+        </div>
         <div class="card-footer">
           <div class="card-price">¥${gpu.price_per_hour.toLocaleString()}<span>/時間</span></div>
           ${gpu.status === 'available'
@@ -241,6 +452,7 @@ function renderGpuGrid(gpus) {
 }
 
 // Filter
+
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -297,6 +509,118 @@ function openReserveModal(gpuId) {
 
     // Fetch availability for current month in background
     calFetchAvailability();
+
+    // Dockerテンプレートを描画
+    renderDockerTemplates();
+}
+
+// ── Docker Templates ─────────────────────────────────────────────
+const DOCKER_TEMPLATES = [
+    {
+        id: 'pytorch',
+        icon: '🔥',
+        name: 'PyTorch 2.1',
+        desc: 'CUDA 12.1 + PyTorch 2.1\nTransformers / Diffusers 付属',
+        purpose: 'AI/機械学習',
+        color: '#ee4c2c',
+        tags: ['AI', 'LLM', 'SD'],
+    },
+    {
+        id: 'comfyui',
+        icon: '🎨',
+        name: 'ComfyUI',
+        desc: 'Stable Diffusion WebUI\nComfyUI + 主要ノード同梱',
+        purpose: 'AI/機械学習',
+        color: '#7c5cbf',
+        tags: ['画像生成', 'SD'],
+    },
+    {
+        id: 'jupyter',
+        icon: '📓',
+        name: 'JupyterLab',
+        desc: 'CUDA + JupyterLab 4.x\npandas / scikit-learn / matplotlib',
+        purpose: '科学計算',
+        color: '#f37626',
+        tags: ['分析', 'Python'],
+    },
+    {
+        id: 'ollama',
+        icon: '🦙',
+        name: 'Ollama LLM',
+        desc: 'Ollama + モデル自動ダウンロード\nllama3、mistral等をすぐ実行',
+        purpose: 'AI/機械学習',
+        color: '#00a67e',
+        tags: ['LLM', 'Chat'],
+    },
+    {
+        id: 'blender',
+        icon: '🎬',
+        name: 'Blender',
+        desc: 'Blender 4.x + EEVEE GPU\n動画・3DCGレンダリング',
+        purpose: '動画レンダリング',
+        color: '#ea7600',
+        tags: ['3DCG', 'Render'],
+    },
+    {
+        id: 'base',
+        icon: '🐧',
+        name: 'Ubuntu 22.04',
+        desc: 'CUDA 12.1 + Python 3.11\nカスタム環境ベース',
+        purpose: 'その他',
+        color: '#4a90d9',
+        tags: ['汎用'],
+    },
+];
+
+let _selectedTemplate = null;
+
+function renderDockerTemplates() {
+    const container = document.getElementById('dockerTemplates');
+    if (!container) return;
+    _selectedTemplate = null;
+    container.innerHTML = DOCKER_TEMPLATES.map(t => `
+        <div class="docker-tpl-card" id="tpl_${t.id}" onclick="selectDockerTemplate('${t.id}')"
+            style="border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:.5rem .6rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.5rem">
+            <span style="font-size:1.3rem;line-height:1">${t.icon}</span>
+            <div style="min-width:0">
+                <div style="font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.name}</div>
+                <div style="font-size:.7rem;color:var(--text3)">${t.tags.join(' · ')}</div>
+            </div>
+        </div>
+    `).join('');
+
+    // デフォルトで最初のテンプレートを選択
+    selectDockerTemplate('pytorch');
+}
+
+function selectDockerTemplate(id) {
+    _selectedTemplate = DOCKER_TEMPLATES.find(t => t.id === id);
+    if (!_selectedTemplate) return;
+
+    // カードのハイライト
+    document.querySelectorAll('.docker-tpl-card').forEach(el => {
+        el.style.border = '1px solid rgba(255,255,255,0.1)';
+        el.style.background = 'transparent';
+    });
+    const selected = document.getElementById(`tpl_${id}`);
+    if (selected) {
+        selected.style.border = `1px solid ${_selectedTemplate.color}`;
+        selected.style.background = `${_selectedTemplate.color}18`;
+    }
+
+    // 詳細パネル
+    const detail = document.getElementById('templateDetail');
+    if (detail) {
+        detail.style.display = 'block';
+        detail.innerHTML = `<strong>${_selectedTemplate.icon} ${_selectedTemplate.name}</strong><br>${_selectedTemplate.desc.replace(/\n/g, '<br>')}`;
+    }
+
+    // 利用目的を自動セット
+    const notes = document.getElementById('notes');
+    if (notes) {
+        const opt = Array.from(notes.options).find(o => o.value === _selectedTemplate.purpose);
+        if (opt) notes.value = _selectedTemplate.purpose;
+    }
 }
 
 /* ── Calendar rendering ── */
@@ -536,15 +860,16 @@ function calUpdateSummary() {
     };
 
     const total = Math.round(calState.duration * gpu.price_per_hour);
+    const totalPt = Math.ceil(total / 10); // 1pt = 10円
 
     document.getElementById('sumStart').textContent = fmtDt(startDt);
     document.getElementById('sumEnd').textContent = fmtDt(endDt);
     document.getElementById('sumHours').textContent = `${calState.duration}時間`;
-    document.getElementById('sumTotal').textContent = `¥${total.toLocaleString()}`;
+    document.getElementById('sumTotal').textContent = `¥${total.toLocaleString()}（${totalPt.toLocaleString()}pt）`;
 
     const btn = document.getElementById('submitReserve');
     btn.disabled = false;
-    btn.textContent = `✅ 予約を確定する（¥${total.toLocaleString()}）`;
+    btn.textContent = `✅ 予約を確定する（${totalPt.toLocaleString()}pt）`;
 }
 
 /* ── Calendar nav ── */
@@ -606,8 +931,10 @@ document.getElementById('submitReserve').addEventListener('click', async () => {
     try {
         const toISO = dt => {
             const pad = n => String(n).padStart(2, '0');
-            return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:00`;
+            // JST明示のISO8601形式で送信（+09:00）
+            return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:00:00+09:00`;
         };
+
         const data = await apiFetch('/reservations', {
             method: 'POST',
             body: JSON.stringify({
@@ -615,6 +942,7 @@ document.getElementById('submitReserve').addEventListener('click', async () => {
                 start_time: toISO(startDt),
                 end_time: toISO(endDt),
                 notes: document.getElementById('notes').value,
+                docker_template: _selectedTemplate?.id || 'pytorch',
             }),
         });
         document.getElementById('modalOverlay').classList.add('hidden');
@@ -622,7 +950,12 @@ document.getElementById('submitReserve').addEventListener('click', async () => {
         loadMyReservations();
         loadGpus();
     } catch (err) {
-        errEl.textContent = err.message;
+        // 残高不足エラーの場合は特別なメッセージ
+        if (err.message && err.message.includes('ポイント残高が不足')) {
+            errEl.innerHTML = `${err.message} <a href="/mypage/" style="color:#00d4ff;text-decoration:underline">→ ポイントチャージ</a>`;
+        } else {
+            errEl.textContent = err.message;
+        }
         errEl.classList.remove('hidden');
     } finally {
         btn.disabled = false;
@@ -648,7 +981,10 @@ function renderReservations(list) {
         el.innerHTML = '<p style="color:var(--text2);padding:1rem;font-size:0.875rem">予約がありません</p>';
         return;
     }
-    const statusLabel = { pending: '確認中', confirmed: '確定', active: '稼働中', completed: '完了', cancelled: 'キャンセル' };
+    const statusLabel = { pending: '確認中', confirmed: '確定済', active: '稼働中', completed: '完了', cancelled: 'キャンセル' };
+    // ワークスペースURL: 外部アクセス時はAPI（バックエンド）のURLを使う
+    const wsBase = API || location.origin;
+
     el.innerHTML = list.map(r => `
     <div class="reservation-item">
       <div class="res-header">
@@ -658,24 +994,91 @@ function renderReservations(list) {
       <div class="res-time">📅 ${formatDate(r.start_time)} → ${formatDate(r.end_time)}</div>
       <div class="res-time">💰 ¥${r.total_price ? Math.round(r.total_price).toLocaleString() : '—'}</div>
       <div class="res-actions">
-        ${r.status === 'active' ? `<a href="/workspace/" class="btn btn-success btn-sm">🖥 接続</a>` : ''}
-        ${(r.status === 'confirmed' || r.status === 'pending') ? `<button class="btn btn-danger btn-sm" onclick="cancelReservation(${r.id})">キャンセル</button>` : ''}
+        ${r.status === 'active'
+            ? `<a href="${wsBase}/workspace/" target="_blank" class="btn btn-success btn-sm">🖥 ワークスペースを開く</a>`
+            : (r.status === 'confirmed' || r.status === 'pending')
+                ? `<button class="btn btn-primary btn-sm" onclick="startPod(${r.id})" id="startBtn_${r.id}">🚀 今すぐ開始</button>
+                   <button class="btn btn-danger btn-sm" onclick="cancelReservation(${r.id})">キャンセル</button>`
+                : ''}
       </div>
     </div>
   `).join('');
 }
 
-async function cancelReservation(id) {
-    if (!confirm('この予約をキャンセルしますか？')) return;
+// Pod を即時起動してワークスペースへ誘導
+async function startPod(reservationId) {
+    const btn = document.getElementById(`startBtn_${reservationId}`);
+    if (btn) { btn.disabled = true; btn.textContent = '起動中...'; }
     try {
-        await apiFetch(`/reservations/${id}`, { method: 'DELETE' });
-        showToast('予約をキャンセルしました', 'info');
+        const result = await apiFetch(`/reservations/${reservationId}/start`, { method: 'POST' });
+        showToast('🚀 GPUが起動しました！ワークスペースに接続します...', 'success');
+
+        // ワークスペースURL
+        const wsBase = API || location.origin;
+        setTimeout(() => {
+            window.open(`${wsBase}/workspace/`, '_blank');
+        }, 1500);
+
+        // 予約リストを更新
+        setTimeout(() => loadMyReservations(), 2000);
+    } catch (err) {
+        showToast('起動エラー: ' + err.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🚀 今すぐ開始'; }
+    }
+}
+
+function cancelReservation(id) {
+    // 既存モーダルを削除
+    document.getElementById('cancelResModal')?.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'cancelResModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:9999';
+    modal.innerHTML = `
+        <div style="background:#13132a;border:1px solid rgba(251,191,36,.35);border-radius:16px;padding:1.75rem;width:420px;max-width:95vw;text-align:center">
+            <div style="font-size:2rem;margin-bottom:0.75rem">⚠️</div>
+            <h3 style="font-size:1rem;font-weight:800;margin-bottom:0.5rem;color:#e8e8f0">キャンセルについて</h3>
+            <p style="color:#9898b8;font-size:0.85rem;margin-bottom:1.25rem;line-height:1.7">
+                予約後のキャンセル・返金は<strong style="color:#fbbf24">原則お受けできません。</strong><br>
+                どうしても問題が生じた場合は、<br>運営までお問い合わせください。<br>
+                <a href="mailto:info@metadatalab.net"
+                   style="color:#00d4ff;font-size:0.82rem;margin-top:0.5rem;display:inline-block">
+                    📧 info@metadatalab.net
+                </a>
+            </p>
+            <div style="display:flex;gap:0.75rem;justify-content:center">
+                <button onclick="document.getElementById('cancelResModal').remove()"
+                    style="padding:8px 28px;border-radius:8px;border:1px solid #2a2a5a;background:transparent;color:#9898b8;cursor:pointer;font-size:0.85rem">
+                    閉じる
+                </button>
+                <a href="mailto:info@metadatalab.net?subject=予約キャンセルについて（予約ID:${id}）"
+                   style="padding:8px 28px;border-radius:8px;border:none;background:linear-gradient(135deg,#6c47ff,#00d4ff);color:#fff;cursor:pointer;font-size:0.85rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center">
+                    運営に問い合わせる
+                </a>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+}
+
+async function executeCancel(id) {
+    const btn = document.getElementById('confirmCancelResBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
+    try {
+        const result = await apiFetch(`/reservations/${id}`, { method: 'DELETE' });
+        document.getElementById('cancelResModal')?.remove();
+        const msg = result.refunded > 0
+            ? `予約をキャンセルしました。💰 ${result.refunded}pt を返金しました！`
+            : '予約をキャンセルしました。';
+        showToast(msg, 'info');
         loadMyReservations();
         loadGpus();
     } catch (err) {
-        showToast(err.message, 'error');
+        document.getElementById('cancelResModal')?.remove();
+        showToast(err.message || 'キャンセルに失敗しました', 'error');
     }
 }
+
 
 // Show my reservations panel from username click
 document.getElementById('navUsername').addEventListener('click', () => {
@@ -690,7 +1093,7 @@ document.getElementById('panelClose').addEventListener('click', () => {
 /* ─── WebSocket ─────────────────────────────────────────────────── */
 function connectSocket() {
     if (socket) socket.disconnect();
-    socket = io();
+    socket = API ? io(API, { transports: ['polling', 'websocket'] }) : io();
     if (state.token) socket.emit('auth', state.token);
 
     socket.on('gpu:stats', (stats) => {
@@ -811,38 +1214,107 @@ function openAuthFromGuide() {
     document.getElementById('authOverlay').classList.remove('hidden');
 }
 
-// GPU自動検出（APIから取得）
+// GPU自動検出（WebGL でローカルPC のGPU取得）
 async function checkGpuLocal() {
     const btn = document.querySelector('.gs-check-btn');
     const result = document.getElementById('gpuDetectResult');
     btn.textContent = '🔍 検出中...';
     btn.disabled = true;
     result.classList.add('hidden');
+
     try {
-        const gpus = await apiFetch('/gpus');
-        result.classList.remove('hidden');
-        if (gpus && gpus.length > 0) {
-            const g = gpus[0];
-            result.innerHTML = `✅ <strong>GPU検出成功！</strong><br>
-<strong>GPU:</strong> ${g.name}<br>
-<strong>VRAM:</strong> ${Math.round((g.vram_total || 0) / 1024)} GB<br>
-<strong>ドライバー:</strong> ${g.driver_version || '不明'}<br>
-<strong>ステータス:</strong> ${g.status}<br>
-<br>
-→ このシステムのGPUはすでに登録済みです。<br>
-あなた自身のPCのGPUを登録するには、Step 3へ進んでください。`;
-            // チェック項目をチェック済みに
-            document.getElementById('chkGpu').querySelector('.gs-check-icon').textContent = '✅';
-        } else {
-            result.innerHTML = `⬜ プラットフォームに接続中のGPUは検出されませんでした。<br>
-→ 自分のPCのNVIDIA GPUを <code>nvidia-smi</code> で確認してから Step 3に進んでください。`;
+        // ── WebGL でブラウザ（ローカルPC）のGPUレンダラー名を取得 ──
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        let rendererRaw = '';
+        if (gl) {
+            const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+            rendererRaw = dbg
+                ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)
+                : gl.getParameter(gl.RENDERER);
         }
-    } catch {
-        result.innerHTML = `⚠️ サーバーに接続できません。localhost:3000 が起動しているか確認してください。`;
+
+        result.classList.remove('hidden');
+
+        if (!gl || !rendererRaw) {
+            result.innerHTML = `❌ <strong>WebGL が無効です</strong><br>
+<span style="font-size:0.82rem;color:var(--text3)">WebGLを有効にするか、対応ブラウザ（Chrome / Edge）をお使いください。</span>`;
+            return;
+        }
+
+        // ── GPU名を整形（"ANGLE (NVIDIA, NVIDIA GeForce RTX xxxx ...)" → 短縮） ──
+        let gpuName = rendererRaw;
+        const angleMatch = rendererRaw.match(/ANGLE\s*\([^,]+,\s*([^,\(]+)/i);
+        if (angleMatch) gpuName = angleMatch[1].trim();
+        // 末尾の不要な文字列を除去
+        gpuName = gpuName.replace(/\s*\(.*\)$/, '').replace(/Direct3D.*$/i, '').trim();
+
+        // ── GPUカタログと照合 ──
+        const GPU_CATALOG = [
+            { keywords: ['H100'], name: 'NVIDIA H100', vram: 80, price: 1800 },
+            { keywords: ['A100'], name: 'NVIDIA A100', vram: 80, price: 1500 },
+            { keywords: ['A6000'], name: 'NVIDIA RTX A6000', vram: 48, price: 1200 },
+            { keywords: ['4090'], name: 'NVIDIA RTX 4090', vram: 24, price: 1200 },
+            { keywords: ['4080'], name: 'NVIDIA RTX 4080', vram: 16, price: 900 },
+            { keywords: ['4070'], name: 'NVIDIA RTX 4070', vram: 12, price: 700 },
+            { keywords: ['4060'], name: 'NVIDIA RTX 4060', vram: 8, price: 500 },
+            { keywords: ['A4500'], name: 'NVIDIA RTX A4500', vram: 20, price: 800 },
+            { keywords: ['A4000'], name: 'NVIDIA RTX A4000', vram: 16, price: 600 },
+            { keywords: ['3090'], name: 'NVIDIA RTX 3090', vram: 24, price: 900 },
+            { keywords: ['3080'], name: 'NVIDIA RTX 3080', vram: 10, price: 700 },
+            { keywords: ['3070'], name: 'NVIDIA RTX 3070', vram: 8, price: 550 },
+            { keywords: ['3060'], name: 'NVIDIA RTX 3060', vram: 12, price: 400 },
+            { keywords: ['2080 Ti', '2080Ti'], name: 'NVIDIA RTX 2080 Ti', vram: 11, price: 500 },
+            { keywords: ['2080'], name: 'NVIDIA RTX 2080', vram: 8, price: 400 },
+            { keywords: ['2070'], name: 'NVIDIA RTX 2070', vram: 8, price: 350 },
+            { keywords: ['1080 Ti', '1080Ti'], name: 'NVIDIA GTX 1080 Ti', vram: 11, price: 350 },
+            { keywords: ['1080'], name: 'NVIDIA GTX 1080', vram: 8, price: 280 },
+            { keywords: ['1070'], name: 'NVIDIA GTX 1070', vram: 8, price: 230 },
+            { keywords: ['RX 7900', 'RX7900'], name: 'AMD RX 7900 XTX', vram: 24, price: 800 },
+            { keywords: ['RX 6900', 'RX6900'], name: 'AMD RX 6900 XT', vram: 16, price: 600 },
+            { keywords: ['RX 6800', 'RX6800'], name: 'AMD RX 6800 XT', vram: 16, price: 500 },
+        ];
+
+        const matchedEntry = GPU_CATALOG.find(entry =>
+            entry.keywords.some(kw => gpuName.toUpperCase().includes(kw.toUpperCase()))
+        );
+
+        const supported = !!matchedEntry;
+        const displayName = matchedEntry ? matchedEntry.name : gpuName;
+        const vramText = matchedEntry ? `${matchedEntry.vram} GB` : '—';
+        const priceText = matchedEntry ? `¥${matchedEntry.price.toLocaleString()}/時間` : '—';
+
+        const badge = supported
+            ? `<span style="background:rgba(0,229,160,.15);color:var(--success);font-size:0.7rem;padding:1px 7px;border-radius:4px;font-weight:700">✅ 対応済み</span>`
+            : `<span style="background:rgba(255,179,0,.15);color:var(--warning);font-size:0.7rem;padding:1px 7px;border-radius:4px;font-weight:700">⚠️ 要確認</span>`;
+
+        result.innerHTML = `✅ <strong>ローカルPCのGPUを検出しました！</strong><br><br>
+<div style="background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:8px;padding:0.75rem;margin-bottom:0.5rem">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><strong>${displayName}</strong>${badge}</div>
+  <div style="font-size:0.82rem;color:var(--text2)">
+    ${matchedEntry ? `<strong>VRAM:</strong> ${vramText} &nbsp; <strong>推奨単価:</strong> ${priceText}` : ''}
+    <div style="margin-top:4px;font-size:0.75rem;color:var(--text3)">検出値: ${gpuName}</div>
+  </div>
+</div>
+${supported
+                ? `→ Step 3へ進み、上記のGPUを登録してください。`
+                : `⚠️ カタログに見つかりませんでしたが、手動で登録できます。`}`;
+
+        // チェックリストをチェック済みに
+        if (supported) {
+            const chk = document.getElementById('chkGpu');
+            if (chk) chk.querySelector('.gs-check-icon').textContent = '✅';
+        }
+
+    } catch (e) {
+        result.classList.remove('hidden');
+        result.innerHTML = `⚠️ GPU検出に失敗しました: ${e.message}`;
     }
     btn.textContent = '🔍 再検出する';
     btn.disabled = false;
 }
+
+
 
 // 月収シミュレーター
 function calcEarnings() {
@@ -900,9 +1372,9 @@ function closeWithdrawModal() {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeWithdrawModal(); });
 
 function switchWdTab(idx) {
-    [0,1,2].forEach(i => {
-        document.getElementById('wdTab'+i)?.classList.toggle('active', i===idx);
-        document.getElementById('wdPane'+i)?.classList.toggle('hidden', i!==idx);
+    [0, 1, 2].forEach(i => {
+        document.getElementById('wdTab' + i)?.classList.toggle('active', i === idx);
+        document.getElementById('wdPane' + i)?.classList.toggle('hidden', i !== idx);
     });
     if (idx === 1) { loadBankAccountsForSelect(); loadWalletBalance(); }
     if (idx === 2) loadPayoutHistory();
@@ -934,24 +1406,24 @@ async function loadBankAccounts() {
             list.innerHTML = '<div class="wd-empty">No accounts registered.<br><small>Click below to add one.</small></div>';
             return;
         }
-        list.innerHTML = _bankAccounts.map(function(a) {
+        list.innerHTML = _bankAccounts.map(function (a) {
             var typeLabel = a.account_type === 'checking' ? 'Toza' : 'Futsuu';
             var masked = a.account_number.slice(-4).padStart(a.account_number.length, '*');
             var defBadge = a.is_default ? '<span class="badge-default">Default</span>' : '';
-            var defBtn = !a.is_default ? '<button class="btn btn-ghost btn-sm" onclick="setDefaultAccount('+a.id+')">Set Default</button>' : '';
-            return '<div class="bank-account-card '+(a.is_default?'is-default':'')+'" id="bac-'+a.id+'">'
+            var defBtn = !a.is_default ? '<button class="btn btn-ghost btn-sm" onclick="setDefaultAccount(' + a.id + ')">Set Default</button>' : '';
+            return '<div class="bank-account-card ' + (a.is_default ? 'is-default' : '') + '" id="bac-' + a.id + '">'
                 + '<div class="bac-main">'
-                + '<div class="bac-bank">  '+a.bank_name+(a.bank_code?' ('+a.bank_code+')':'')+defBadge+'</div>'
-                + '<div class="bac-detail">'+a.branch_name+(a.branch_code?' ('+a.branch_code+')':'')+'  '+typeLabel+'  '+masked+'</div>'
-                + '<div class="bac-holder">'+a.account_holder+'</div>'
+                + '<div class="bac-bank">  ' + a.bank_name + (a.bank_code ? ' (' + a.bank_code + ')' : '') + defBadge + '</div>'
+                + '<div class="bac-detail">' + a.branch_name + (a.branch_code ? ' (' + a.branch_code + ')' : '') + '  ' + typeLabel + '  ' + masked + '</div>'
+                + '<div class="bac-holder">' + a.account_holder + '</div>'
                 + '</div>'
                 + '<div class="bac-actions">'
                 + defBtn
-                + '<button class="btn btn-danger btn-sm" onclick="deleteAccount('+a.id+', \''+a.bank_name+'\')">Delete</button>'
+                + '<button class="btn btn-danger btn-sm" onclick="deleteAccount(' + a.id + ', \'' + a.bank_name + '\')">Delete</button>'
                 + '</div></div>';
         }).join('');
-    } catch(e) {
-        list.innerHTML = '<div class="wd-empty">Load failed: '+e.message+'</div>';
+    } catch (e) {
+        list.innerHTML = '<div class="wd-empty">Load failed: ' + e.message + '</div>';
     }
 }
 
@@ -961,21 +1433,21 @@ async function loadBankAccountsForSelect() {
     try {
         _bankAccounts = await apiFetch('/bank-accounts');
         sel.innerHTML = '<option value="">Select account</option>'
-            + _bankAccounts.map(function(a) {
+            + _bankAccounts.map(function (a) {
                 var typeLabel = a.account_type === 'checking' ? 'Toza' : 'Futsuu';
                 var masked = a.account_number.slice(-4).padStart(a.account_number.length, '*');
-                return '<option value="'+a.id+'" '+(a.is_default?'selected':'')+'>'+a.bank_name+' '+a.branch_name+' '+typeLabel+' '+masked+' ('+a.account_holder+')</option>';
+                return '<option value="' + a.id + '" ' + (a.is_default ? 'selected' : '') + '>' + a.bank_name + ' ' + a.branch_name + ' ' + typeLabel + ' ' + masked + ' (' + a.account_holder + ')</option>';
             }).join('');
-    } catch(e) {}
+    } catch (e) { }
 }
 
 function openAddAccountForm() {
     document.getElementById('addAccountForm')?.classList.remove('hidden');
-    ['bfBankName','bfBankCode','bfBranchName','bfBranchCode','bfAccountNumber','bfAccountHolder'].forEach(function(id){
-        var el = document.getElementById(id); if(el) el.value = '';
+    ['bfBankName', 'bfBankCode', 'bfBranchName', 'bfBranchCode', 'bfAccountNumber', 'bfAccountHolder'].forEach(function (id) {
+        var el = document.getElementById(id); if (el) el.value = '';
     });
-    var chk = document.getElementById('bfIsDefault'); if(chk) chk.checked = !_bankAccounts.length;
-    var f = document.getElementById('bfBankName'); if(f) f.focus();
+    var chk = document.getElementById('bfIsDefault'); if (chk) chk.checked = !_bankAccounts.length;
+    var f = document.getElementById('bfBankName'); if (f) f.focus();
 }
 function closeAddAccountForm() { document.getElementById('addAccountForm')?.classList.add('hidden'); }
 
@@ -996,25 +1468,25 @@ async function submitAddAccount() {
     try {
         await apiFetch('/bank-accounts', { method: 'POST', body: JSON.stringify(body) });
         closeAddAccountForm(); await loadBankAccounts(); showToast('Account registered!', 'success');
-    } catch(e) { showToast('Error: '+e.message, 'error'); }
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 async function setDefaultAccount(id) {
     try {
-        await apiFetch('/bank-accounts/'+id+'/default', { method: 'PATCH' });
+        await apiFetch('/bank-accounts/' + id + '/default', { method: 'PATCH' });
         await loadBankAccounts(); showToast('Default account updated', 'success');
-    } catch(e) { showToast('Error: '+e.message, 'error'); }
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 async function deleteAccount(id, bankName) {
-    if (!confirm('Delete account "'+bankName+'"?')) return;
+    if (!confirm('Delete account "' + bankName + '"?')) return;
     try {
-        await apiFetch('/bank-accounts/'+id, { method: 'DELETE' });
-        document.getElementById('bac-'+id)?.remove();
-        _bankAccounts = _bankAccounts.filter(function(a){ return a.id !== id; });
+        await apiFetch('/bank-accounts/' + id, { method: 'DELETE' });
+        document.getElementById('bac-' + id)?.remove();
+        _bankAccounts = _bankAccounts.filter(function (a) { return a.id !== id; });
         showToast('Account deleted', 'success');
         if (!_bankAccounts.length) loadBankAccounts();
-    } catch(e) { showToast('Error: '+e.message, 'error'); }
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 async function submitPayout() {
@@ -1031,20 +1503,20 @@ async function submitPayout() {
         });
         document.getElementById('payoutForm').classList.add('hidden');
         document.getElementById('payoutSuccess').classList.remove('hidden');
-        var acct = _bankAccounts.find(function(a){ return a.id === parseInt(bankAccountId); });
+        var acct = _bankAccounts.find(function (a) { return a.id === parseInt(bankAccountId); });
         var typeLabel = acct && acct.account_type === 'checking' ? 'Toza' : 'Futsuu';
         var masked = acct ? acct.account_number.slice(-4).padStart(acct.account_number.length, '*') : '****';
         var detail = document.getElementById('payoutSuccessDetail');
         if (detail) detail.innerHTML =
-            '<div>Application #: #'+result.id+'</div>'
-            + '<div>Amount: <strong>'+Math.round(amount).toLocaleString()+' yen</strong></div>'
-            + '<div>Bank: '+(acct?acct.bank_name:'')+' '+(acct?acct.branch_name:'')+' '+typeLabel+' '+masked+'</div>'
-            + '<div>Holder: '+(acct?acct.account_holder:'')+'</div>';
+            '<div>Application #: #' + result.id + '</div>'
+            + '<div>Amount: <strong>' + Math.round(amount).toLocaleString() + ' yen</strong></div>'
+            + '<div>Bank: ' + (acct ? acct.bank_name : '') + ' ' + (acct ? acct.branch_name : '') + ' ' + typeLabel + ' ' + masked + '</div>'
+            + '<div>Holder: ' + (acct ? acct.account_holder : '') + '</div>';
         loadWalletBalance();
         showToast('Withdrawal application submitted!', 'success');
-    } catch(e) {
+    } catch (e) {
         if (btn) { btn.disabled = false; btn.textContent = 'Submit Withdrawal'; }
-        showToast('Error: '+e.message, 'error');
+        showToast('Error: ' + e.message, 'error');
     }
 }
 
@@ -1053,8 +1525,8 @@ function resetPayoutForm() {
     document.getElementById('payoutSuccess').classList.add('hidden');
     var btn = document.querySelector('#payoutForm .btn-primary');
     if (btn) { btn.disabled = false; btn.textContent = 'Submit Withdrawal'; }
-    var amt = document.getElementById('payoutAmount'); if(amt) amt.value = '';
-    var notes = document.getElementById('payoutNotes'); if(notes) notes.value = '';
+    var amt = document.getElementById('payoutAmount'); if (amt) amt.value = '';
+    var notes = document.getElementById('payoutNotes'); if (notes) notes.value = '';
 }
 
 async function loadPayoutHistory() {
@@ -1064,17 +1536,379 @@ async function loadPayoutHistory() {
     try {
         var list = await apiFetch('/bank-accounts/payouts');
         if (!list.length) { el.innerHTML = '<div class="wd-empty">No withdrawal history</div>'; return; }
-        el.innerHTML = list.map(function(p) {
+        el.innerHTML = list.map(function (p) {
             var statusLabels = { pending: 'Under Review', paid: 'Paid', rejected: 'Rejected' };
             var statusBadges = { pending: 'b-warning', paid: 'b-success', rejected: 'b-danger' };
             return '<div class="payout-history-row">'
                 + '<div>'
-                + '<div style="font-weight:600">'+Math.round(p.amount).toLocaleString()+' yen</div>'
-                + '<div class="phr-bank">'+(p.bank_name||'')+'  '+(p.branch_name||'')+'  #'+p.id+'</div>'
-                + '<div style="font-size:0.72rem;color:var(--text3)">'+new Date(p.created_at).toLocaleDateString('ja-JP')+'</div>'
+                + '<div style="font-weight:600">' + Math.round(p.amount).toLocaleString() + ' yen</div>'
+                + '<div class="phr-bank">' + (p.bank_name || '') + '  ' + (p.branch_name || '') + '  #' + p.id + '</div>'
+                + '<div style="font-size:0.72rem;color:var(--text3)">' + new Date(p.created_at).toLocaleDateString('ja-JP') + '</div>'
                 + '</div>'
-                + '<span class="badge '+(statusBadges[p.status]||'b-muted')+'">'+(statusLabels[p.status]||p.status)+'</span>'
+                + '<span class="badge ' + (statusBadges[p.status] || 'b-muted') + '">' + (statusLabels[p.status] || p.status) + '</span>'
                 + '</div>';
         }).join('');
-    } catch(e) { el.innerHTML = '<div class="wd-empty">Error: '+e.message+'</div>'; }
+    } catch (e) { el.innerHTML = '<div class="wd-empty">Error: ' + e.message + '</div>'; }
+}
+
+/* ─────────────────────────────────────────────────────────────────── */
+/* ─── POINTS & TICKETS ───────────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────────── */
+
+let _ticketPlans = [];
+
+// ポイント残高をナビに表示
+async function loadPointBalance() {
+    if (!state.user) return;
+    try {
+        const data = await apiFetch('/points/balance');
+        const el = document.getElementById('navPointBalance');
+        if (el) el.textContent = `${data.point_balance.toLocaleString()} pt`;
+    } catch { }
+}
+
+// チケット購入モーダルを開く
+async function openTicketModal() {
+    const modal = document.getElementById('ticketModal');
+    if (!modal) return createTicketModal();
+    modal.classList.remove('hidden');
+    await renderTicketPlans();
+}
+
+function closeTicketModal() {
+    const modal = document.getElementById('ticketModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+async function renderTicketPlans() {
+    const container = document.getElementById('ticketPlansContainer');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text2)">読み込み中...</div>';
+    try {
+        _ticketPlans = await apiFetch('/points/plans');
+        // ポイント残高も更新
+        const bal = await apiFetch('/points/balance');
+        const balEl = document.getElementById('ticketCurrentBalance');
+        if (balEl) balEl.textContent = `現在残高：${bal.point_balance.toLocaleString()}pt (¥${bal.yen_value.toLocaleString()})`;
+
+        container.innerHTML = _ticketPlans.map(p => `
+          <div class="ticket-plan ${p.badge ? 'plan-featured' : ''}" onclick="selectTicketPlan('${p.id}')">
+            ${p.badge ? `<span class="plan-badge">${p.badge}</span>` : ''}
+            ${p.discount ? `<span class="plan-discount">-${p.discount}%OFF</span>` : ''}
+            <div class="plan-name">${p.name}</div>
+            <div class="plan-hours">${p.hours}時間分</div>
+            <div class="plan-price">¥${p.amount_yen.toLocaleString()}</div>
+            <div class="plan-points">= ${p.points.toLocaleString()} pt</div>
+            ${p.discount ? `<div class="plan-original">定価 ¥${Math.round(p.hours * 800).toLocaleString()}</div>` : ''}
+            <button class="btn btn-primary btn-full" onclick="purchaseTicket('${p.id}',event)">購入する</button>
+          </div>
+        `).join('');
+    } catch (e) {
+        container.innerHTML = `<div style="color:var(--danger);padding:1rem">${e.message}</div>`;
+    }
+}
+
+async function purchaseTicket(planId, event) {
+    if (event) event.stopPropagation();
+    const plan = _ticketPlans.find(p => p.id === planId);
+    if (!plan) return;
+    const btn = event?.target;
+    if (btn) { btn.disabled = true; btn.textContent = '処理中...'; }
+    // クーポンコードを取得
+    const couponInput = document.getElementById('couponCodeInput');
+    const couponCode = couponInput?.value.trim() || '';
+    try {
+        const result = await apiFetch('/stripe/checkout/points', {
+            method: 'POST',
+            body: JSON.stringify({ plan_id: planId, coupon_code: couponCode || undefined, return_to: 'portal' }),
+        });
+        if (result.test_mode) {
+            showToast(`✅ ${result.points_added}pt 付与されました！（テストモード）`, 'success');
+            loadPointBalance();
+            renderTicketPlans();
+        } else if (result.url || result.checkout_url || result.redirect_url) {
+            showToast('Stripe決済ページに移動します...', 'info');
+            setTimeout(() => { window.location.href = result.url || result.checkout_url || result.redirect_url; }, 1000);
+        }
+    } catch (e) {
+        showToast('購入エラー: ' + e.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '購入する'; }
+    }
+}
+
+function createTicketModal() {
+    const modal = document.createElement('div');
+    modal.id = 'ticketModal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal-box ticket-modal-box">
+        <div class="modal-header">
+          <h2>🎫 レンタルチケット購入</h2>
+          <span class="modal-subtitle" id="ticketCurrentBalance">残高確認中...</span>
+          <button class="modal-close" onclick="closeTicketModal()">✕</button>
+        </div>
+        <div class="ticket-plans-note">
+          <span>💡 1ポイント = 10円。ポイントはGPUレンタル予約時に自動消費されます。</span>
+        </div>
+
+        <!-- クーポンコード入力 -->
+        <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;padding:0.75rem;background:rgba(108,71,255,0.08);border:1px solid rgba(108,71,255,0.2);border-radius:10px">
+          <span style="font-size:1.1rem">🎟️</span>
+          <input id="couponCodeInput" type="text" placeholder="クーポンコードを入力（例: BETA2025）"
+            style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:.5rem .75rem;color:var(--text);font-size:.875rem;outline:none"
+            oninput="couponInputChanged(this.value)" />
+          <button onclick="applyCoupon()" style="padding:.5rem .9rem;background:var(--primary);border:none;border-radius:6px;color:#fff;font-size:.85rem;cursor:pointer;white-space:nowrap">適用</button>
+        </div>
+        <!-- クーポン適用結果 -->
+        <div id="couponResult" style="display:none;margin-bottom:0.75rem;padding:.6rem 1rem;border-radius:8px;font-size:.85rem"></div>
+
+        <div class="ticket-plans-grid" id="ticketPlansContainer">
+          <div style="text-align:center;padding:2rem;color:var(--text2)">読み込み中...</div>
+        </div>
+        <div style="margin-top:1rem">
+          <a href="https://stripe.com/jp" target="_blank" style="font-size:0.72rem;color:var(--text3)">
+            🔒 Stripe（クレジットカード）で安全に決済
+          </a>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeTicketModal(); });
+    renderTicketPlans();
+}
+
+// クーポン入力変化時にリセット
+function couponInputChanged(val) {
+    if (!val) {
+        const r = document.getElementById('couponResult');
+        if (r) r.style.display = 'none';
+    }
+}
+
+// クーポン適用ボタン
+let _appliedCoupon = null;
+async function applyCoupon() {
+    const input = document.getElementById('couponCodeInput');
+    const result = document.getElementById('couponResult');
+    const code = input?.value.trim();
+    if (!code) { showToast('クーポンコードを入力してください', 'error'); return; }
+    try {
+        const data = await apiFetch('/coupons/validate', {
+            method: 'POST',
+            body: JSON.stringify({ code, amount_yen: 800 }), // 最小プランで仮計算
+        });
+        _appliedCoupon = data;
+        result.style.display = 'block';
+        result.style.background = 'rgba(0,229,160,0.1)';
+        result.style.border = '1px solid rgba(0,229,160,0.3)';
+        result.style.color = '#00e5a0';
+        result.innerHTML = `✅ <strong>${data.code}</strong> — ${data.label} が適用されます！`;
+        showToast(`🎟️ クーポン「${data.code}」を適用しました`, 'success');
+    } catch (e) {
+        _appliedCoupon = null;
+        result.style.display = 'block';
+        result.style.background = 'rgba(255,71,87,0.1)';
+        result.style.border = '1px solid rgba(255,71,87,0.3)';
+        result.style.color = '#ff4757';
+        result.innerHTML = `❌ ${e.message}`;
+    }
+}
+
+/* ─── Reconnect (再接続) ─────────────────────────────────────────── */
+async function reconnectPod(podId) {
+    const btn = document.getElementById(`reconnectBtn_${podId}`);
+    if (btn) { btn.disabled = true; btn.textContent = '再接続中...'; }
+    try {
+        const result = await apiFetch(`/pods/${podId}/reconnect`, { method: 'POST' });
+        showToast(result.message || '🚀 再接続しました', 'success');
+        const wsBase = API || location.origin;
+        setTimeout(() => window.open(`${wsBase}/workspace/`, '_blank'), 1200);
+        setTimeout(() => loadMyReservations(), 2000);
+    } catch (e) {
+        showToast('再接続エラー: ' + e.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 再接続'; }
+    }
+}
+
+/* ─── 予約リストに再接続ボタンを反映（renderReservations 拡張） ─── */
+// Override renderReservations to add reconnect for paused pods
+const _origRenderReservations = renderReservations;
+function renderReservations(list) {
+    const el = document.getElementById('myReservationsList');
+    if (!list.length) {
+        el.innerHTML = '<p style="color:var(--text2);padding:1rem;font-size:0.875rem">予約がありません</p>';
+        return;
+    }
+    const statusLabel = {
+        pending: '確認中', confirmed: '確定済', active: '稼働中',
+        completed: '完了', cancelled: 'キャンセル', paused: '一時停止中'
+    };
+    const wsBase = API || location.origin;
+
+    el.innerHTML = list.map(r => {
+        // 対応するPodのステータスを確認（r.pod_statusがあれば）
+        const isPaused = r.pod_status === 'paused';
+        const podId = r.last_pod_id;
+
+        return `
+        <div class="reservation-item">
+          <div class="res-header">
+            <span class="res-gpu">${r.gpu_name}</span>
+            <span class="status-badge status-${r.status === 'active' ? 'available' : r.status === 'completed' ? 'offline' : 'rented'}">
+              ${statusLabel[r.status] || r.status}
+            </span>
+          </div>
+          <div class="res-time">📅 ${formatDate(r.start_time)} → ${formatDate(r.end_time)}</div>
+          <div class="res-time">💰 ¥${r.total_price ? Math.round(r.total_price).toLocaleString() : '—'}
+            ${r.compensated_points ? `<span style="color:var(--success);font-size:0.75rem;margin-left:8px">+${r.compensated_points}pt 補償済</span>` : ''}
+          </div>
+          <div class="res-actions">
+            ${r.status === 'active'
+                ? `<a href="${wsBase}/workspace/" target="_blank" class="btn btn-success btn-sm">🖥 ワークスペースを開く</a>
+                   ${podId ? `<button class="btn btn-ghost btn-sm" id="reconnectBtn_${podId}" onclick="reconnectPod(${podId})">🔄 再接続</button>` : ''}`
+                : (r.status === 'confirmed' || r.status === 'pending')
+                    ? `<button class="btn btn-primary btn-sm" onclick="startPod(${r.id})" id="startBtn_${r.id}">🚀 今すぐ開始</button>
+                       <button class="btn btn-danger btn-sm" onclick="cancelReservation(${r.id})">キャンセル</button>`
+                    : ''}
+          </div>
+        </div>`;
+    }).join('');
+}
+
+// 予約データ取得を拡張 - Pod情報も含める
+async function loadMyReservations() {
+    if (!state.user) return;
+    try {
+        const res = await apiFetch('/reservations');
+        // 各予約に最新Podのステータスを付加
+        state.reservations = res;
+        renderReservations(res);
+    } catch { }
+}
+
+/* ─── Payment success/failed message from callback ──────────────── */
+(function checkPaymentReturn() {
+    const params = new URLSearchParams(location.search);
+    const payment = params.get('payment');
+    const pts     = params.get('points');
+    const sid     = params.get('session_id');
+    const pid     = params.get('purchase');
+
+    history.replaceState({}, '', location.pathname);
+
+    if (payment === 'success' && sid && pid) {
+        // Stripe Checkout からの戻り → verify-payment でポイント付与確認
+        const token = localStorage.getItem('gpu_token');
+        if (!token) { showToast('✅ 決済完了！ログインしてポイントを確認してください', 'success'); return; }
+        fetch(`/api/stripe/verify-payment?session_id=${sid}&purchase_id=${pid}`, {
+            headers: { 'Authorization': 'Bearer ' + token }
+        }).then(r => r.json()).then(d => {
+            if (d.ok) {
+                const msg = d.already_granted
+                    ? '✅ ポイント付与済みです'
+                    : `✅ ${d.points_added.toLocaleString()}pt が付与されました！`;
+                showToast(msg, 'success');
+                loadPointBalance();
+            } else {
+                showToast('⚠️ 決済確認中...しばらくお待ちください', 'warning');
+                setTimeout(() => loadPointBalance(), 3000);
+            }
+        }).catch(() => {
+            showToast('✅ 決済完了！ポイント残高を確認してください', 'success');
+            setTimeout(() => loadPointBalance(), 1000);
+        });
+    } else if (payment === 'success' && pts) {
+        showToast(`✅ 決済完了！${Number(pts).toLocaleString()}pt が付与されました`, 'success');
+        loadPointBalance();
+    } else if (payment === 'failed') {
+        showToast('❌ 決済が失敗しました', 'error');
+    } else if (payment === 'cancelled') {
+        showToast('決済がキャンセルされました', 'info');
+    }
+})();
+
+/* ─── ?tab=register で登録モーダルを自動表示 ─────────────────────── */
+(function checkTabParam() {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    if (tab === 'register' && !state.user) {
+        // DOMContentLoaded 後に開く
+        const open = () => openAuthModal('register');
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', open, { once: true });
+        } else {
+            setTimeout(open, 300); // 他の初期化処理が終わってから
+        }
+        // URLからtabパラメータを除去（ブラウザ履歴をきれいに）
+        const url = new URL(location.href);
+        url.searchParams.delete('tab');
+        history.replaceState({}, '', url.toString());
+    }
+})();
+
+// チケット購入ボタンをナビに追加
+document.addEventListener('DOMContentLoaded', () => {
+    const nav = document.getElementById('navActions') || document.querySelector('.nav-actions') || document.querySelector('nav');
+    if (nav) {
+        const ticketBtn = document.createElement('button');
+        ticketBtn.id = 'navTicketBtn';
+        ticketBtn.className = 'btn btn-primary btn-sm';
+        ticketBtn.style.cssText = 'background:linear-gradient(135deg,#f59e0b,#ef4444);margin-right:8px';
+        ticketBtn.textContent = '🎫 チケット購入';
+        ticketBtn.addEventListener('click', openTicketModal);
+        nav.insertBefore(ticketBtn, nav.firstChild);
+
+        // ポイント残高表示
+        const balSpan = document.createElement('span');
+        balSpan.id = 'navPointBalance';
+        balSpan.style.cssText = 'font-size:0.75rem;color:var(--accent);margin-right:8px;font-family:monospace';
+        balSpan.textContent = '0 pt';
+        nav.insertBefore(balSpan, nav.firstChild);
+    }
+    loadPointBalance();
+
+    // ── ヒーロー統計を動的ロード ──
+    loadHeroStats();
+    loadGpus();
+    // 30秒ごとに自動更新
+    setInterval(() => {
+        loadHeroStats();
+        loadGpus();
+    }, 30000);
+});
+
+
+/* ── MOBILE MENU ─────────────────────────────────────────────── */
+function toggleMobileMenu() {
+    const drawer = document.getElementById('navDrawer');
+    const btn    = document.getElementById('navHamburger');
+    if (!drawer) return;
+    const isOpen = drawer.classList.toggle('open');
+    btn && btn.classList.toggle('open', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+function closeMobileMenu() {
+    const drawer = document.getElementById('navDrawer');
+    const btn    = document.getElementById('navHamburger');
+    if (!drawer) return;
+    drawer.classList.remove('open');
+    btn && btn.classList.remove('open');
+    document.body.style.overflow = '';
+}
+// ログイン状態変化時にドロワーを更新
+function syncDrawerAuth(user) {
+    const authSec = document.getElementById('drawerAuthSection');
+    const userSec = document.getElementById('drawerUserSection');
+    const nameEl  = document.getElementById('drawerUsername');
+    const adminLink = document.getElementById('drawerAdmin');
+    if (!authSec || !userSec) return;
+    if (user) {
+        authSec.style.display = 'none';
+        userSec.style.display = 'flex';
+        if (nameEl) nameEl.textContent = '👤 ' + (user.username || user.email || 'ユーザー');
+        if (adminLink) adminLink.classList.toggle('hidden', user.role !== 'admin');
+    } else {
+        authSec.style.display = 'flex';
+        userSec.style.display = 'none';
+    }
 }

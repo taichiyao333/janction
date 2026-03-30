@@ -1,0 +1,484 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特定商取引法に基づく表記 — Janction by METADATALAB.INC</title>
+<meta name="description" content="Janction（GPU Rental Platform）の特定商取引法に基づく表記。運営会社・代表者・所在地・販売価格・支払方法・返品条件・サービス提供時期を詳しく記載しています。">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://janction.net/tokushoho/">
+<meta property="og:title" content="特定商取引法に基づく表記 — Janction">
+<meta property="og:description" content="Janctionの特定商取引法に基づく表記。METADATALAB.INC が提供するGPUレンタルプラットフォームの取引条件を記載しています。">
+<meta property="og:url" content="https://janction.net/tokushoho/">
+<meta property="og:type" content="website">
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#6c47ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Janction">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f1a;
+    --primary: #6c47ff;
+    --accent: #00d4ff;
+    --success: #00e5a0;
+    --text: #e8e8f0;
+    --text2: #9898b8;
+    --text3: #5a5a7a;
+    --border: rgba(120,120,200,0.15);
+    --radius: 12px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans JP', 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.9;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; opacity: 0.85; }
+
+  /* NAV */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: rgba(10,10,20,0.96);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand { font-size: 1.15rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+  .nav-brand span { color: var(--primary); }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a { color: var(--text2); font-size: 0.88rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, rgba(108,71,255,0.08) 0%, rgba(0,212,255,0.05) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 4rem 2rem 3rem;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(108,71,255,0.12);
+    border: 1px solid rgba(108,71,255,0.3);
+    color: #a08cff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.03em;
+  }
+  .hero-sub {
+    color: var(--text2);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  .hero-updated {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text3);
+    font-size: 0.8rem;
+    margin-top: 0.75rem;
+  }
+
+  /* CONTAINER */
+  .container { max-width: 820px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+
+  /* SECTION */
+  .section { margin-bottom: 3rem; }
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* TABLE */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .info-table tr:not(:last-child) td,
+  .info-table tr:not(:last-child) th {
+    border-bottom: 1px solid var(--border);
+  }
+  .info-table th {
+    background: rgba(108,71,255,0.1);
+    color: var(--text);
+    padding: 1rem 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    width: 32%;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+  .info-table td {
+    color: var(--text2);
+    padding: 1rem 1.25rem;
+    background: rgba(255,255,255,0.02);
+    vertical-align: top;
+    line-height: 1.85;
+  }
+  .info-table tr:hover td { background: rgba(255,255,255,0.04); }
+
+  /* NOTICE */
+  .notice {
+    background: rgba(108,71,255,0.06);
+    border: 1px solid rgba(108,71,255,0.2);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-top: 2rem;
+    color: var(--text2);
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+  .notice strong { color: var(--text); }
+
+  .notice-warn {
+    background: rgba(255,179,0,0.05);
+    border: 1px solid rgba(255,179,0,0.2);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-top: 1.5rem;
+    color: var(--text2);
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+
+  /* CONTACT CTA */
+  .contact-cta {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: rgba(108,71,255,0.06);
+    border: 1px solid rgba(108,71,255,0.2);
+    border-radius: 16px;
+    margin-top: 2.5rem;
+  }
+  .contact-cta h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .contact-cta p { color: var(--text2); font-size: 0.875rem; margin-bottom: 1.25rem; }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary), #8b5cf6);
+    color: #fff;
+    padding: 0.7rem 1.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .cta-btn:hover { opacity: 0.9; transform: translateY(-1px); text-decoration: none; }
+
+  /* BREADCRUMB */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text3);
+    font-size: 0.8rem;
+    margin-bottom: 2.5rem;
+  }
+  .breadcrumb a { color: var(--text3); }
+  .breadcrumb a:hover { color: var(--text2); }
+  .breadcrumb span { color: var(--text3); }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--text3);
+    font-size: 0.8rem;
+  }
+  footer a { color: var(--text3); }
+  footer a:hover { color: var(--text2); }
+  footer .footer-links { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .nav { padding: 0.75rem 1rem; }
+    .nav-links { gap: 0.75rem; }
+    .nav-links a { font-size: 0.8rem; }
+    .hero { padding: 2.5rem 1rem 2rem; }
+    .container { padding: 2rem 1rem 4rem; }
+    .info-table th { white-space: normal; }
+    .info-table th,
+    .info-table td { display: block; width: 100%; }
+    .info-table th {
+      background: rgba(108,71,255,0.15);
+      border-bottom: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">⚡ GPU<span>Rental</span></a>
+  <div class="nav-links">
+    <a href="/">ホーム</a>
+    <a href="/portal/">GPU検索</a>
+    <a href="/terms/">利用規約</a>
+    <a href="/privacy/">プライバシー</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">📋 Legal</div>
+  <h1>特定商取引法に基づく表記</h1>
+  <p class="hero-sub">Specified Commercial Transactions Act Disclosure</p>
+  <div class="hero-updated">🕐 最終更新：2026年3月23日</div>
+</div>
+
+<div class="container">
+
+  <nav class="breadcrumb" aria-label="breadcrumb">
+    <a href="/">ホーム</a>
+    <span>›</span>
+    <span>特定商取引法に基づく表記</span>
+  </nav>
+
+  <!-- 事業者情報 -->
+  <div class="section">
+    <h2 class="section-title">🏢 事業者情報</h2>
+    <table class="info-table">
+      <tr>
+        <th>販売事業者名</th>
+        <td><strong>METADATALAB.INC</strong>（メタデータラボ）</td>
+      </tr>
+      <tr>
+        <th>代表者名</th>
+        <td>本間 裕二（HOMMA YUJI）</td>
+      </tr>
+      <tr>
+        <th>所在地</th>
+        <td>
+          〒541-0052 大阪府大阪市中央区安土町１－７－２０
+        </td>
+      </tr>
+      <tr>
+        <th>電話番号</th>
+        <td>
+          非公開（請求があった場合は遅滞なく開示いたします）<br>
+          <span style="color:var(--text3);font-size:0.82rem">お問い合わせは下記メールアドレスへお願いいたします。<br>受付時間：平日 10:00〜18:00</span>
+        </td>
+      </tr>
+      <tr>
+        <th>メールアドレス</th>
+        <td><a href="mailto:info@metadatalab.net">info@metadatalab.net</a><br>
+          <span style="color:var(--text3);font-size:0.82rem">通常2営業日以内にご返答いたします。</span>
+        </td>
+      </tr>
+      <tr>
+        <th>ウェブサイト</th>
+        <td><a href="https://janction.net" target="_blank">https://janction.net</a></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 商品・サービス情報 -->
+  <div class="section">
+    <h2 class="section-title">💻 商品・サービス情報</h2>
+    <table class="info-table">
+      <tr>
+        <th>サービス名</th>
+        <td>Janction — GPUコンピューティングリソース レンタルプラットフォーム</td>
+      </tr>
+      <tr>
+        <th>サービス内容</th>
+        <td>
+          GPU搭載サーバーの時間単位レンタルサービス。<br>
+          ・GPU（グラフィックス処理装置）を搭載したコンピューティングリソースの提供<br>
+          ・機械学習・3DCG・動画レンダリング・科学計算など向け<br>
+          ・Dockerコンテナ環境の提供（PyTorch / TensorFlow / CUDA 等）<br>
+          ・Jupyter Notebook・SSH・Web UIへのリモートアクセス
+        </td>
+      </tr>
+      <tr>
+        <th>販売価格</th>
+        <td>
+                    <strong>ポイントチケット（税込）：</strong><br>
+          ・1時間チケット（80pt）：¥800<br>
+          ・3時間チケット（240pt）：¥2,400<br>
+          ・10時間チケット（750pt）：¥7,500（6%OFF）<br>
+          ・30時間チケット（2,100pt）：¥21,000（12%OFF）<br>
+          ・100時間チケット（6,500pt）：¥65,000（18%OFF）<br>
+          <span style="color:var(--text3);font-size:0.82rem">※ 1ポイント = 10円相当のGPU利用時間に換算。残ポイントは次回以降に繰り越し可能。</span><br>
+          ※ インターネット接続に伴う通信費はお客様のご負担となります。</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 支払・提供 -->
+  <div class="section">
+    <h2 class="section-title">💳 支払方法・提供時期</h2>
+    <table class="info-table">
+      <tr>
+        <th>支払方法</th>
+        <td>
+          クレジットカード決済（Stripe 決済システムを利用）<br>
+          対応ブランド：Visa・Mastercard・JCB・American Express・Diners Club<br>
+          <span style="color:var(--text3);font-size:0.82rem">※ 銀行振込・コンビニ払いには現在対応しておりません。</span>
+        </td>
+      </tr>
+      <tr>
+        <th>支払時期</th>
+        <td>
+          ポイント購入：サービス申込・決済手続き完了時に即時決済<br>
+          GPU利用料：予約作成時にポイントを仮押さえし、利用終了後に確定
+        </td>
+      </tr>
+      <tr>
+        <th>サービス提供時期</th>
+        <td>
+          <strong>ポイント：</strong>決済完了後、アカウントへ即時付与<br>
+          <strong>GPU利用環境：</strong>予約した開始日時（最短即時）から提供<br>
+          <span style="color:var(--text3);font-size:0.82rem">※ システムメンテナンス等により提供が遅延する場合があります。</span>
+        </td>
+      </tr>
+      <tr>
+        <th>提供エリア</th>
+        <td>インターネット接続環境があれば、国内外を問わずご利用いただけます。</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- キャンセル・返金 -->
+  <div class="section">
+    <h2 class="section-title">↩️ キャンセル・返品・返金</h2>
+    <table class="info-table">
+      <tr>
+        <th>ポイント購入の<br>キャンセル・返金</th>
+        <td>
+          デジタルコンテンツの性質上、購入確定後のキャンセル・返金は原則承っておりません。<br><br>
+          <strong>例外として以下の場合はご相談ください：</strong><br>
+          ・購入後7日以内かつポイント未使用の場合<br>
+          ・決済エラー・二重請求等システム側の不具合による場合<br>
+          ご連絡先：<a href="mailto:info@metadatalab.net">info@metadatalab.net</a>
+        </td>
+      </tr>
+      <tr>
+        <th>GPU予約の<br>キャンセル・返金</th>
+        <td>
+          <strong>利用開始前・利用開始後ともに：</strong>キャンセル・返金は一切承っておりません。<br><br>
+          <strong>プロバイダー起因の障害：</strong>当社またはプロバイダー側の不具合によりサービスが提供できなかった場合、消費したポイントを返還します。
+        </td>
+      </tr>
+      <tr>
+        <th>動作環境・推奨環境</th>
+        <td>
+          対応ブラウザ：Google Chrome・Mozilla Firefox・Safari・Microsoft Edge（各最新版）<br>
+          推奨：HTML5・JavaScript・WebSocket対応のブラウザ<br>
+          インターネット接続：10Mbps以上を推奨
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- その他 -->
+  <div class="section">
+    <h2 class="section-title">📌 その他特記事項</h2>
+    <table class="info-table">
+      <tr>
+        <th>利用対象者</th>
+        <td>18歳以上の方、または保護者の同意を得た方。法人・個人事業主のご利用も可能です。</td>
+      </tr>
+      <tr>
+        <th>禁止事項</th>
+        <td>
+          暗号資産マイニング・違法なコンテンツの生成・サービスへの不正アクセス・<br>
+          その他<a href="/terms/">利用規約</a>に違反する行為は禁止しています。
+        </td>
+      </tr>
+      <tr>
+        <th>準拠法・<br>管轄裁判所</th>
+        <td>日本法を準拠法とし、大阪地方裁判所を第一審の専属的合意管轄裁判所とします。</td>
+      </tr>
+      <tr>
+        <th>事業者認定等</th>
+        <td>
+          決済：Stripe, Inc. による PCI DSS 準拠の決済処理<br>
+          SSL：HTTPS による通信暗号化（TLS 1.2以上）
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="notice">
+    <strong>📋 本表記について：</strong>
+    本ページは「特定商取引に関する法律」第11条（通信販売についての広告）の規定に基づき記載しています。
+    ご不明な点・苦情・トラブルは <a href="mailto:info@metadatalab.net">info@metadatalab.net</a> までお問い合わせください。
+    通常5営業日以内にご返答いたします。
+  </div>
+
+  <div class="notice-warn">
+    ⚠️ <strong>消費者へのご注意：</strong>
+    GPUリソースはデジタルサービスです。体験版のご利用をご希望の方は
+    <a href="/portal/">ポータル</a>のGPU一覧から無料でGPUを検索・確認いただけます。
+    ご購入前に料金体系と利用条件を十分にご確認ください。
+  </div>
+
+  <div class="contact-cta">
+    <h3>お問い合わせ</h3>
+    <p>特定商取引法に関するご質問・苦情はお気軽にご連絡ください。</p>
+    <a href="mailto:info@metadatalab.net" class="cta-btn">
+      ✉️ info@metadatalab.net
+    </a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="/terms/">利用規約</a>
+    <a href="/privacy/">プライバシーポリシー</a>
+    <a href="/tokushoho/">特定商取引法に基づく表記</a>
+    <a href="/portal/">GPU検索</a>
+    <a href="/">ホーム</a>
+  </div>
+  <p>© 2026 METADATALAB.INC — Janction</p>
+</footer>
+
+</body>
+</html>

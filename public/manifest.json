@@ -1,0 +1,43 @@
+{
+  "name": "Janction",
+  "short_name": "Janction",
+  "description": "日本初・個人GPU時間貸しプラットフォーム",
+  "start_url": "/portal/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#6c47ff",
+  "orientation": "portrait-primary",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "GPU検索",
+      "short_name": "検索",
+      "description": "GPUを検索して予約",
+      "url": "/portal/",
+      "icons": [{ "src": "/favicon.ico", "sizes": "any" }]
+    },
+    {
+      "name": "マイページ",
+      "short_name": "マイページ",
+      "description": "予約・ポイント管理",
+      "url": "/mypage/",
+      "icons": [{ "src": "/favicon.ico", "sizes": "any" }]
+    },
+    {
+      "name": "プロバイダー",
+      "short_name": "提供",
+      "description": "GPU提供・収益確認",
+      "url": "/provider/",
+      "icons": [{ "src": "/favicon.ico", "sizes": "any" }]
+    }
+  ]
+}

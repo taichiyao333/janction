@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -47,6 +47,8 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh
+        
+            overflow-x: hidden;
         }
 
         a {
@@ -565,7 +567,341 @@
             font-size: 0.8rem;
             margin-top: 4rem
         }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media(max-width: 768px) {
+            .nav {
+                padding: 0 1rem;
+                flex-wrap: wrap;
+                height: auto;
+                min-height: 56px;
+                gap: 0.5rem;
+            }
+
+            .nav>div {
+                gap: 0.5rem;
+            }
+
+            .nav .btn {
+                padding: 5px 10px;
+                font-size: 0.78rem;
+            }
+
+            .hero {
+                padding: 2rem 1.25rem;
+            }
+
+            .hero h1 {
+                font-size: clamp(1.6rem, 6vw, 2.5rem);
+            }
+
+            .hero-sub {
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .section-title {
+                font-size: clamp(1.3rem, 4vw, 2rem);
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .gpu-grid-provider {
+                grid-template-columns: 1fr;
+            }
+
+            .earning-section {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .earning-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .setup-steps {
+                gap: 1rem;
+            }
+
+            .modal-box,
+            .modal {
+                width: calc(100vw - 2rem) !important;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .gpu-detect-box {
+                padding: 1rem;
+            }
+
+            .footer {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        @media(max-width: 480px) {
+            .hero {
+                padding: 1.5rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 1.6rem;
+            }
+
+            .stat-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* ─── Site Footer ─── */
+        .site-footer {
+            padding: 3rem 2rem 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, .07);
+            margin-top: auto;
+        }
+
+        .sf-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media(max-width:640px) {
+            .sf-inner {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .sf-logo {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: .5rem;
+        }
+
+        .sf-desc {
+            font-size: 0.78rem;
+            color: var(--text3);
+            line-height: 1.7;
+        }
+
+        .sf-col h4 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: .75rem;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .sf-col a {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text3);
+            margin-bottom: .4rem;
+            transition: color .2s;
+            text-decoration: none;
+        }
+
+        .sf-col a:hover {
+            color: var(--text);
+        }
+
+        .sf-bottom {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, .05);
+            font-size: 0.73rem;
+            color: var(--text3);
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+    
+        /* ── Mobile Hamburger ── */
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 9999;
+            flex-shrink: 0;
+        }
+        .nav-hamburger span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #e8e8f0;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .mob-drawer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10,10,20,0.98);
+            backdrop-filter: blur(20px);
+            z-index: 9998;
+            flex-direction: column;
+            padding: 5rem 1.5rem 2rem;
+            gap: 0;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .mob-drawer.open { transform: translateX(0); }
+        .mob-drawer a, .mob-drawer button.drawer-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            color: #e8e8f0;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            background: transparent;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+        .mob-drawer a:hover, .mob-drawer button.drawer-item:hover {
+            background: rgba(108,71,255,0.1);
+        }
+        .mob-drawer-title {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1rem 0.75rem 0.25rem;
+        }
+        @media (max-width: 768px) {
+            .nav-hamburger { display: flex !important; }
+            .mob-drawer { display: flex; }
+        }
+
+        /* ── Language Switcher ── */
+        .lang-switcher {
+            position: relative;
+            display: flex;
+            align-items: center;
+            z-index: 200;
+        }
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: #e8e8f0;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .lang-btn:hover {
+            background: rgba(108,71,255,0.15);
+            border-color: rgba(108,71,255,0.4);
+        }
+        .lang-flag { font-size: 1rem; line-height: 1; }
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #16162a;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 140px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 9999;
+        }
+        .lang-switcher.open .lang-dropdown { display: block; }
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            color: #e8e8f0;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: background 0.15s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .lang-option:hover { background: rgba(108,71,255,0.15); }
+        .lang-option.active { color: #6c47ff; background: rgba(108,71,255,0.1); }
+        .lang-option-name { font-weight: 500; }
+        /* Google Translate hidden */
+        #google_translate_element { display: none !important; }
+        .skiptranslate { display: none !important; }
+        body { top: 0 !important; }
+        .goog-te-banner-frame { display: none !important; }
+
+    
+        html, body { overflow-x: hidden; }
     </style>
+
+    <!-- OG / Twitter Card -->
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="https://janction.net/provider/">
+    <meta property="og:title"       content="GPUプロバイダー登録 — 遊休GPUで収益化 | Janction">
+    <meta property="og:description" content="使っていないGPUをシェアして月収アップ。Stripe Connect自動送金。登録無料。">
+    <meta property="og:image"       content="https://janction.net/favicon.ico">
+    <meta property="og:locale"      content="ja_JP">
+    <meta property="og:site_name"   content="Janction">
+    <meta name="twitter:card"       content="summary_large_image">
+    <meta name="twitter:title"      content="GPUプロバイダー登録 — 遊休GPUで収益化 | Janction">
+    <meta name="twitter:description" content="使っていないGPUをシェアして月収アップ。Stripe Connect自動送金。登録無料。">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6c47ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Janction">
 </head>
 
 <body>
@@ -573,10 +909,30 @@
         <a href="/portal/" class="nav-brand">⚡ GPU<span>Rental</span></a>
         <div style="display:flex;gap:0.75rem;align-items:center">
             <span id="navUser" class="hidden" style="font-size:0.85rem;color:var(--text2)"></span>
+            <a href="/provider/download.html" class="btn btn-primary" style="font-size:0.82rem;background:linear-gradient(135deg,#6c47ff,#8b5cf6);border:none">⬇️ エージェントDL</a>
+            <a href="/provider/diagnose.html" class="btn btn-ghost"
+                style="color:#a08cff;border-color:rgba(108,71,255,.3);font-size:0.82rem">🔧 接続診断</a>
             <a href="/portal/" class="btn btn-ghost">ポータルへ</a>
             <button class="btn btn-primary hidden" id="btnLogout">ログアウト</button>
         </div>
-    </nav>
+    
+    <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn" onclick="toggleLangMenu(this)" aria-label="言語切り替え">
+            <span class="lang-flag">🇯🇵</span>日本語 <span style="opacity:.6;font-size:.7rem">▼</span>
+        </button>
+        <div class="lang-dropdown">
+            <button class="lang-option active" data-lang="ja" onclick="selectLang('ja')">
+                <span class="lang-flag">🇯🇵</span><span class="lang-option-name">日本語</span>
+            </button>
+            <button class="lang-option" data-lang="en" onclick="selectLang('en')">
+                <span class="lang-flag">🇺🇸</span><span class="lang-option-name">English</span>
+            </button>
+            <button class="lang-option" data-lang="zh" onclick="selectLang('zh')">
+                <span class="lang-flag">🇨🇳</span><span class="lang-option-name">中文</span>
+            </button>
+        </div>
+    </div>
+    <button class="nav-hamburger" id="mobHamburger" onclick="toggleMobMenu()"><span></span><span></span><span></span></button></nav>
 
     <!-- HERO -->
     <section class="hero">
@@ -595,8 +951,9 @@
                 <span class="earn-label">プロバイダー取り分</span>
             </div>
             <div class="earn-card">
-                <span class="earn-val">24/7</span>
-                <span class="earn-label">稼働可能</span>
+                <span class="earn-val" id="calcHoursVal">240h</span>
+                <span class="earn-label">月間稼働時間（目安）</span>
+                <div style="font-size:0.75rem;color:var(--text3);margin-top:4px" id="calcHoursSub">8時間/日 × 30日</div>
             </div>
             <div class="earn-card">
                 <span class="earn-val" style="color:var(--accent)">¥0</span>
@@ -638,41 +995,182 @@
             <h2 class="register-title">🖥 GPUを登録する</h2>
             <p class="register-sub">登録後すぐに貸し出しを開始できます。無料・手数料20%のみ。</p>
 
-            <div id="authRequired" class="hidden">
-                <div class="form-error">ログインが必要です。ポータルでログイン後、このページに戻ってください。</div>
-                <a href="/portal/" class="btn btn-primary btn-full">ログイン / 登録へ</a>
+            <div id="authRequired" class="hidden" style="text-align:center;padding:1.5rem 0">
+                <div style="font-size:2.5rem;margin-bottom:0.75rem">&#x1F511;</div>
+                <p style="color:var(--text2);font-size:0.9rem;margin-bottom:1.25rem">GPU&#x767B;&#x9332;&#x306B;&#x306F;&#x30A2;&#x30AB;&#x30A6;&#x30F3;&#x30C8;&#x304C;&#x5FC5;&#x8981;&#x3067;&#x3059;</p>
+                <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">
+                    <button class="btn btn-primary" onclick="openProviderAuth('register')" style="min-width:160px;padding:0.75rem 1.5rem;font-size:1rem">&#x1F4DD; &#x7121;&#x6599;&#x3067;&#x767B;&#x9332;&#x3059;&#x308B;</button>
+                    <button class="btn btn-ghost" onclick="openProviderAuth('login')" style="min-width:120px">&#x30ED;&#x30B0;&#x30A4;&#x30F3;</button>
+                </div>
             </div>
 
             <form id="registerForm" class="hidden">
-                <!-- GPU Info -->
+
+                <!-- ── GPU自動検出（WebGL） ── -->
                 <div class="form-section">
-                    <span class="form-section-label">🖥 GPU情報</span>
-                    <div style="margin-bottom:0.5rem">
-                        <label
-                            style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:0.4rem">GPUプリセット</label>
-                        <div class="gpu-presets">
-                            <button type="button" class="preset-btn" data-name="NVIDIA RTX A4500" data-vram="20">RTX
-                                A4500</button>
-                            <button type="button" class="preset-btn" data-name="NVIDIA RTX 4090" data-vram="24">RTX
-                                4090</button>
-                            <button type="button" class="preset-btn" data-name="NVIDIA RTX 4080" data-vram="16">RTX
-                                4080</button>
-                            <button type="button" class="preset-btn" data-name="NVIDIA RTX 3090" data-vram="24">RTX
-                                3090</button>
-                            <button type="button" class="preset-btn" data-name="NVIDIA A100"
-                                data-vram="80">A100</button>
-                            <button type="button" class="preset-btn" data-name="NVIDIA H100"
-                                data-vram="80">H100</button>
+                    <span class="form-section-label">🖥 あなたのGPUを自動検出</span>
+
+                    <!-- WebGL検出結果エリア -->
+                    <div id="webglDetectBox"
+                        style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-bottom:1rem">
+
+                        <div id="webglDetecting" style="text-align:center;padding:0.5rem 0">
+                            <div style="font-size:1.5rem;margin-bottom:0.5rem">🔍</div>
+                            <div style="font-size:0.85rem;color:var(--text2)">あなたのPCのGPUを検出中...</div>
+                        </div>
+
+                        <!-- 検出成功 -->
+                        <div id="webglSuccess" class="hidden">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:0.75rem">
+                                <div
+                                    style="width:40px;height:40px;border-radius:10px;background:rgba(0,229,160,.15);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">
+                                    🎮</div>
+                                <div>
+                                    <div
+                                        style="font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">
+                                        検出されたGPU（あなたのPC）</div>
+                                    <div id="webglGpuName" style="font-size:1.1rem;font-weight:800;color:var(--text)">
+                                    </div>
+                                </div>
+                                <div id="webglSupportBadge" style="margin-left:auto"></div>
+                            </div>
+                            <div id="webglGpuDetails"
+                                style="display:flex;gap:1.5rem;font-size:0.78rem;color:var(--text2);margin-bottom:0.75rem;padding:0.75rem;background:rgba(255,255,255,.03);border-radius:8px">
+                            </div>
+                            <div id="webglPriceInfo" style="font-size:0.85rem"></div>
+                            <div id="webglNotSupported" class="hidden"
+                                style="background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);border-radius:8px;padding:0.75rem;font-size:0.82rem;color:var(--danger);margin-top:0.5rem">
+                            </div>
+                        </div>
+
+                        <!-- 検出失敗 -->
+                        <div id="webglFail" class="hidden"
+                            style="background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.2);border-radius:10px;padding:1rem;font-size:0.82rem;color:var(--warning)">
+                            ⚠️ <strong>GPUを自動検出できませんでした</strong><br>
+                            <span
+                                style="font-size:0.78rem;color:var(--text3)">ブラウザの設定や非NVIDIAのGPUの場合は、下のカタログから手動で選択してください。</span>
                         </div>
                     </div>
+
+                    <!-- 再検出ボタン -->
+                    <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem">
+                        <button type="button" id="btnWebglDetect" class="btn btn-primary"
+                            style="font-size:0.8rem;padding:6px 14px" onclick="runWebglDetect()">
+                            🔄 再検出する
+                        </button>
+                        <button type="button" id="btnModeAuto" class="btn btn-ghost"
+                            style="font-size:0.8rem;padding:6px 14px" onclick="setMode('auto')">
+                            🖥 サーバーPC検出（管理者用）
+                        </button>
+                        <span style="font-size:0.72rem;color:var(--text3)">
+                            ブラウザのWebGLであなたのPCのGPUを自動判定します
+                        </span>
+                    </div>
+
+                    <!-- 検出できない場合のカタログ手動選択 -->
+                    <details id="manualSelectDetails" style="margin-bottom:0.5rem">
+                        <summary
+                            style="cursor:pointer;font-size:0.82rem;color:var(--accent);padding:4px 0;user-select:none">
+                            📋 自動検出されない場合 — カタログから手動選択する
+                        </summary>
+                        <div
+                            style="margin-top:0.75rem;padding:1rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px">
+                            <div style="font-size:0.78rem;color:var(--text2);margin-bottom:0.75rem">
+                                💡 <code>nvidia-smi -L</code> または デバイスマネージャーでGPU名を確認して選択してください
+                            </div>
+
+                            <option value="">── GPUを選択してください ──</option>
+                            <optgroup label="RTX 3000シリーズ">
+                                <option value="RTX 3060|12|200">RTX 3060 (12GB) — ¥200/h</option>
+                                <option value="RTX 3070|8|220">RTX 3070 (8GB) — ¥220/h</option>
+                                <option value="RTX 3070 Ti|8|250">RTX 3070 Ti (8GB) — ¥250/h</option>
+                                <option value="RTX 3080|10|280">RTX 3080 (10GB) — ¥280/h</option>
+                                <option value="RTX 3080 Ti|12|320">RTX 3080 Ti (12GB) — ¥320/h</option>
+                                <option value="RTX 3090|24|500">RTX 3090 (24GB) — ¥500/h</option>
+                                <option value="RTX 3090 Ti|24|550">RTX 3090 Ti (24GB) — ¥550/h</option>
+                            </optgroup>
+                            <optgroup label="RTX 4000シリーズ">
+                                <option value="RTX 4060|8|200">RTX 4060 (8GB) — ¥200/h</option>
+                                <option value="RTX 4060 Ti|16|280">RTX 4060 Ti (16GB) — ¥280/h</option>
+                                <option value="RTX 4070|12|350">RTX 4070 (12GB) — ¥350/h</option>
+                                <option value="RTX 4070 Ti|12|400">RTX 4070 Ti (12GB) — ¥400/h</option>
+                                <option value="RTX 4070 Ti Super|16|450">RTX 4070 Ti Super (16GB) — ¥450/h</option>
+                                <option value="RTX 4080|16|550">RTX 4080 (16GB) — ¥550/h</option>
+                                <option value="RTX 4080 Super|16|580">RTX 4080 Super (16GB) — ¥580/h</option>
+                                <option value="RTX 4090|24|650">RTX 4090 (24GB) — ¥650/h ⭐</option>
+                            </optgroup>
+                            <optgroup label="RTX 5000シリーズ">
+                                <option value="RTX 5070|12|450">RTX 5070 (12GB) — ¥450/h</option>
+                                <option value="RTX 5070 Ti|16|550">RTX 5070 Ti (16GB) — ¥550/h</option>
+                                <option value="RTX 5080|16|650">RTX 5080 (16GB) — ¥650/h</option>
+                                <option value="RTX 5090|32|1200">RTX 5090 (32GB) — ¥1,200/h</option>
+                            </optgroup>
+                            <optgroup label="RTX Aシリーズ（プロ向け）">
+                                <option value="RTX A2000|12|250">RTX A2000 (12GB) — ¥250/h</option>
+                                <option value="RTX A4000|16|400">RTX A4000 (16GB) — ¥400/h</option>
+                                <option value="RTX A4500|20|450">RTX A4500 (20GB) — ¥450/h</option>
+                                <option value="RTX A5000|24|500">RTX A5000 (24GB) — ¥500/h</option>
+                                <option value="RTX A6000|48|900">RTX A6000 (48GB) — ¥900/h</option>
+                                <option value="RTX A6000 Ada|48|1100">RTX A6000 Ada (48GB) — ¥1,100/h</option>
+                            </optgroup>
+                            <optgroup label="データセンター / HPC">
+                                <option value="Tesla T4|16|300">Tesla T4 (16GB) — ¥300/h</option>
+                                <option value="A30|24|500">A30 (24GB) — ¥500/h</option>
+                                <option value="L4|24|550">L4 (24GB) — ¥550/h</option>
+                                <option value="A100 40GB|40|1200">A100 40GB — ¥1,200/h</option>
+                                <option value="A100 80GB|80|2100">A100 80GB — ¥2,100/h</option>
+                                <option value="H100 PCIe|80|2800">H100 PCIe (80GB) — ¥2,800/h</option>
+                                <option value="H100 SXM5|80|3500">H100 SXM5 (80GB) — ¥3,500/h</option>
+                                <option value="H200 SXM5|141|5000">H200 SXM5 (141GB) — ¥5,000/h</option>
+                            </optgroup>
+                            </select>
+                            <span class="form-hint">選択するとGPU名・VRAM・価格が自動入力されます</span>
+                            <div id="catalogSelectedBanner" class="hidden" style="margin-top:0.5rem"></div>
+                        </div>
+                    </details>
+
+                    <!-- ── サーバーPC検出モード（管理者用） ── -->
+                    <div id="modeAuto" class="hidden">
+                        <div
+                            style="background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:0.875rem;margin-bottom:1rem;font-size:0.82rem;color:var(--text2);line-height:1.7">
+                            ⚠️ <strong style="color:var(--warning)">注意：自動検出はサーバーのGPUを検出します</strong><br>
+                            このサーバープログラムが動作しているPCのGPUを <code>nvidia-smi</code> で検出します。<br>
+                            <strong>別PCからアクセスしている場合は「カタログから選択」を使ってください。</strong>
+                        </div>
+                        <div id="detectBox"
+                            style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1rem">
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
+                                <p style="font-size:0.82rem;color:var(--text2);line-height:1.6">
+                                    サーバー上で <code
+                                        style="background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px">nvidia-smi</code>
+                                    を実行してGPUを検出します。
+                                </p>
+                                <button type="button" id="btnDetect" class="btn btn-primary" onclick="detectGpu()"
+                                    style="flex-shrink:0;margin-left:12px">
+                                    🔍 今すぐ検出
+                                </button>
+                            </div>
+                            <div id="detectResult"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-divider"></div>
+
+                <!-- ── GPU詳細情報（自動入力） ── -->
+                <div class="form-section">
+                    <span class="form-section-label">🖥 GPU詳細情報</span>
+                    <div id="detectedGpuBanner" class="hidden" style="margin-bottom:0.75rem"></div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>GPU名 *</label>
-                            <input type="text" id="gpuName" placeholder="NVIDIA RTX A4500" required />
+                            <label>GPU名（nvidia-smi表記）*</label>
+                            <input type="text" id="gpuName" placeholder="例: NVIDIA RTX A4000" required />
+                            <span class="form-hint">カタログ選択で自動入力されます</span>
                         </div>
                         <div class="form-group">
                             <label>VRAM (GB) *</label>
-                            <input type="number" id="gpuVram" placeholder="20" min="4" max="192" required />
+                            <input type="number" id="gpuVram" placeholder="16" min="4" max="192" required />
                         </div>
                     </div>
                     <div class="form-row">
@@ -690,13 +1188,20 @@
 
                 <div class="form-divider"></div>
 
-                <!-- Pricing -->
+                <!-- ── 価格設定 ── -->
                 <div class="form-section">
-                    <span class="form-section-label">💰 価格設定</span>
+                    <span class="form-section-label">💰 価格設定（運営統一価格）</span>
+                    <div id="priceInfoBox"
+                        style="background:rgba(108,71,255,.08);border:1px solid rgba(108,71,255,.25);border-radius:10px;padding:1rem;margin-bottom:0.75rem;font-size:0.82rem;color:var(--text2);line-height:1.7">
+                        <strong style="color:var(--text)">⚙️ 価格は運営が自動設定します</strong><br>
+                        GPUモデルに応じた標準価格が自動適用されます。プロバイダーが個別に価格変更することはできません。
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>時間単価 (円/時間) *</label>
-                            <input type="number" id="gpuPrice" value="800" min="100" max="50000" step="100" required />
+                            <label>時間単価 (円/時間)</label>
+                            <input type="number" id="gpuPrice" value="800" min="100" max="50000" step="100" readonly
+                                style="background:rgba(255,255,255,.04);color:var(--accent);font-weight:700" />
+                            <span class="form-hint">運営設定価格（自動入力）</span>
                         </div>
                         <div class="form-group">
                             <label>サーバー種別</label>
@@ -723,18 +1228,19 @@
 
                 <div class="form-divider"></div>
 
-                <!-- Guidelines -->
+                <!-- ── 利用規約 ── -->
                 <div class="form-section">
                     <span class="form-section-label">📋 利用規約</span>
                     <div
                         style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.8rem;color:var(--text2);line-height:1.7;max-height:120px;overflow-y:auto;margin-bottom:0.875rem">
-                        <strong style="color:var(--text)">GPU貸し出しガイドライン</strong><br />
-                        1. 提供するGPUは適法に所有・使用権を有するものに限ります<br />
-                        2. レンタル中はGPUを独占的にユーザーに提供してください<br />
-                        3. 最低稼働保証はありませんが、オンライン状態を維持してください<br />
-                        4. 報酬は毎月末に申請でき、¥1,000以上から出金可能です<br />
-                        5. 不正利用・違反行為はアカウント停止の対象となります<br />
-                        6. プラットフォームは手数料20%を受け取ります<br />
+                        <strong style="color:var(--text)">GPU貸し出しガイドライン</strong><br>
+                        1. 提供するGPUは適法に所有・使用権を有するものに限ります<br>
+                        2. レンタル中はGPUを独占的にユーザーに提供してください<br>
+                        3. 最低稼働保証はありませんが、オンライン状態を維持してください<br>
+                        4. 報酬は毎月末に申請でき、¥1,000以上から出金可能です<br>
+                        5. 不正利用・違反行為はアカウント停止の対象となります<br>
+                        6. プラットフォームは手数料20%を受け取ります<br>
+                        7. <strong>サポート対象外のGPUは登録・利用できません</strong><br>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px">
                         <input type="checkbox" id="agreeTerms" required />
@@ -753,149 +1259,527 @@
                 <p id="successMsg">GPUが正常に登録されました。サーバーが稼働中であれば自動的に「利用可能」になります。</p>
                 <button class="btn btn-primary btn-lg" onclick="showRegisteredGpus()">マイGPUを確認</button>
             </div>
-        </div>
-    </div>
 
-    <!-- MY GPUs -->
-    <div class="my-gpus-section hidden" id="myGpusSection">
-        <h2 class="section-title" style="text-align:left">マイ GPU & 収益</h2>
-        <div
-            style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;display:flex;gap:2rem;align-items:center">
-            <div>
-                <div style="font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">ウォレット残高
+            <!-- MY GPUs -->
+            <div class="my-gpus-section hidden" id="myGpusSection">
+                <h2 class="section-title" style="text-align:left">マイ GPU & 収益</h2>
+                <div
+                    style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;display:flex;gap:2rem;align-items:center">
+                    <div>
+                        <div style="font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">
+                            ウォレット残高
+                        </div>
+                        <div style="font-size:1.8rem;font-weight:800;color:var(--success)" id="walletBal">¥0</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">
+                            累計収益
+                        </div>
+                        <div style="font-size:1.4rem;font-weight:800" id="totalEarned">¥0</div>
+                    </div>
+                    <div style="margin-left:auto;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+                        <button class="btn btn-ghost btn-sm" id="btnStripeConnect" onclick="connectStripe()" style="display:none;border-color:rgba(108,71,255,0.5);color:#a08cff">⚡ Stripeに接続</button>
+                        <button class="btn btn-primary" id="btnWithdraw" onclick="withdraw()">💴 出金申請</button>
+                    </div>
                 </div>
-                <div style="font-size:1.8rem;font-weight:800;color:var(--success)" id="walletBal">¥0</div>
-            </div>
-            <div>
-                <div style="font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">累計収益
+                <!-- Stripe Connect ステータスバナー -->
+                <div id="stripeStatusBanner" style="display:none;background:rgba(108,71,255,0.08);border:1px solid rgba(108,71,255,0.25);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;align-items:center;gap:1rem;flex-wrap:wrap">
+                    <div><div style="font-size:0.72rem;color:var(--text3);letter-spacing:0.5px;margin-bottom:4px">Stripe Connect</div>
+                    <div id="stripeStatusText" style="font-size:0.9rem;font-weight:600;color:#00e5a0">✅ 接続済み — 自動送金が有効</div></div>
+                    <div style="margin-left:auto;display:flex;gap:0.5rem">
+                        <button class="btn btn-ghost btn-sm" onclick="openStripeDashboard()">📊 Stripeダッシュボード</button>
+                        <button class="btn btn-ghost btn-sm" onclick="disconnectStripe()" style="color:var(--danger)">接続解除</button>
+                    </div></div>
+                <div class="gpus-grid" id="myGpusGrid"></div>
+                <div style="margin-top:1.5rem;text-align:center">
+                    <button class="btn btn-ghost" onclick="showRegisterForm()">+ さらにGPUを追加</button>
                 </div>
-                <div style="font-size:1.4rem;font-weight:800" id="totalEarned">¥0</div>
             </div>
-            <div style="margin-left:auto">
-                <button class="btn btn-primary" id="btnWithdraw" onclick="withdraw()">💴 出金申請</button>
-            </div>
-        </div>
-        <div class="gpus-grid" id="myGpusGrid"></div>
-        <div style="margin-top:1.5rem;text-align:center">
-            <button class="btn btn-ghost" onclick="showRegisterForm()">+ さらにGPUを追加</button>
-        </div>
-    </div>
 
-    <footer class="footer">⚡ GPU<span style="color:var(--accent)">Rental</span> · プロバイダーポータル · 収益率80%</footer>
+            <footer class="site-footer" style="margin-top:3rem">
+                <div class="sf-inner">
+                    <div class="sf-brand">
+                        <div class="sf-logo">⚡ GPU<span style="color:var(--accent)">Rental</span></div>
+                        <p class="sf-desc">日本初の個人・法人GPU貸出プラットフォーム。<br>アイドルGPUリソースをAI開発者・クリエイターへ。</p>
+                    </div>
+                    <div class="sf-col">
+                        <h4>サービス</h4>
+                        <a href="/portal/">GPU利用（ポータル）</a>
+                        <a href="/provider/">GPU貸出（プロバイダー）</a>
+                        <a href="/workspace/">ワークスペース</a>
+                        <a href="/landing/">🏠 トップページへ</a>
+                    </div>
+                    <div class="sf-col">
+                        <h4>サポート</h4>
+                        <a href="/landing/terms.html">利用規約</a>
+                        <a href="/landing/privacy.html">プライバシーポリシー</a>
+                        <a href="mailto:info@metadatalab.net">お問い合わせ</a>
+                    </div>
+                </div>
+                <div class="sf-bottom">
+                    <span>© 2026 Janction by METADATALAB.INC. All rights reserved.</span>
+                    <span>Made with ⚡ in Japan</span>
+                </div>
+            </footer>
 
-    <script>
-        const token = localStorage.getItem('gpu_token');
-        const user = JSON.parse(localStorage.getItem('gpu_user') || 'null');
+            <script>
+                let token = localStorage.getItem('gpu_token');
+                let user = JSON.parse(localStorage.getItem('gpu_user') || 'null');
+                const API = ''; // same-origin
 
-        async function apiFetch(path, opts = {}) {
-            const res = await fetch(`/api${path}`, {
-                ...opts,
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...opts.headers },
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'API Error');
-            return data;
-        }
+                /* ── Provider auth modal ── */
+                function openProviderAuth(tab) {
+                    document.getElementById('providerAuthModal').style.display = 'flex';
+                    switchProviderAuthTab(tab || 'register');
+                }
+                function closeProviderAuth() { document.getElementById('providerAuthModal').style.display = 'none'; }
+                function switchProviderAuthTab(tab) {
+                    const isReg = tab === 'register';
+                    document.getElementById('pTabLogin').classList.toggle('active', !isReg);
+                    document.getElementById('pTabRegister').classList.toggle('active', isReg);
+                    document.getElementById('pLoginForm').style.display = isReg ? 'none' : 'block';
+                    document.getElementById('pRegisterForm').style.display = isReg ? 'block' : 'none';
+                }
+                async function providerLogin(e) {
+                    e.preventDefault(); const errEl = document.getElementById('pLoginError'); errEl.style.display='none';
+                    try {
+                        const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'},
+                            body: JSON.stringify({ email: document.getElementById('pLoginEmail').value, password: document.getElementById('pLoginPassword').value }) });
+                        const data = await res.json(); if (!res.ok) throw new Error(data.error);
+                        token=data.token; user=data.user; localStorage.setItem('gpu_token',token); localStorage.setItem('gpu_user',JSON.stringify(user));
+                        closeProviderAuth(); onProviderAuthSuccess();
+                    } catch(err) { errEl.textContent=err.message; errEl.style.display='block'; }
+                }
+                async function providerRegister(e) {
+                    e.preventDefault(); const errEl = document.getElementById('pRegError'); errEl.style.display='none';
+                    try {
+                        const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'},
+                            body: JSON.stringify({ username: document.getElementById('pRegUsername').value, email: document.getElementById('pRegEmail').value, password: document.getElementById('pRegPassword').value }) });
+                        const data = await res.json(); if (!res.ok) throw new Error(data.error);
+                        token=data.token; user=data.user; localStorage.setItem('gpu_token',token); localStorage.setItem('gpu_user',JSON.stringify(user));
+                        closeProviderAuth(); onProviderAuthSuccess();
+                    } catch(err) { errEl.textContent=err.message; errEl.style.display='block'; }
+                }
+                function onProviderAuthSuccess() {
+                    const nu=document.getElementById('navUser'); if(nu){nu.textContent=`&#x1F464; ${user.username}`;nu.classList.remove('hidden');}
+                    const bl=document.getElementById('btnLogout'); if(bl) bl.classList.remove('hidden');
+                    document.getElementById('authRequired').classList.add('hidden');
+                    document.getElementById('registerForm').classList.remove('hidden');
+                    loadMyGpus(); runWebglDetect();
+                } // same-origin
 
-        // Init
-        if (!token || !user) {
-            document.getElementById('authRequired').classList.remove('hidden');
-        } else {
-            document.getElementById('registerForm').classList.remove('hidden');
-            document.getElementById('navUser').textContent = `👤 ${user.username}`;
-            document.getElementById('navUser').classList.remove('hidden');
-            document.getElementById('btnLogout').classList.remove('hidden');
-            loadMyGpus();
-        }
+                async function apiFetch(path, opts = {}) {
+                    const res = await fetch(`${API}/api${path}`, {
+                        ...opts,
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...opts.headers },
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'API Error');
+                    return data;
+                }
 
-        document.getElementById('btnLogout').addEventListener('click', () => {
-            localStorage.removeItem('gpu_token'); localStorage.removeItem('gpu_user');
-            location.href = '/portal/';
-        });
+                // ── 状態管理 ──
+                let _detectedGpus = [];   // 検出済みGPUリスト
+                let _selectedGpu = null;  // 選択されたGPU (サポート済みに限る)
 
-        // Preset buttons
-        document.querySelectorAll('.preset-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById('gpuName').value = btn.dataset.name;
-                document.getElementById('gpuVram').value = btn.dataset.vram;
-                updateRevenuePreview();
-                updateCalcEarn();
-            });
-        });
+                // Init
+                if (!token || !user) {
+                    document.getElementById('authRequired').classList.remove('hidden');
+                } else {
+                    document.getElementById('registerForm').classList.remove('hidden');
+                    document.getElementById('navUser').textContent = `👤 ${user.username}`;
+                    document.getElementById('navUser').classList.remove('hidden');
+                    document.getElementById('btnLogout').classList.remove('hidden');
+                    loadMyGpus();
+                    // ページ読み込み時にWebGLでGPU自動検出
+                    runWebglDetect();
+                }
 
-        // Revenue preview
-        function updateRevenuePreview() {
-            const price = parseInt(document.getElementById('gpuPrice').value) || 800;
-            const fee = Math.round(price * 0.2);
-            const net = price - fee;
-            const monthly = Math.round(net * 8 * 30);
-            document.getElementById('rpPrice').textContent = `¥${price.toLocaleString()}/時間`;
-            document.getElementById('rpFee').textContent = `-¥${fee.toLocaleString()}`;
-            document.getElementById('rpNet').textContent = `¥${net.toLocaleString()}/時間`;
-            document.getElementById('rpMonth').textContent = `¥${monthly.toLocaleString()}`;
-        }
-        function updateCalcEarn() {
-            const price = parseInt(document.getElementById('gpuPrice').value) || 800;
-            const monthly = Math.round(price * 0.8 * 8 * 30);
-            document.getElementById('calcEarn').textContent = `¥${monthly.toLocaleString()}`;
-            document.getElementById('calcHours').textContent = '8時間/日 × 30日稼働の場合';
-        }
-        document.getElementById('gpuPrice').addEventListener('input', () => { updateRevenuePreview(); updateCalcEarn(); });
-        updateRevenuePreview(); updateCalcEarn();
-
-        // Submit
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const errEl = document.getElementById('formError');
-            errEl.classList.add('hidden');
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true; btn.textContent = '登録中...';
-
-            if (!document.getElementById('agreeTerms').checked) {
-                errEl.textContent = 'ガイドラインへの同意が必要です';
-                errEl.classList.remove('hidden');
-                btn.disabled = false; btn.textContent = '🚀 GPUを登録する'; return;
-            }
-
-            try {
-                const data = await apiFetch('/providers/register', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        gpu_name: document.getElementById('gpuName').value,
-                        device_index: parseInt(document.getElementById('gpuIndex').value) || 0,
-                        vram_gb: parseFloat(document.getElementById('gpuVram').value),
-                        driver_version: document.getElementById('gpuDriver').value,
-                        price_per_hour: parseInt(document.getElementById('gpuPrice').value),
-                        location: document.getElementById('gpuLocation').value,
-                    }),
+                document.getElementById('btnLogout').addEventListener('click', () => {
+                    localStorage.removeItem('gpu_token'); localStorage.removeItem('gpu_user');
+                    location.href = '/portal/';
                 });
-                document.getElementById('successMsg').textContent = `${data.gpu.name} (${Math.round(data.gpu.vram_total / 1024)}GB VRAM) を登録しました！`;
-                document.getElementById('registerForm').classList.add('hidden');
-                document.getElementById('successCard').classList.remove('hidden');
-                // Update stored user role
-                if (user) { user.role = 'provider'; localStorage.setItem('gpu_user', JSON.stringify(user)); }
-                loadMyGpus();
-            } catch (err) {
-                errEl.textContent = err.message;
-                errEl.classList.remove('hidden');
-            } finally {
-                btn.disabled = false; btn.textContent = '🚀 GPUを登録する';
-            }
-        });
 
-        async function loadMyGpus() {
-            if (!token) return;
-            try {
-                const d = await apiFetch('/providers/my-gpus');
-                document.getElementById('walletBal').textContent = `¥${Math.round(d.wallet_balance).toLocaleString()}`;
-                if (d.gpus.length) {
-                    document.getElementById('myGpusSection').classList.remove('hidden');
-                    const totalE = d.gpus.reduce((s, g) => s + (g.total_earned || 0), 0);
-                    document.getElementById('totalEarned').textContent = `¥${Math.round(totalE).toLocaleString()}`;
-                    const grid = document.getElementById('myGpusGrid');
-                    grid.innerHTML = d.gpus.map(g => `
+                /* ═══════════════════════════════════════════════════════════
+                 *  WebGL GPU自動検出 — ユーザーのブラウザ（ローカルPC）のGPUを判定
+                 * ═══════════════════════════════════════════════════════════ */
+
+                // カタログデータ（model | vram_gb | price）
+                const GPU_CATALOG = [
+                    // RTX 3000
+                    { model: 'RTX 3060', vram: 12, price: 200, keywords: ['3060'] },
+                    { model: 'RTX 3070 Ti', vram: 8, price: 250, keywords: ['3070 Ti', '3070Ti'] },
+                    { model: 'RTX 3070', vram: 8, price: 220, keywords: ['3070'] },
+                    { model: 'RTX 3080 Ti', vram: 12, price: 320, keywords: ['3080 Ti', '3080Ti'] },
+                    { model: 'RTX 3080', vram: 10, price: 280, keywords: ['3080'] },
+                    { model: 'RTX 3090 Ti', vram: 24, price: 550, keywords: ['3090 Ti', '3090Ti'] },
+                    { model: 'RTX 3090', vram: 24, price: 500, keywords: ['3090'] },
+                    // RTX 4000
+                    { model: 'RTX 4060 Ti', vram: 16, price: 280, keywords: ['4060 Ti', '4060Ti'] },
+                    { model: 'RTX 4060', vram: 8, price: 200, keywords: ['4060'] },
+                    { model: 'RTX 4070 Ti Super', vram: 16, price: 450, keywords: ['4070 Ti Super', '4070TiSuper', '4070 Ti S'] },
+                    { model: 'RTX 4070 Ti', vram: 12, price: 400, keywords: ['4070 Ti', '4070Ti'] },
+                    { model: 'RTX 4070', vram: 12, price: 350, keywords: ['4070'] },
+                    { model: 'RTX 4080 Super', vram: 16, price: 580, keywords: ['4080 Super', '4080Super'] },
+                    { model: 'RTX 4080', vram: 16, price: 550, keywords: ['4080'] },
+                    { model: 'RTX 4090', vram: 24, price: 650, keywords: ['4090'] },
+                    // RTX 5000
+                    { model: 'RTX 5070 Ti', vram: 16, price: 550, keywords: ['5070 Ti', '5070Ti'] },
+                    { model: 'RTX 5070', vram: 12, price: 450, keywords: ['5070'] },
+                    { model: 'RTX 5080', vram: 16, price: 650, keywords: ['5080'] },
+                    { model: 'RTX 5090', vram: 32, price: 1200, keywords: ['5090'] },
+                    // RTX A Series  ← 長いモデル名を先に
+                    { model: 'RTX A6000 Ada', vram: 48, price: 1100, keywords: ['A6000 Ada', 'A6000Ada'] },
+                    { model: 'RTX A6000', vram: 48, price: 900, keywords: ['A6000'] },
+                    { model: 'RTX A5000', vram: 24, price: 500, keywords: ['A5000'] },
+                    { model: 'RTX A4500', vram: 20, price: 450, keywords: ['A4500'] },
+                    { model: 'RTX A4000', vram: 16, price: 400, keywords: ['A4000'] },
+                    { model: 'RTX A2000', vram: 12, price: 250, keywords: ['A2000'] },
+                    // Datacenter
+                    { model: 'H200 SXM5', vram: 141, price: 5000, keywords: ['H200'] },
+                    { model: 'H100 SXM5', vram: 80, price: 3500, keywords: ['H100 SXM', 'H100SXM'] },
+                    { model: 'H100 PCIe', vram: 80, price: 2800, keywords: ['H100'] },
+                    { model: 'A100 80GB', vram: 80, price: 2100, keywords: ['A100 80', 'A10080'] },
+                    { model: 'A100 40GB', vram: 40, price: 1200, keywords: ['A100'] },
+                    { model: 'L40S', vram: 48, price: 1300, keywords: ['L40S'] },
+                    { model: 'L4', vram: 24, price: 550, keywords: ['L4'] },
+                    { model: 'A30', vram: 24, price: 500, keywords: ['A30'] },
+                    { model: 'Tesla T4', vram: 16, price: 300, keywords: ['Tesla T4', 'T4'] },
+                ];
+
+                function matchWebglToGatalog(rendererStr) {
+                    // rendererStr例: "ANGLE (NVIDIA, NVIDIA GeForce RTX 3090 Direct3D11...)"
+                    //                "ANGLE (NVIDIA Corporation, NVIDIA RTX A4000/PCIe/SSE2, OpenGL 4.6.0)"
+                    //                "NVIDIA GeForce RTX 3090/PCIe/SSE2"
+                    const upper = rendererStr.toUpperCase();
+                    for (const entry of GPU_CATALOG) {
+                        for (const kw of entry.keywords) {
+                            if (upper.includes(kw.toUpperCase())) {
+                                return entry;
+                            }
+                        }
+                    }
+                    return null;
+                }
+
+                function extractNvidiaRenderer() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                        if (!gl) return null;
+                        // WEBGL_debug_renderer_info でGPU名取得
+                        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+                        if (dbg) {
+                            const renderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+                            if (renderer) return renderer;
+                        }
+                        // フォールバック: マスクされたレンダラー
+                        return gl.getParameter(gl.RENDERER);
+                    } catch (e) {
+                        return null;
+                    }
+                }
+
+                function runWebglDetect() {
+                    const detecting = document.getElementById('webglDetecting');
+                    const success = document.getElementById('webglSuccess');
+                    const fail = document.getElementById('webglFail');
+                    detecting.classList.remove('hidden');
+                    success.classList.add('hidden');
+                    fail.classList.add('hidden');
+
+                    // 少し待ってからWebGL実行（UIを見せるため）
+                    setTimeout(() => {
+                        detecting.classList.add('hidden');
+                        const renderer = extractNvidiaRenderer();
+
+                        if (!renderer || !renderer.toUpperCase().includes('NVIDIA')) {
+                            // NVIDIAでない or 検出不可
+                            fail.classList.remove('hidden');
+                            // カタログ選択を自動展開
+                            const details = document.getElementById('manualSelectDetails');
+                            if (details) details.open = true;
+                            return;
+                        }
+
+                        // GPU名をパース: "ANGLE (NVIDIA, NVIDIA RTX A4000/PCIe..., OpenGL 4.6)" → "NVIDIA RTX A4000"
+                        let gpuDisplayName = renderer;
+                        const angleMatch = renderer.match(/ANGLE\s*\([^,]+,\s*([^,]+)/i);
+                        if (angleMatch) gpuDisplayName = angleMatch[1].trim();
+                        // 末尾の /PCIe/SSE2 や Direct3D... を除去
+                        gpuDisplayName = gpuDisplayName.replace(/\/PCIe.*$/i, '').replace(/Direct3D.*/i, '').trim();
+
+                        // カタログ照合
+                        const matched = matchWebglToGatalog(renderer);
+
+                        // 表示名を更新
+                        document.getElementById('webglGpuName').textContent = gpuDisplayName;
+                        document.getElementById('webglGpuDetails').innerHTML =
+                            `<span>🎮 WebGL検出</span><span>🔍 ${renderer.substring(0, 60)}${renderer.length > 60 ? '...' : ''}</span>`;
+
+                        if (matched) {
+                            // カタログにマッチ → フォームに自動入力
+                            const fullName = 'NVIDIA ' + matched.model;
+                            document.getElementById('gpuName').value = fullName;
+                            document.getElementById('gpuVram').value = matched.vram;
+                            document.getElementById('gpuPrice').value = matched.price;
+                            updateRevenuePreview(); updateCalcEarn();
+                            _selectedGpu = { name: fullName, vram_gb: matched.vram, catalog_price: matched.price, supported: true };
+
+                            document.getElementById('webglSupportBadge').innerHTML =
+                                `<span style="background:rgba(0,229,160,.15);color:var(--success);font-size:0.72rem;padding:3px 10px;border-radius:4px;font-weight:700">✅ 対応済み</span>`;
+                            document.getElementById('webglPriceInfo').innerHTML =
+                                `<span style="color:var(--success);font-weight:700">¥${matched.price.toLocaleString()}/時間</span>
+                                 <span style="color:var(--text3);font-size:0.75rem;margin-left:8px">VRAM ${matched.vram}GB · カタログ価格が自動適用されました</span>`;
+                            document.getElementById('webglNotSupported').classList.add('hidden');
+
+                            // カタログセレクトも同期
+                            const sel = document.getElementById('gpuCatalogSelect');
+                            if (sel) {
+                                for (const opt of sel.options) {
+                                    if (opt.value.startsWith(matched.model + '|')) { sel.value = opt.value; break; }
+                                }
+                            }
+                        } else {
+                            // カタログ未登録のNVIDIA GPU
+                            document.getElementById('webglSupportBadge').innerHTML =
+                                `<span style="background:rgba(255,71,87,.15);color:var(--danger);font-size:0.72rem;padding:3px 10px;border-radius:4px;font-weight:700">❌ 非対応</span>`;
+                            document.getElementById('webglPriceInfo').innerHTML = '';
+                            const notSup = document.getElementById('webglNotSupported');
+                            notSup.classList.remove('hidden');
+                            notSup.innerHTML = `このGPUは現在サポート対象外です。<a href="/landing/pricing.html" style="color:var(--accent)">対応GPU一覧を確認</a>`;
+                            // カタログ選択を自動展開
+                            const details = document.getElementById('manualSelectDetails');
+                            if (details) details.open = true;
+                        }
+
+                        success.classList.remove('hidden');
+                    }, 400);
+                }
+
+                /* ── setMode（サーバーPC検出用） ── */
+                function setMode(mode) {
+                    document.getElementById('modeAuto').style.display = mode === 'auto' ? '' : 'none';
+                }
+
+
+
+                /* ── カタログ選択 ── */
+                function onCatalogSelect() {
+                    const sel = document.getElementById('gpuCatalogSelect');
+                    const val = sel.value; // e.g. "RTX A4000|16|400"
+                    if (!val) return;
+                    const [model, vram, price] = val.split('|');
+                    // GPU名はnvidia-smiと揃える形で「NVIDIA {model}」
+                    const fullName = 'NVIDIA ' + model;
+                    document.getElementById('gpuName').value = fullName;
+                    document.getElementById('gpuVram').value = vram;
+                    document.getElementById('gpuPrice').value = price;
+                    updateRevenuePreview(); updateCalcEarn();
+                    // 選択バナー
+                    const banner = document.getElementById('catalogSelectedBanner');
+                    banner.classList.remove('hidden');
+                    banner.innerHTML = `<div style="background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);border-radius:8px;padding:.625rem .875rem;font-size:0.82rem;color:var(--success)">✅ <strong>${model}</strong> (${vram}GB VRAM) を選択しました（¥${parseInt(price).toLocaleString()}/時間）</div>`;
+                    _selectedGpu = { name: fullName, vram_gb: parseInt(vram), catalog_price: parseInt(price), supported: true };
+                }
+
+                /* ──────────────────────────────────────────────────────────
+                 *  GPU 自動検出（サーバーPC専用）
+                 * ────────────────────────────────────────────────────────── */
+                async function detectGpu() {
+                    const btn = document.getElementById('btnDetect');
+                    const result = document.getElementById('detectResult');
+                    btn.disabled = true; btn.textContent = '検出中...';
+                    result.innerHTML = `<div style="color:var(--text2);font-size:0.82rem;padding:.5rem 0">⏳ nvidia-smi を実行中...</div>`;
+
+                    try {
+                        const data = await apiFetch('/providers/detect-gpu');
+                        _detectedGpus = data.gpus || [];
+
+                        if (!data.success || _detectedGpus.length === 0) {
+                            result.innerHTML = `
+                        <div style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);border-radius:8px;padding:1rem;font-size:0.82rem;color:var(--danger)">
+                            ❌ ${data.error || 'GPUが検出されませんでした'}<br>
+                            <span style="color:var(--text3);font-size:0.75rem">NVIDIAドライバがインストールされているか確認してください。</span>
+                        </div>`;
+                            return;
+                        }
+
+                        // GPUカードを描画
+                        result.innerHTML = `
+                    <div style="font-size:0.78rem;color:var(--text3);margin-bottom:0.5rem">${_detectedGpus.length}台のGPUを検出しました。登録するGPUを選択してください：</div>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem">
+                        ${_detectedGpus.map((g, i) => renderDetectedCard(g, i)).join('')}
+                    </div>`;
+
+                        // サポート済みGPUが1つなら自動選択
+                        const supported = _detectedGpus.filter(g => g.supported);
+                        if (supported.length === 1) {
+                            selectDetectedGpu(supported[0].device_index);
+                        }
+                    } catch (e) {
+                        result.innerHTML = `<div style="color:var(--danger);font-size:0.82rem">エラー: ${e.message}</div>`;
+                    } finally {
+                        btn.disabled = false; btn.textContent = '🔍 再検出';
+                    }
+                }
+
+                function renderDetectedCard(g, i) {
+                    const supported = g.supported;
+                    const borderColor = supported ? 'rgba(0,229,160,.3)' : 'rgba(255,71,87,.3)';
+                    const bgColor = supported ? 'rgba(0,229,160,.06)' : 'rgba(255,71,87,.06)';
+                    const badge = supported
+                        ? `<span style="background:rgba(0,229,160,.15);color:var(--success);font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:700">✅ 対応済み</span>`
+                        : `<span style="background:rgba(255,71,87,.15);color:var(--danger);font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:700">❌ 非対応</span>`;
+                    const priceInfo = supported
+                        ? `<span style="color:var(--success);font-weight:700;font-family:monospace">¥${g.catalog_price?.toLocaleString()}/時間</span>`
+                        : `<span style="color:var(--text3);font-size:0.75rem">${g.reason}</span>`;
+
+                    const clickAttr = supported
+                        ? `onclick="selectDetectedGpu(${g.device_index})" style="cursor:pointer"`
+                        : `style="opacity:0.7"`;
+
+                    return `
+            <div id="gpuCard_${g.device_index}" ${clickAttr}
+                style="background:${bgColor};border:1px solid ${borderColor};border-radius:10px;padding:.875rem;transition:all .2s">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-weight:700;font-size:0.9rem">${g.name}</span>
+                    ${badge}
+                </div>
+                <div style="display:flex;gap:1.5rem;font-size:0.78rem;color:var(--text2);margin-bottom:4px">
+                    <span>🎮 GPU #${g.device_index}</span>
+                    <span>💾 ${g.vram_gb} GB VRAM</span>
+                    <span>🔧 Driver ${g.driver_version}</span>
+                    ${g.temperature ? `<span>🌡️ ${g.temperature}°C</span>` : ''}
+                </div>
+                <div style="font-size:0.82rem">${priceInfo}</div>
+                ${supported ? `<div style="font-size:0.72rem;color:var(--text3);margin-top:4px">クリックして選択</div>` : ''}
+            </div>`;
+                }
+
+                function selectDetectedGpu(deviceIndex) {
+                    const g = _detectedGpus.find(x => x.device_index === deviceIndex);
+                    if (!g || !g.supported) return;
+                    _selectedGpu = g;
+
+                    // カードのハイライト
+                    _detectedGpus.forEach(x => {
+                        const card = document.getElementById(`gpuCard_${x.device_index}`);
+                        if (card && x.supported) {
+                            card.style.borderColor = x.device_index === deviceIndex
+                                ? 'var(--primary)' : 'rgba(0,229,160,.3)';
+                            card.style.boxShadow = x.device_index === deviceIndex
+                                ? '0 0 0 2px rgba(108,71,255,.25)' : 'none';
+                        }
+                    });
+
+                    // フォームに自動入力
+                    document.getElementById('gpuName').value = g.name;
+                    document.getElementById('gpuVram').value = g.vram_gb;
+                    document.getElementById('gpuIndex').value = g.device_index;
+                    document.getElementById('gpuDriver').value = g.driver_version || '';
+                    document.getElementById('gpuPrice').value = g.catalog_price || 800;
+                    updateRevenuePreview();
+                    updateCalcEarn();
+
+                    // 選択バナー
+                    const banner = document.getElementById('detectedGpuBanner');
+                    banner.classList.remove('hidden');
+                    banner.innerHTML = `<div style="background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);border-radius:8px;padding:.625rem .875rem;font-size:0.82rem;color:var(--success)">
+                ✅ <strong>${g.name}</strong> を選択しました（¥${g.catalog_price?.toLocaleString()}/時間）</div>`;
+                }
+
+                // ── Revenue preview ──
+                function updateRevenuePreview() {
+                    const price = parseInt(document.getElementById('gpuPrice').value) || 800;
+                    const fee = Math.round(price * 0.2);
+                    const net = price - fee;
+                    const monthly = Math.round(net * 8 * 30);
+                    document.getElementById('rpPrice').textContent = `¥${price.toLocaleString()}/時間`;
+                    document.getElementById('rpFee').textContent = `-¥${fee.toLocaleString()}`;
+                    document.getElementById('rpNet').textContent = `¥${net.toLocaleString()}/時間`;
+                    document.getElementById('rpMonth').textContent = `¥${monthly.toLocaleString()}`;
+                }
+                function updateCalcEarn() {
+                    const price = parseInt(document.getElementById('gpuPrice').value) || 800;
+                    const hoursPerDay = 8; // default assumption
+                    const daysPerMonth = 30;
+                    const monthly = Math.round(price * 0.8 * hoursPerDay * daysPerMonth);
+                    const totalHours = hoursPerDay * daysPerMonth;
+                    document.getElementById('calcEarn').textContent = `¥${monthly.toLocaleString()}`;
+                    document.getElementById('calcHours').textContent = `${hoursPerDay}時間/日 × ${daysPerMonth}日稼働の場合`;
+                    const hEl = document.getElementById('calcHoursVal');
+                    if (hEl) {
+                        hEl.textContent = `${totalHours}h`;
+                        document.getElementById('calcHoursSub').textContent = `${hoursPerDay}時間/日 × ${daysPerMonth}日`;
+                    }
+                }
+                updateRevenuePreview(); updateCalcEarn();
+
+                // ── Submit ──
+                document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const errEl = document.getElementById('formError');
+                    errEl.classList.add('hidden');
+                    const btn = document.getElementById('submitBtn');
+
+                    if (!document.getElementById('agreeTerms').checked) {
+                        errEl.textContent = 'ガイドラインへの同意が必要です';
+                        errEl.classList.remove('hidden'); return;
+                    }
+
+                    const gpuName = document.getElementById('gpuName').value.trim();
+                    const gpuVram = parseFloat(document.getElementById('gpuVram').value);
+
+                    // GPU名の必須チェック
+                    if (!gpuName) {
+                        errEl.innerHTML = '⚠️ GPUモデルを選択するか、GPU名を入力してください。';
+                        errEl.classList.remove('hidden'); return;
+                    }
+                    if (!gpuVram || isNaN(gpuVram)) {
+                        errEl.innerHTML = '⚠️ VRAMを入力してください。';
+                        errEl.classList.remove('hidden'); return;
+                    }
+
+                    btn.disabled = true; btn.textContent = '登録中...';
+                    try {
+                        const data = await apiFetch('/providers/register', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                gpu_name: gpuName,
+                                device_index: parseInt(document.getElementById('gpuIndex').value) || 0,
+                                vram_gb: gpuVram,
+                                driver_version: document.getElementById('gpuDriver').value,
+                                price_per_hour: parseInt(document.getElementById('gpuPrice').value),
+                                location: document.getElementById('gpuLocation').value,
+                            }),
+                        });
+                        document.getElementById('successMsg').textContent =
+                            `${data.gpu.name} (${Math.round(data.gpu.vram_total / 1024)}GB VRAM) を登録しました！`;
+                        document.getElementById('registerForm').classList.add('hidden');
+                        document.getElementById('successCard').classList.remove('hidden');
+                        if (user) { user.role = 'provider'; localStorage.setItem('gpu_user', JSON.stringify(user)); }
+                        loadMyGpus();
+                    } catch (err) {
+                        errEl.textContent = err.message;
+                        errEl.classList.remove('hidden');
+                    } finally {
+                        btn.disabled = false; btn.textContent = '🚀 GPUを登録する';
+                    }
+                });
+
+                // ── My GPUs ──
+                async function loadMyGpus() {
+                    if (!token) return;
+                    try {
+                        const d = await apiFetch('/providers/my-gpus');
+                        document.getElementById('walletBal').textContent = `¥${Math.round(d.wallet_balance).toLocaleString()}`;
+                        if (d.gpus.length) {
+                            document.getElementById('myGpusSection').classList.remove('hidden');
+                            const totalE = d.gpus.reduce((s, g) => s + (g.total_earned || 0), 0);
+                            document.getElementById('totalEarned').textContent = `¥${Math.round(totalE).toLocaleString()}`;
+                            const grid = document.getElementById('myGpusGrid');
+                            grid.innerHTML = d.gpus.map(g => `
             <div class="my-gpu-card">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem">
                 <div class="mgc-name">${g.name}</div>
@@ -907,6 +1791,9 @@
                 <div class="mgc-stat"><span class="mgc-stat-val">${g.total_reservations || 0}</span><span style="font-size:0.7rem;color:var(--text3)">予約数</span></div>
                 <div class="mgc-stat"><span class="mgc-stat-val" style="color:var(--success)">¥${Math.round(g.total_earned || 0).toLocaleString()}</span><span style="font-size:0.7rem;color:var(--text3)">収益</span></div>
               </div>
+              <div style="font-size:0.75rem;color:${g.uptime_rate >= 99.5 ? 'var(--success)' : g.uptime_rate >= 95 ? 'var(--warning)' : 'var(--danger)'};margin:.5rem 0">
+                📶 接続率 ${g.session_count > 0 ? (g.uptime_rate || 100).toFixed(1) + '%' : '新規'}
+              </div>
               <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
                 <select onchange="updateGpuStatus(${g.id},this.value)" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:0.75rem">
                   <option value="available" ${g.status === 'available' ? 'selected' : ''}>利用可能に</option>
@@ -916,35 +1803,259 @@
               </div>
             </div>
           `).join('');
+                        }
+                    } catch { }
                 }
-            } catch { }
+
+                async function updateGpuStatus(gpuId, status) {
+                    try {
+                        await apiFetch(`/providers/gpus/${gpuId}`, { method: 'PATCH', body: JSON.stringify({ status }) });
+                        loadMyGpus();
+                    } catch (err) { alert(err.message); }
+                }
+
+                async function withdraw() {
+                    if (!confirm('ウォレット残高全額の出金を申請しますか？')) return;
+                    try {
+                        const d = await apiFetch('/payments/withdraw', { method: 'POST' });
+                        alert(d.message); loadMyGpus();
+                    } catch (err) { alert(err.message); }
+                }
+
+                function showRegisteredGpus() {
+                    document.getElementById('myGpusSection').scrollIntoView({ behavior: 'smooth' });
+                }
+                function showRegisterForm() {
+                    document.getElementById('successCard').classList.add('hidden');
+                    document.getElementById('registerForm').classList.remove('hidden');
+                    document.getElementById('registerCard').scrollIntoView({ behavior: 'smooth' });
+                }
+            </script>
+
+<script>
+(function(){
+    function toggleMenu(){
+        var d=document.getElementById('mobDrawer');
+        var b=document.getElementById('mobHamburger');
+        if(!d)return;
+        var open=d.classList.toggle('open');
+        if(b)b.classList.toggle('open',open);
+        document.body.style.overflow=open?'hidden':'';
+    }
+    function closeMenu(){
+        var d=document.getElementById('mobDrawer');
+        var b=document.getElementById('mobHamburger');
+        if(d){d.classList.remove('open');}
+        if(b){b.classList.remove('open');}
+        document.body.style.overflow='';
+    }
+    window.toggleMobMenu=toggleMenu;
+    window.closeMobMenu=closeMenu;
+})();
+</script>
+
+    <!-- Google Translate (非表示) -->
+    <div id="google_translate_element" style="display:none"></div>
+
+
+    <!-- Language Switcher JS -->
+    <script>
+    (function(){
+        var LANGS = {
+            ja: { flag: '🇯🇵', name: '日本語' },
+            en: { flag: '🇺🇸', name: 'English' },
+            zh: { flag: '🇨🇳', name: '中文' }
+        };
+        var GT_LANG = { en: 'en', zh: 'zh-CN', ja: 'ja' };
+
+        function setGoogCookie(val) {
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + d;
+            document.cookie = 'googtrans=' + val + '; path=/';
+        }
+        function clearGoogCookie() {
+            var exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=; path=/; ' + exp + '; domain=' + d;
+            document.cookie = 'googtrans=; path=/; ' + exp;
         }
 
-        async function updateGpuStatus(gpuId, status) {
-            try {
-                await apiFetch(`/providers/gpus/${gpuId}`, { method: 'PATCH', body: JSON.stringify({ status }) });
-                loadMyGpus();
-            } catch (err) { alert(err.message); }
+        function updateLangBtn(lang) {
+            var info = LANGS[lang] || LANGS['ja'];
+            document.querySelectorAll('.lang-btn').forEach(function(b){
+                b.innerHTML = '<span class="lang-flag">' + info.flag + '</span>'
+                    + info.name + ' <span style="opacity:.6;font-size:.7rem">&#9660;</span>';
+            });
+            document.querySelectorAll('.lang-option').forEach(function(o){
+                o.classList.toggle('active', o.dataset.lang === lang);
+            });
         }
 
-        async function withdraw() {
-            if (!confirm('ウォレット残高全額の出金を申請しますか？')) return;
-            try {
-                const d = await apiFetch('/payments/withdraw', { method: 'POST' });
-                alert(d.message);
-                loadMyGpus();
-            } catch (err) { alert(err.message); }
-        }
+        window.googleTranslateElementInit = function() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ja',
+                includedLanguages: 'en,zh-CN',
+                autoDisplay: false
+            }, 'google_translate_element');
+        };
 
-        function showRegisteredGpus() {
-            document.getElementById('myGpusSection').scrollIntoView({ behavior: 'smooth' });
-        }
-        function showRegisterForm() {
-            document.getElementById('successCard').classList.add('hidden');
-            document.getElementById('registerForm').classList.remove('hidden');
-            document.getElementById('registerCard').scrollIntoView({ behavior: 'smooth' });
-        }
+        window.selectLang = function(lang) {
+            var current = localStorage.getItem('site_lang') || 'ja';
+            document.querySelectorAll('.lang-switcher').forEach(function(s){ s.classList.remove('open'); });
+            if (lang === current) return;
+            localStorage.setItem('site_lang', lang);
+            if (lang === 'ja') {
+                clearGoogCookie();
+            } else {
+                setGoogCookie('/ja/' + GT_LANG[lang]);
+            }
+            location.reload();
+        };
+
+        window.toggleLangMenu = function(el) {
+            var switcher = el.closest ? el.closest('.lang-switcher') : el.parentElement;
+            if (!switcher) return;
+            var isOpen = switcher.classList.toggle('open');
+            if (isOpen) {
+                setTimeout(function(){
+                    document.addEventListener('click', function handler(e){
+                        if (!switcher.contains(e.target)){
+                            switcher.classList.remove('open');
+                            document.removeEventListener('click', handler);
+                        }
+                    });
+                }, 10);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function(){
+            var saved = localStorage.getItem('site_lang') || 'ja';
+            updateLangBtn(saved);
+        });
+    })();
     </script>
-</body>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async>
+    // ─── Stripe Connect ──────────────────────────────────────────────
+    async function loadStripeStatus() {
+        try {
+            const r = await fetch('/api/stripe/connect/status', {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            });
+            if (!r.ok) return;
+            const d = await r.json();
+            const btn = document.getElementById('btnStripeConnect');
+            const banner = document.getElementById('stripeStatusBanner');
+            const statusText = document.getElementById('stripeStatusText');
+            
+            if (d.connected) {
+                // 接続済み
+                if(btn) btn.style.display = 'none';
+                if(banner) banner.style.display = 'flex';
+                if(statusText) statusText.textContent = '✅ 接続済み — 自動送金が有効です';
+            } else if (d.accountId && !d.connected) {
+                // アカウントあるが未完了
+                if(btn){ btn.style.display = 'inline-flex'; btn.textContent = '⚡ Stripe 登録を完了する'; }
+                if(banner) banner.style.display = 'none';
+            } else {
+                // 未接続
+                if(btn) btn.style.display = 'inline-flex';
+                if(banner) banner.style.display = 'none';
+            }
+        } catch(e) {
+            console.log('Stripe status check failed:', e.message);
+        }
+    }
 
-</html>
+    async function connectStripe() {
+        const token = localStorage.getItem('token');
+        if (!token) { alert('ログインが必要です'); return; }
+        const btn = document.getElementById('btnStripeConnect');
+        try {
+            if(btn){ btn.disabled = true; btn.textContent = '処理中...'; }
+            const r = await fetch('/api/stripe/connect/onboard', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+            });
+            const d = await r.json();
+            if (d.url) {
+                window.open(d.url, '_blank');
+                // 3秒後に状態を再確認
+                setTimeout(loadStripeStatus, 3000);
+            } else {
+                alert('エラー: ' + (d.error || '不明なエラー'));
+            }
+        } catch(e) {
+            alert('接続エラー: ' + e.message);
+        } finally {
+            if(btn){ btn.disabled = false; btn.textContent = '⚡ Stripe に接続'; }
+        }
+    }
+
+    async function openStripeDashboard() {
+        const token = localStorage.getItem('token');
+        const r = await fetch('/api/stripe/connect/dashboard', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const d = await r.json();
+        if (d.url) window.open(d.url, '_blank');
+        else alert('エラー: ' + (d.error || '不明'));
+    }
+
+    async function disconnectStripe() {
+        if (!confirm('Stripe Connectの連携を解除しますか？')) return;
+        const token = localStorage.getItem('token');
+        await fetch('/api/stripe/connect/disconnect', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        loadStripeStatus();
+    }
+    // 初期化時にStripe状態を確認
+    setTimeout(loadStripeStatus, 1000);
+
+</script>
+
+
+    <!-- ── Provider inline auth modal ── -->
+    <div id="providerAuthModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);align-items:center;justify-content:center" onclick="if(event.target===this)closeProviderAuth()">
+        <div style="background:#13132a;border:1px solid rgba(108,71,255,0.4);border-radius:20px;padding:2rem;width:min(420px,94vw);position:relative">
+            <button onclick="closeProviderAuth()" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px 10px;color:#e8e8f0;cursor:pointer;font-size:1rem">&#x2715;</button>
+            <div style="text-align:center;margin-bottom:1.5rem">
+                <div style="font-size:1.8rem;margin-bottom:0.5rem">&#x26A1;</div>
+                <h3 style="font-size:1.2rem;font-weight:800">Janctionに参加する</h3>
+                <p style="font-size:0.82rem;color:var(--text2);margin-top:0.25rem">無料登録で今すぐGPUの貸し出しを開始</p>
+            </div>
+            <!-- tabs -->
+            <div style="display:flex;background:rgba(255,255,255,0.04);border-radius:10px;padding:3px;margin-bottom:1.5rem">
+                <button id="pTabRegister" onclick="switchProviderAuthTab('register')" style="flex:1;padding:0.5rem;border:none;border-radius:8px;cursor:pointer;font-size:0.875rem;font-weight:700;background:linear-gradient(135deg,#6c47ff,#8b5cf6);color:#fff;transition:all .2s">新規登録</button>
+                <button id="pTabLogin" onclick="switchProviderAuthTab('login')" style="flex:1;padding:0.5rem;border:none;border-radius:8px;cursor:pointer;font-size:0.875rem;font-weight:500;background:transparent;color:var(--text2);transition:all .2s">ログイン</button>
+            </div>
+            <!-- register form -->
+            <form id="pRegisterForm" onsubmit="providerRegister(event)">
+                <div style="margin-bottom:0.875rem">
+                    <input id="pRegUsername" type="text" placeholder="ユーザー名" required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e8e8f0;font-size:0.9rem;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:0.875rem">
+                    <input id="pRegEmail" type="email" placeholder="メールアドレス" required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e8e8f0;font-size:0.9rem;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:1rem">
+                    <input id="pRegPassword" type="password" placeholder="パスワード（6文字以上）" required minlength="6" style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e8e8f0;font-size:0.9rem;box-sizing:border-box">
+                </div>
+                <div id="pRegError" style="display:none;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.3);border-radius:8px;padding:0.6rem 0.9rem;font-size:0.83rem;color:#ff4757;margin-bottom:0.75rem"></div>
+                <button type="submit" style="width:100%;padding:0.9rem;background:linear-gradient(135deg,#6c47ff,#8b5cf6);border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer">&#x1F4DD; 無料で登録する</button>
+                <p style="text-align:center;font-size:0.78rem;color:var(--text2);margin-top:0.875rem">登録することで<a href="/terms/" style="color:var(--primary)">利用規約</a>に同意します</p>
+            </form>
+            <!-- login form -->
+            <form id="pLoginForm" style="display:none" onsubmit="providerLogin(event)">
+                <div style="margin-bottom:0.875rem">
+                    <input id="pLoginEmail" type="email" placeholder="メールアドレス" required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e8e8f0;font-size:0.9rem;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:1rem">
+                    <input id="pLoginPassword" type="password" placeholder="パスワード" required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e8e8f0;font-size:0.9rem;box-sizing:border-box">
+                </div>
+                <div id="pLoginError" style="display:none;background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.3);border-radius:8px;padding:0.6rem 0.9rem;font-size:0.83rem;color:#ff4757;margin-bottom:0.75rem"></div>
+                <button type="submit" style="width:100%;padding:0.9rem;background:linear-gradient(135deg,#6c47ff,#8b5cf6);border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer">ログイン</button>
+            </form>
+        </div>
+    </div>
+</body>

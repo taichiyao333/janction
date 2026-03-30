@@ -32,7 +32,7 @@ let transporter = createTransporter();
  * メール送信（設定なし時はコンソール出力）
  */
 async function sendMail({ to, subject, html, text }) {
-  const from = `GPU Rental Platform <${process.env.SMTP_USER || 'noreply@gpu-rental.local'}>`;
+  const from = `GPU Rental Platform <${process.env.SMTP_USER || 'noreply@janction.local'}>`;
 
   if (!transporter) {
     // 開発時はコンソールに表示
@@ -303,13 +303,287 @@ function mailPayoutRequest({ to, username, amount, account, payout }) {
   });
 }
 
+/**
+ * パスワードリセットメール
+ */
+function mailPasswordReset({ to, username, token }) {
+  const siteUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const resetUrl = `${siteUrl}/portal/?reset_token=${token}`;
+  return sendMail({
+    to,
+    subject: 'パスワードリセットのご案内 — Janction',
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+<div class="wrap">
+  <div class="card">
+    <div class="header">
+      <h1>⚡ Janction</h1>
+      <p>パスワードリセットのご案内</p>
+    </div>
+    <div class="body">
+      <p>こんにちは、<strong>${username}</strong> さん</p>
+      <p>パスワードリセットのリクエストを受け付けました。<br>
+         以下のボタンをクリックして、新しいパスワードを設定してください。</p>
+      <div style="text-align:center">
+        <a href="${resetUrl}" class="btn">🔑 パスワードをリセットする</a>
+      </div>
+      <div class="warn">
+        ⚠️ このリンクは<strong>1時間</strong>で無効になります。<br>
+        このメールに心当たりのない場合は無視してください。
+      </div>
+      <p style="font-size:0.8rem;color:#6a6a9a;word-break:break-all">
+        ボタンが機能しない場合は以下のURLにアクセスしてください：<br>
+        <a href="${resetUrl}" style="color:#6c47ff">${resetUrl}</a>
+      </p>
+    </div>
+    <div class="footer">© 2026 METADATALAB.INC — Janction</div>
+  </div>
+</div>
+</body></html>`,
+    text: `Janctionのパスワードリセット\n\n${username}さん、\nパスワードをリセットするには以下のリンク（有効期限1時間）にアクセスしてください：\n${resetUrl}\n\nこのメールに心当たりがない場合は無視してください。`,
+  });
+}
+
+/**
+ * 7. ポイント（チケット）購入完了メール
+ */
+function mailPointPurchased({ to, username, purchase }) {
+  const fmtJp = dt => new Date(dt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return sendMail({
+    to,
+    subject: `✅ ポイント購入完了 — ${purchase.points.toLocaleString()}pt を追加しました`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+<div class="wrap">
+  <div class="card">
+    <div class="header" style="background:linear-gradient(135deg,#6c47ff,#00e5a0)">
+      <h1>💎 ポイント購入完了</h1>
+      <p>ご購入ありがとうございます！</p>
+    </div>
+    <div class="body">
+      <p>こんにちは、<strong>${username}</strong> さん 👋</p>
+      <p>以下の内容でポイントが加算されました。</p>
+      <div class="info-row"><span class="info-label">プラン</span><span class="info-val">🎫 ${purchase.plan_name}</span></div>
+      <div class="info-row"><span class="info-label">付与ポイント</span><span class="info-val" style="color:#00e5a0">+${purchase.points.toLocaleString()} pt</span></div>
+      <div class="info-row"><span class="info-label">お支払い金額</span><span class="info-val">¥${Math.round(purchase.amount_yen).toLocaleString()}</span></div>
+      <div class="info-row"><span class="info-label">購入日時</span><span class="info-val">📅 ${fmtJp(new Date())}</span></div>
+      <div class="price">${purchase.points.toLocaleString()} pt</div>
+      <div style="text-align:center">
+        <a href="${process.env.BASE_URL || 'http://localhost:3000'}/portal/" class="btn">🚀 GPUを予約する</a>
+      </div>
+      <div class="warn">
+        💡 <strong>1pt = 10円</strong> で計算されます。<br>
+        ポイント残高はマイページからいつでも確認できます。
+      </div>
+    </div>
+    <div class="footer">© 2026 GPU Rental Platform · <a href="${process.env.BASE_URL || 'http://localhost:3000'}/portal/" style="color:#6c47ff">マイページ</a></div>
+  </div>
+</div>
+</body></html>`,
+    text: `ポイント購入完了\nプラン: ${purchase.plan_name}\n付与ポイント: +${purchase.points.toLocaleString()} pt\nお支払い: ¥${Math.round(purchase.amount_yen).toLocaleString()}\n\nGPUの予約はこちら: ${process.env.BASE_URL || 'http://localhost:3000'}/portal/`,
+  });
+}
+
+/**
+ * 出金申請通知メール（運営向け）
+ */
+function mailPayoutRequestAdmin({ to, username, email, amount, account, payout }) {
+  const typeLabel = account.account_type === 'checking' ? '当座' : '普通';
+  const fmtJp = dt => new Date(dt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const siteUrl = process.env.BASE_URL || 'https://janction.net';
+
+  return sendMail({
+    to,
+    subject: `⚠️ 【要対応】出金申請 #${payout.id} — ${username} ¥${Math.round(amount).toLocaleString()}`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+<div class="wrap">
+  <div class="card">
+    <div class="header" style="background:linear-gradient(135deg,#ff4757,#ffa502)">
+      <h1>⚠️ 出金申請 — 管理者通知</h1>
+      <p>新しい出金申請が届いています。対応が必要です。</p>
+    </div>
+    <div class="body">
+      <div class="info-row"><span class="info-label">申請番号</span><span class="info-val mono">#${payout.id}</span></div>
+      <div class="info-row"><span class="info-label">申請日時</span><span class="info-val">📅 ${fmtJp(payout.created_at)}</span></div>
+      <div class="info-row"><span class="info-label">申請者</span><span class="info-val">${username} (${email})</span></div>
+      <div class="price">¥${Math.round(amount).toLocaleString()}</div>
+      <div class="info-row"><span class="info-label">振込先銀行</span><span class="info-val">🏦 ${account.bank_name}${account.bank_code ? ` (${account.bank_code})` : ''}</span></div>
+      <div class="info-row"><span class="info-label">支店</span><span class="info-val">${account.branch_name}${account.branch_code ? ` (${account.branch_code})` : ''}</span></div>
+      <div class="info-row"><span class="info-label">口座種類</span><span class="info-val">${typeLabel}</span></div>
+      <div class="info-row"><span class="info-label">口座番号</span><span class="info-val mono">${account.account_number}</span></div>
+      <div class="info-row"><span class="info-label">口座名義</span><span class="info-val">${account.account_holder}</span></div>
+      ${payout.notes ? `<div class="info-row"><span class="info-label">備考</span><span class="info-val">${payout.notes}</span></div>` : ''}
+      <div style="text-align:center;margin-top:20px">
+        <a href="${siteUrl}/admin/" class="btn">🛠️ 管理画面で確認する</a>
+      </div>
+    </div>
+    <div class="footer">© 2026 GPU Rental — 管理者専用通知</div>
+  </div>
+</div>
+</body></html>`,
+    text: `【出金申請 管理者通知】\n申請番号: #${payout.id}\n申請者: ${username} (${email})\n金額: ¥${Math.round(amount).toLocaleString()}\n振込先: ${account.bank_name} ${account.branch_name} ${typeLabel} ${account.account_number}\n口座名義: ${account.account_holder}\n管理画面: ${siteUrl}/admin/`,
+  });
+}
+
+// ─── Provider: Pod利用開始通知 ───────────────────────────────────
+function mailProviderPodStarted({ to, providerName, renterName, gpuName, startTime, endTime, earnAmount }) {
+  const siteUrl = process.env.BASE_URL || 'https://janction.net';
+  const fmtJp = dt => new Date(dt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return sendMail({
+    to,
+    subject: `🚀 GPU利用開始のお知らせ — ${gpuName}`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+<div class="wrap">
+  <div class="card">
+    <div class="header" style="background:linear-gradient(135deg,#6c47ff,#00d4ff)">
+      <h1>🚀 GPU利用が開始されました</h1>
+      <p>あなたのGPUが利用されています</p>
+    </div>
+    <div class="body">
+      <div class="info-row"><span class="info-label">GPU</span><span class="info-val">🖥️ ${gpuName}</span></div>
+      <div class="info-row"><span class="info-label">利用者</span><span class="info-val">👤 ${renterName}</span></div>
+      <div class="info-row"><span class="info-label">開始時刻</span><span class="info-val">📅 ${fmtJp(startTime)}</span></div>
+      <div class="info-row"><span class="info-label">終了予定</span><span class="info-val">📅 ${fmtJp(endTime)}</span></div>
+      <div class="price">期待収益: ¥${Math.round(earnAmount || 0).toLocaleString()}</div>
+      <p style="text-align:center;color:#9898b8;font-size:0.85rem">利用中はGPUの電源をオフにしないでください</p>
+      <div style="text-align:center;margin-top:20px">
+        <a href="${siteUrl}/provider/" class="btn">📊 プロバイダー画面を確認</a>
+      </div>
+    </div>
+    <div class="footer">© 2026 GPU Rental — プロバイダー通知</div>
+  </div>
+</div>
+</body></html>`,
+    text: `GPU利用開始\nGPU: ${gpuName}\n利用者: ${renterName}\n開始: ${fmtJp(startTime)}\n終了予定: ${fmtJp(endTime)}\n期待収益: ¥${Math.round(earnAmount||0).toLocaleString()}`,
+  });
+}
+
+// ─── Provider: Pod利用終了・収益通知 ────────────────────────────
+function mailProviderPodEnded({ to, providerName, renterName, gpuName, startTime, endTime, earnAmount, totalBalance }) {
+  const siteUrl = process.env.BASE_URL || 'https://janction.net';
+  const fmtJp = dt => new Date(dt).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const durationMs  = new Date(endTime) - new Date(startTime);
+  const durationMin = Math.round(durationMs / 60000);
+  return sendMail({
+    to,
+    subject: `✅ GPU利用終了・収益確定 — ¥${Math.round(earnAmount||0).toLocaleString()}`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}</style></head><body>
+<div class="wrap">
+  <div class="card">
+    <div class="header" style="background:linear-gradient(135deg,#00e5a0,#00d4ff)">
+      <h1>✅ GPU利用が終了しました</h1>
+      <p>収益が確定しました</p>
+    </div>
+    <div class="body">
+      <div class="info-row"><span class="info-label">GPU</span><span class="info-val">🖥️ ${gpuName}</span></div>
+      <div class="info-row"><span class="info-label">利用者</span><span class="info-val">👤 ${renterName}</span></div>
+      <div class="info-row"><span class="info-label">開始</span><span class="info-val">📅 ${fmtJp(startTime)}</span></div>
+      <div class="info-row"><span class="info-label">終了</span><span class="info-val">📅 ${fmtJp(endTime)}</span></div>
+      <div class="info-row"><span class="info-label">利用時間</span><span class="info-val">⏱️ ${durationMin}分</span></div>
+      <div class="price" style="color:#00e5a0">+ ¥${Math.round(earnAmount||0).toLocaleString()}</div>
+      <div class="info-row"><span class="info-label">ウォレット残高</span><span class="info-val mono">¥${Math.round(totalBalance||0).toLocaleString()}</span></div>
+      <div style="text-align:center;margin-top:20px">
+        <a href="${siteUrl}/provider/" class="btn">💰 収益を確認する</a>
+      </div>
+    </div>
+    <div class="footer">© 2026 GPU Rental — プロバイダー通知</div>
+  </div>
+</div>
+</body></html>`,
+    text: `GPU利用終了\nGPU: ${gpuName}\n利用者: ${renterName}\n利用時間: ${durationMin}分\n収益: ¥${Math.round(earnAmount||0).toLocaleString()}\nウォレット残高: ¥${Math.round(totalBalance||0).toLocaleString()}`,
+  });
+}
+/**
+ * 12. セッション終了・利用明細メール（レンタラー向け）
+ */
+function mailSessionEnded({ to, username, session }) {
+  const fmtJp = dt => new Date(dt).toLocaleString('ja-JP', {
+    timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  });
+  const fmtPt = n => Math.round(n || 0).toLocaleString();
+  const startedAt = session.started_at ? fmtJp(session.started_at) : '—';
+  const endedAt = fmtJp(new Date());
+  const durationH = Math.floor((session.duration_minutes || 0) / 60);
+  const durationM = (session.duration_minutes || 0) % 60;
+  const durationStr = durationH > 0 ? `${durationH}時間${durationM}分` : `${durationM}分`;
+  const refundLine = session.refund_amount > 0
+    ? `<div class="info-row"><span class="info-label">↩️ 返金ポイント</span><span class="info-val" style="color:#00e5a0">+${fmtPt(session.refund_amount)} pt</span></div>`
+    : '';
+  const walletAfter = session.wallet_after != null
+    ? `<div class="info-row"><span class="info-label">💰 残高（終了後）</span><span class="info-val">${fmtPt(session.wallet_after)} pt</span></div>`
+    : '';
+  const reasonMap = {
+    expired: '予約時間終了',
+    user_stop: 'ユーザーが停止',
+    provider_force: 'プロバイダーにより停止',
+    admin: '管理者操作',
+  };
+  const reasonLabel = reasonMap[session.reason] || session.reason || '終了';
+
+  return sendMail({
+    to,
+    subject: `📊 GPU利用明細: ${session.gpu_name || 'GPU'} — ${durationStr}のご利用`,
+    html: `<!DOCTYPE html><html><head><style>${BASE_STYLE}
+      .receipt-box{background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:12px;padding:20px;margin:16px 0;text-align:center}
+      .cost-big{font-size:2.2rem;font-weight:900;color:#00e5a0;line-height:1.2}
+      .cost-label{font-size:0.8rem;color:#9898b8;margin-top:4px}
+      .tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.75rem;font-weight:700}
+      .tag-done{background:rgba(0,229,160,0.15);color:#00e5a0;border:1px solid rgba(0,229,160,0.3)}
+    </style></head><body>
+<div class="wrap">
+  <div class="card">
+    <div class="header">
+      <h1>📊 GPU利用明細</h1>
+      <p>ご利用ありがとうございました</p>
+    </div>
+    <div class="body">
+      <p><strong>${username}</strong> さん</p>
+      <p>以下のGPUセッションが終了しました。ご利用内容をご確認ください。</p>
+
+      <div class="receipt-box">
+        <div class="cost-big">${fmtPt(session.actual_cost)} pt</div>
+        <div class="cost-label">実費用（ポイント消費）</div>
+      </div>
+
+      <div class="info-row"><span class="info-label">🖥️ GPU</span><span class="info-val">${session.gpu_name || '—'}</span></div>
+      <div class="info-row"><span class="info-label">🕐 開始時刻</span><span class="info-val">${startedAt}</span></div>
+      <div class="info-row"><span class="info-label">🕑 終了時刻</span><span class="info-val">${endedAt}</span></div>
+      <div class="info-row"><span class="info-label">⏱️ 利用時間</span><span class="info-val">${durationStr}</span></div>
+      <div class="info-row"><span class="info-label">💳 デポジット</span><span class="info-val">${fmtPt(session.deposit_paid)} pt（予約時仮押さえ）</span></div>
+      <div class="info-row"><span class="info-label">💸 実費用</span><span class="info-val">${fmtPt(session.actual_cost)} pt</span></div>
+      ${refundLine}
+      ${walletAfter}
+      <div class="info-row"><span class="info-label">📋 終了理由</span><span class="info-val"><span class="tag tag-done">${reasonLabel}</span></span></div>
+
+      <div style="text-align:center;margin-top:24px">
+        <a href="${process.env.BASE_URL || 'https://janction.net'}/portal/" class="btn">次のGPUを予約する</a>
+      </div>
+    </div>
+    <div class="footer">
+      ご不明な点は <a href="mailto:info@metadatalab.net" style="color:#6c47ff">info@metadatalab.net</a> までお問い合わせください<br>
+      © 2026 METADATALAB.INC — Janction
+    </div>
+  </div>
+</div>
+</body></html>`,
+    text: `GPU利用明細\nGPU: ${session.gpu_name}\n利用時間: ${durationStr}\n実費用: ${fmtPt(session.actual_cost)}pt\n返金: ${fmtPt(session.refund_amount || 0)}pt\n残高: ${fmtPt(session.wallet_after)}pt`,
+  });
+}
+
+
 module.exports = {
   sendMail,
   mailWelcome,
+  mailPasswordReset,
   mailReservationConfirmed,
   mailReminderStart,
   mailReminderEnd,
   mailSessionExpired,
+  mailSessionEnded,
   mailPayoutRequest,
+  mailPayoutRequestAdmin,
+  mailPointPurchased,
+  mailProviderPodStarted,
+  mailProviderPodEnded,
 };
+
 

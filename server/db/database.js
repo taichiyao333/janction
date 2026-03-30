@@ -122,6 +122,26 @@ function makeProxy(db) {
                 },
             };
         },
+
+        /**
+         * better-sqlite3 互換の transaction(fn) ラッパー
+         * 呼び出し方: db.transaction(() => { ... })();
+         * sql.js は BEGIN/COMMIT/ROLLBACK を手動発行する必要がある
+         */
+        transaction(fn) {
+            return function(...args) {
+                db.run('BEGIN');
+                try {
+                    const result = fn(...args);
+                    db.run('COMMIT');
+                    _dirty = true;
+                    return result;
+                } catch (err) {
+                    try { db.run('ROLLBACK'); } catch (_) {}
+                    throw err;
+                }
+            };
+        },
     };
 }
 

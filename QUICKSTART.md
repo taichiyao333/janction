@@ -34,7 +34,7 @@ PowerShellで：
 ```powershell
 $nodeDir = "C:\Program Files\nodejs"
 $env:Path = "$nodeDir;" + $env:Path
-Remove-Item -Force "F:\gpu-rental\db\platform.db" -ErrorAction SilentlyContinue
+Remove-Item -Force "F:\janction\db\platform.db" -ErrorAction SilentlyContinue
 & "$nodeDir\node.exe" server/index.js
 ```
 

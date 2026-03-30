@@ -1,0 +1,32 @@
+# === GPU Rental Platform — Commit Message Template ===
+# Type: fix | feat | ops | docs | chore | hotfix | perf | security
+#
+# Format:  <type>(<scope>): <summary>
+# Scopes:  stripe | auth | db | api | ui | portal | mypage | admin |
+#           provider | webhook | pm2 | deploy | monitor | agent
+#
+# ── 概要（必須・50文字以内） ─────────────────────────────────
+<type>(<scope>): <summary>
+
+# ── 変更の詳細（任意） ────────────────────────────────────────
+# What: 何を変えたか
+# Why:  なぜ変えたか
+# How:  どのように変えたか
+
+# ── インシデント/バグ修正の場合（任意） ──────────────────────
+# Bug-Symptom: ユーザーが見た症状
+# Root-Cause:  根本原因
+# Fix:         修正内容
+# Verified:    確認方法
+
+# ── 関連 ──────────────────────────────────────────────────────
+# Refs: #issue_number
+# Breaking: yes/no
+
+# ────────────────────────────────────────────────────────────
+# 例:
+#   fix(stripe): ポイント付与されないWebhookバグを修正
+#   Bug-Symptom: 決済後80ptが付与されない
+#   Root-Cause: express.json()がBodyをパースしStripe署名検証失敗
+#   Fix: webhook routeをexpress.raw()で先取り受信
+#   Verified: pm2 logs janction で"✅ Point purchase"確認

@@ -158,7 +158,7 @@ router.post('/withdraw', authMiddleware, (req, res) => {
     }
 
     const amount = user.wallet_balance;
-    db.prepare('UPDATE users SET wallet_balance = 0 WHERE id = ?').run(req.user.id);
+    db.prepare('UPDATE users SET wallet_balance = 0, point_balance = 0 WHERE id = ?').run(req.user.id);
     db.prepare(`
     INSERT INTO payouts (provider_id, amount, status, period_from, period_to)
     VALUES (?, ?, 'pending', date('now', '-1 month'), date('now'))

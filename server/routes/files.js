@@ -50,6 +50,14 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage,
     limits: { fileSize: 10 * 1024 * 1024 * 1024 }, // 10GB
+    fileFilter: (req, file, cb) => {
+        // H-3: Block dangerous executable / script extensions
+        const BANNED_EXT = /\.(php[0-9]?|phtml|sh|bash|bat|cmd|ps1|psm1|exe|dll|so|bin|py|rb|pl|cgi|htaccess)$/i;
+        if (BANNED_EXT.test(file.originalname)) {
+            return cb(Object.assign(new Error(`セキュリティポリシー: ファイル形式 ${path.extname(file.originalname)} はアップロード禁止です`), { status: 400 }));
+        }
+        cb(null, true);
+    },
 });
 
 // GET /api/files/:podId?path=sub/dir

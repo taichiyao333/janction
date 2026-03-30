@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Janction Agent ダウンロード | Janction</title>
+<meta name="description" content="ワンクリックでGPUを公開して収益を得る。Janction Agentをダウンロードして今すぐ始めよう。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --purple: #6366f1;
+  --purple-light: #818cf8;
+  --purple-dark: #4f46e5;
+  --bg: #0a0a0f;
+  --card: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --text: #e2e8f0;
+  --muted: rgba(255,255,255,0.5);
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Header */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(10,10,15,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 20px; font-weight: 800; color: #fff; text-decoration: none; }
+.logo span { color: var(--purple); }
+.nav-links { display: flex; gap: 24px; align-items: center; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+.nav-links a:hover { color: #fff; }
+.btn-portal {
+  background: var(--purple);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Hero */
+.hero {
+  padding-top: 120px;
+  padding-bottom: 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--purple-light);
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+.hero h1 {
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  letter-spacing: -2px;
+}
+.hero h1 span {
+  background: linear-gradient(135deg, var(--purple-light), #a78bfa, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero p {
+  font-size: 20px;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto 48px;
+  line-height: 1.7;
+}
+
+/* Download Button */
+.download-area { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--purple), #8b5cf6);
+  color: #fff;
+  padding: 18px 40px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s;
+  box-shadow: 0 20px 60px rgba(99,102,241,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.btn-download::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn-download:hover { 
+  transform: translateY(-3px);
+  box-shadow: 0 30px 80px rgba(99,102,241,0.5);
+}
+.btn-download:hover::before { opacity: 1; }
+.btn-download svg { width: 24px; height: 24px; }
+
+.download-meta { display: flex; gap: 20px; color: var(--muted); font-size: 13px; }
+.download-meta span { display: flex; align-items: center; gap: 6px; }
+
+/* Steps */
+.section { padding: 80px 40px; max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--purple-light);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.section h2 {
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 48px;
+  letter-spacing: -1px;
+}
+.steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.step-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  position: relative;
+  transition: border-color 0.3s;
+}
+.step-card:hover { border-color: rgba(99,102,241,0.4); }
+.step-num {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--purple), #8b5cf6);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+.step-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.step-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.step-arrow {
+  position: absolute;
+  right: -36px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--border);
+  font-size: 24px;
+}
+
+/* Features */
+.features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.feature-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  display: flex; gap: 20px;
+  transition: all 0.3s;
+}
+.feature-card:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-2px); }
+.feature-icon {
+  width: 48px; height: 48px;
+  background: rgba(99,102,241,0.15);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.feature-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.feature-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* Requirements */
+.req-table {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.req-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+}
+.req-row:last-child { border-bottom: none; }
+.req-label { width: 200px; font-size: 14px; color: var(--muted); flex-shrink: 0; }
+.req-value { font-size: 14px; font-weight: 500; }
+.req-check { color: #10b981; font-size: 16px; margin-right: 8px; }
+
+/* CTA */
+.cta-section {
+  padding: 80px 40px;
+  text-align: center;
+  background: linear-gradient(180deg, transparent, rgba(99,102,241,0.05));
+}
+.cta-section h2 { font-size: 40px; font-weight: 800; margin-bottom: 16px; }
+.cta-section p { font-size: 18px; color: var(--muted); margin-bottom: 40px; }
+
+/* Version info */
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #34d399;
+  font-weight: 500;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+footer a { color: var(--muted); text-decoration: none; }
+footer a:hover { color: #fff; }
+
+@media (max-width: 768px) {
+  header { padding: 0 20px; }
+  .hero { padding-top: 100px; padding-bottom: 60px; }
+  .steps-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .section { padding: 60px 20px; }
+  .hero h1 { font-size: 36px; letter-spacing: -1px; }
+  .hero p { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/" class="logo">GPU<span>Rental</span></a>
+  <nav class="nav-links">
+    <a href="/landing/">ホーム</a>
+    <a href="/landing/pricing.html">料金</a>
+    <a href="/provider/">プロバイダー</a>
+    <a href="/portal/" class="btn-portal">ポータル</a>
+  </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="badge">
+    <span>⚡</span>
+    <span>ワンクリック インストール</span>
+  </div>
+  
+  <h1>
+    GPUを貸して<br>
+    <span>収益を得よう</span>
+  </h1>
+  
+  <p>
+    Janction Agentをインストールするだけ。<br>
+    ポート開放・ルーター設定は一切不要。<br>
+    <strong>リバーストンネル技術</strong>で安全に自動接続されます。
+  </p>
+  
+  <div class="download-area">
+    <a href="/downloads/janction-agent.exe" class="btn-download" id="downloadBtn" onclick="trackDownload()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+      </svg>
+      Windows版をダウンロード
+      <span style="font-size:13px; opacity:0.7; font-weight:400">(.exe · 37MB)</span>
+    </a>
+    
+    <div class="download-meta">
+      <span>✅ Windows 10/11 対応</span>
+      <span>🔒 セキュアな接続</span>
+      <span class="version-badge">v1.0.0</span>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="section">
+  <div class="section-label">使い方</div>
+  <h2>4ステップで完了</h2>
+  
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h3>ダウンロード＆実行</h3>
+      <p>上のボタンからZIPをダウンロード。<code>setup.bat</code> をダブルクリックで起動するだけ。</p>
+    </div>
+    
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h3>メールアドレスを入力</h3>
+      <p>Janctionアカウントのメールアドレスを入力。GPUが自動検出され、サーバーに登録されます。</p>
+    </div>
+    
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h3>トンネルが自動接続</h3>
+      <p>リバーストンネルが自動で開通。<strong>ポート開放やルーター設定は不要</strong>です。</p>
+    </div>
+    
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <h3>収益スタート！</h3>
+      <p>バックグラウンドで自動待機。ユーザーの予約が入ると即座にSSH接続が中継され、収益が発生します。</p>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" style="padding-top:0">
+  <div class="section-label">機能</div>
+  <h2>自動で全部やってくれる</h2>
+  
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🖥️</div>
+      <div>
+        <h3>GPU自動検出</h3>
+        <p>起動時にNVIDIA GPUを自動検出。GPU名・VRAM容量・ドライバーバージョンを自動登録します。</p>
+      </div>
+    </div>
+    
+    <div class="feature-card">
+      <div class="feature-icon">🔄</div>
+      <div>
+        <h3>PC起動時に自動スタート</h3>
+        <p>Windowsの自動起動に登録されるため、PCを起動するだけで自動的にサービスが開始されます。</p>
+      </div>
+    </div>
+    
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <div>
+        <h3>リバーストンネル接続</h3>
+        <p>外向きWebSocket接続でサーバーと通信。<strong>ポート開放・ファイアウォール設定は完全に不要</strong>。自宅回線でも安全に運用できます。</p>
+      </div>
+    </div>
+    
+    <div class="feature-card">
+      <div class="feature-icon">💰</div>
+      <div>
+        <h3>リアルタイム収益確認</h3>
+        <p>ポータルにログインすると、リアルタイムで収益状況を確認できます。月末に自動精算。</p>
+      </div>
+    </div>
+    
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <div>
+        <h3>SSH自動中継</h3>
+        <p>ユーザーのSSH接続をリバーストンネル経由で自動リレー。ユーザーはMac/PCから直接GPUにアクセス可能。</p>
+      </div>
+    </div>
+    
+    <div class="feature-card">
+      <div class="feature-icon">🚀</div>
+      <div>
+        <h3>ワンクリック セットアップ</h3>
+        <p>setup.batをダブルクリックするだけ。GPU検出・SSH設定・サーバー登録・トンネル接続まですべて自動で完了します。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Requirements -->
+<section class="section" style="padding-top:0">
+  <div class="section-label">動作環境</div>
+  <h2>必要なもの</h2>
+  
+  <div class="req-table">
+    <div class="req-row">
+      <span class="req-label">OS</span>
+      <span class="req-value"><span class="req-check">✓</span>Windows 10 / 11 (64bit)</span>
+    </div>
+    <div class="req-row">
+      <span class="req-label">GPU</span>
+      <span class="req-value"><span class="req-check">✓</span>NVIDIA GPU（GTX 1060以降推奨）</span>
+    </div>
+    <div class="req-row">
+      <span class="req-label">NVIDIAドライバー</span>
+      <span class="req-value"><span class="req-check">✓</span>バージョン 520以降</span>
+    </div>
+    <div class="req-row">
+      <span class="req-label">インターネット</span>
+      <span class="req-value"><span class="req-check">✓</span>常時接続（上り10Mbps以上推奨・ポート開放不要）</span>
+    </div>
+    <div class="req-row">
+      <span class="req-label">ポート開放</span>
+      <span class="req-value"><span class="req-check" style="color:#00e5a0">✓</span><strong>不要！</strong> リバーストンネルで自動接続</span>
+    </div>
+    <div class="req-row">
+      <span class="req-label">Janctionアカウント</span>
+      <span class="req-value"><span class="req-check">✓</span>無料で作成可能 →  <a href="/portal/" style="color:var(--purple-light)">アカウント作成</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>今すぐ始めよう</h2>
+  <p>使っていないGPUが収益を生み出す。<br>インストールは1分で完了します。</p>
+  
+  <div class="download-area">
+    <a href="/downloads/janction-agent.exe" class="btn-download" onclick="trackDownload()">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+      </svg>
+      Janction Agent をダウンロード
+    </a>
+    <p style="color:var(--muted);font-size:13px;">Windows 10/11 対応 · 無料 · 37MB</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 METADATALAB.INC / Janction &nbsp;|&nbsp; 
+  <a href="/landing/terms.html">利用規約</a> &nbsp;|&nbsp; 
+  <a href="/landing/privacy.html">プライバシーポリシー</a> &nbsp;|&nbsp;
+  <a href="/provider/">プロバイダーポータル</a>
+  </p>
+</footer>
+
+<script>
+function trackDownload() {
+  // ダウンロード数トラッキング（オプション）
+  try {
+    fetch('/api/agent/download-count', { method: 'POST' })
+      .catch(() => {});
+  } catch(e) {}
+}
+
+// ダウンロードカウント表示
+async function loadStats() {
+  try {
+    const r = await fetch('/api/health');
+    // onlineプロバイダー数を表示できる場合は表示
+  } catch(e) {}
+}
+loadStats();
+</script>
+
+</body>
+</html>

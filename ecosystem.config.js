@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
         {
-            name: 'gpu-rental',
+            name: 'janction',
             script: 'server/index.js',
             cwd: 'F:/antigravity/gpu-platform',
             instances: 1,
@@ -15,8 +15,8 @@ module.exports = {
                 PORT: 3000,
             },
             log_date_format: 'YYYY-MM-DD HH:mm:ss',
-            error_file: 'F:/gpu-rental/logs/pm2-error.log',
-            out_file: 'F:/gpu-rental/logs/pm2-out.log',
+            error_file: 'F:/janction/logs/pm2-error.log',
+            out_file: 'F:/janction/logs/pm2-out.log',
             merge_logs: true,
         },
     ],

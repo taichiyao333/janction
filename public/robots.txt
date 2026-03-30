@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Allow: /portal/
+Allow: /landing/
+Allow: /terms/
+Allow: /privacy/
+Allow: /tokushoho/
+
+Disallow: /admin/
+Disallow: /workspace/
+Disallow: /provider/
+Disallow: /mypage/
+Disallow: /api/
+Disallow: /epsilon_mock/
+
+Sitemap: https://janction.net/sitemap.xml

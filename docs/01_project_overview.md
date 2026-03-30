@@ -82,7 +82,7 @@ Cloudflare Tunnel (安全な外部公開)
 | 認証 | JWT + bcrypt | ユーザー認証 |
 | スケジューラ | node-cron | 予約自動実行 |
 | 外部公開 | Cloudflare Tunnel | セキュア公開 |
-| ストレージ | F:/gpu-rental/ | ユーザーデータ |
+| ストレージ | F:/janction/ | ユーザーデータ |
 
 ---
 
@@ -138,7 +138,7 @@ f:/antigravity/gpu-platform/
 ├── .env
 └── start.bat
 
-F:/gpu-rental/                    # ストレージ
+F:/janction/                    # ストレージ
 ├── users/{userId}/
 │   ├── workspace/
 │   ├── uploads/

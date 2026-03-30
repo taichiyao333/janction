@@ -40,7 +40,8 @@
         html,
         body {
             height: 100%;
-            overflow: hidden
+            overflow: hidden;
+            overflow-x: hidden;
         }
 
         body {
@@ -766,14 +767,236 @@
 
         /* ── RESPONSIVE ── */
         @media(max-width:768px) {
+            body {
+                flex-direction: column;
+                overflow: auto;
+                height: auto;
+            }
+
             .sidebar {
-                display: none
+                width: 100%;
+                flex-direction: row;
+                align-items: center;
+                padding: 0.5rem;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                overflow-x: auto;
+                flex-shrink: 0;
+                height: auto;
+            }
+
+            .sidebar-brand {
+                white-space: nowrap;
+                padding-right: 0.75rem;
+                font-size: 0.9rem;
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                gap: 4px;
+                overflow-x: auto;
+            }
+
+            .sidebar-nav-item,
+            .nav-item {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+
+            .main-content {
+                overflow-y: auto;
+                padding: 1rem;
             }
 
             .chart-row {
                 grid-template-columns: 1fr
             }
+
+            .table-scroll {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 580px;
+            }
+
+            .modal-content {
+                width: calc(100vw - 2rem);
+            }
         }
+
+        @media(max-width:480px) {
+            .header {
+                padding: 0 0.75rem;
+            }
+
+            .header-right {
+                gap: 0.5rem;
+            }
+
+            .header-right .btn {
+                padding: 4px 8px;
+                font-size: 0.72rem;
+            }
+        }
+
+        /* ── Mobile Hamburger ── */
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 9999;
+            flex-shrink: 0;
+        }
+        .nav-hamburger span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #e8e8f0;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .mob-drawer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10,10,20,0.98);
+            backdrop-filter: blur(20px);
+            z-index: 9998;
+            flex-direction: column;
+            padding: 5rem 1.5rem 2rem;
+            gap: 0;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .mob-drawer.open { transform: translateX(0); }
+        .mob-drawer a, .mob-drawer button.drawer-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            color: #e8e8f0;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            background: transparent;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+        .mob-drawer a:hover, .mob-drawer button.drawer-item:hover {
+            background: rgba(108,71,255,0.1);
+        }
+        .mob-drawer-title {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1rem 0.75rem 0.25rem;
+        }
+        @media (max-width: 768px) {
+            .nav-hamburger { display: flex !important; }
+            .mob-drawer { display: flex; }
+        }
+
+
+        /* ── Language Switcher ── */
+        .lang-switcher {
+            position: relative;
+            display: flex;
+            align-items: center;
+            z-index: 200;
+        }
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: #e8e8f0;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .lang-btn:hover {
+            background: rgba(108,71,255,0.15);
+            border-color: rgba(108,71,255,0.4);
+        }
+        .lang-flag { font-size: 1rem; line-height: 1; }
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #16162a;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 140px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 9999;
+        }
+        .lang-switcher.open .lang-dropdown { display: block; }
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            color: #e8e8f0;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: background 0.15s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .lang-option:hover { background: rgba(108,71,255,0.15); }
+        .lang-option.active { color: #6c47ff; background: rgba(108,71,255,0.1); }
+        .lang-option-name { font-weight: 500; }
+        /* Google Translate hidden */
+        #google_translate_element { display: none !important; }
+        .skiptranslate { display: none !important; }
+        body { top: 0 !important; }
+        .goog-te-banner-frame { display: none !important; }
+
+        /* admin sidebar mobile */
+        @media(max-width:768px){
+            .sidebar{display:none;}
+            .sidebar.mob-open{display:flex !important;position:fixed;inset:0;z-index:9990;width:280px;height:100vh;overflow-y:auto;}
+            .main-content{margin-left:0 !important;}
+            .app-layout{flex-direction:column;}
+        }
+    
+        html, body { overflow-x: hidden; }
     </style>
 </head>
 
@@ -787,6 +1010,23 @@
                 <div class="status-dot"></div><span id="hdrStatus">サーバー稼働中</span>
             </div>
             <a href="/portal/" class="btn btn-ghost btn-sm">ポータル</a>
+            
+            <div class="lang-switcher" id="langSwitcher">
+                <button class="lang-btn" onclick="toggleLangMenu(this)" aria-label="言語切り替え">
+                    <span class="lang-flag">🇯🇵</span>日本語 <span style="opacity:.6;font-size:.7rem">▼</span>
+                </button>
+                <div class="lang-dropdown">
+                    <button class="lang-option active" data-lang="ja" onclick="selectLang('ja')">
+                        <span class="lang-flag">🇯🇵</span><span class="lang-option-name">日本語</span>
+                    </button>
+                    <button class="lang-option" data-lang="en" onclick="selectLang('en')">
+                        <span class="lang-flag">🇺🇸</span><span class="lang-option-name">English</span>
+                    </button>
+                    <button class="lang-option" data-lang="zh" onclick="selectLang('zh')">
+                        <span class="lang-flag">🇨🇳</span><span class="lang-option-name">中文</span>
+                    </button>
+                </div>
+            </div>
             <button class="btn btn-danger btn-sm" id="btnAdminLogout">ログアウト</button>
         </div>
     </header>
@@ -806,8 +1046,42 @@
 
             <div class="nav-section">システム</div>
             <button class="nav-item" data-section="users"><span class="nav-icon">👥</span>ユーザー</button>
+            <button class="nav-item" data-section="bonus"><span class="nav-icon">🎁</span>ボーナスPT</button>
+            <button class="nav-item" data-section="coupons"><span class="nav-icon">🎟️</span>クーポン</button>
+            <button class="nav-item" data-section="pricing"><span class="nav-icon">📊</span>RunPod価格</button>
             <button class="nav-item" data-section="alerts"><span class="nav-icon">🔔</span>アラート<span class="nav-badge"
+            <button class="nav-item" data-section="stripe"><span class="nav-icon">⚡</span>Stripe Connect</button>
                     id="alertsBadge" style="display:none">0</span></button>
+            <button class="nav-item" data-section="maintenance" id="navMaintenance">
+                <span class="nav-icon">🔧</span>メンテモード
+                <span class="nav-badge" id="maintBadge" style="display:none;background:#ff4757">ON</span>
+            </button>
+            <button class="nav-item" data-section="render-jobs">
+                <span class="nav-icon">🎬</span>レンダリング
+                <span class="nav-badge" id="renderJobsBadge" style="display:none;background:#f59e0b">0</span>
+            </button>
+                        <button class="nav-item" data-section="apikeys">
+                <span class="nav-icon">🔑</span>APIキー管理
+            </button>
+            <button class="nav-item" data-section="outage">
+                <span class="nav-icon">⚡</span>障害管理
+                <span class="nav-badge" id="outageBadge" style="display:none;background:#ff4757">0</span>
+            </button>
+            <button class="nav-item" data-section="backup">
+                <span class="nav-icon">🗄</span>バックアップ
+            </button>
+            <button class="nav-item" data-section="monitoring" id="navMonitoring">
+                <span class="nav-icon">🔍</span>ヘルスモニター
+                <span class="nav-badge" id="monitorBadge" style="display:none;background:#ff4757">!</span>
+            </button>
+            <button class="nav-item" data-section="purchases">
+                <span class="nav-icon">💳</span>決済承認
+                <span class="nav-badge" id="purchasesBadge" style="display:none;background:#f59e0b">0</span>
+            </button>
+                <span class="nav-icon">⚡</span>障害管理
+                <span class="nav-badge" id="outageBadge" style="display:none;background:#ff4757">0</span>
+            </button>
+
 
             <div class="sidebar-footer">
                 <div class="provider-info">
@@ -1085,13 +1359,62 @@
                                 <th>ロール</th>
                                 <th>ステータス</th>
                                 <th>ウォレット</th>
+                                <th>ポイント残高</th>
                                 <th>登録日</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
                         <tbody id="userTableBody">
                             <tr>
-                                <td colspan="8" style="text-align:center;color:var(--text3);padding:2rem">
+                                <td colspan="9" style="text-align:center;color:var(--text3);padding:2rem">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ═══ BONUS POINTS ═══ -->
+            <div class="section" id="section-bonus">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">🎁 ボーナスポイント管理</div>
+                        <div class="section-sub">ユーザーへのポイント付与・履歴</div>
+                    </div>
+                </div>
+                <!-- Quick Grant Card -->
+                <div
+                    style="background:linear-gradient(135deg,rgba(108,71,255,0.15),rgba(0,212,255,0.08));border:1px solid rgba(108,71,255,0.3);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+                    <span style="font-size:2rem">🎁</span>
+                    <div style="flex:1;min-width:200px">
+                        <div style="font-weight:700;margin-bottom:2px">ボーナスポイントを付与</div>
+                        <div style="font-size:0.82rem;color:var(--text2)">ユーザー管理タブからも個別に付与できます</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="openBonusModalManual()" style="white-space:nowrap">
+                        🎁 ユーザーを選んで付与
+                    </button>
+                </div>
+                <!-- Bonus History Table -->
+                <div class="table-card">
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;border-bottom:1px solid var(--border)">
+                        <span style="font-weight:600;font-size:0.9rem">付与履歴</span>
+                        <button class="btn btn-ghost btn-sm" onclick="loadBonusLogs()">🔄 更新</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>日時</th>
+                                <th>対象ユーザー</th>
+                                <th>ポイント</th>
+                                <th>理由</th>
+                                <th>付与者</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bonusLogTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align:center;color:var(--text3);padding:2rem">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -1128,35 +1451,889 @@
                 </div>
             </div>
 
-        </main>
+            <!-- ═══ API KEY MANAGEMENT ═══ -->
+            <div class="section" id="section-apikeys">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">🔑 APIキー管理</div>
+                        <div class="section-sub">全ユーザーが発行したAPIキーの一覧・無効化・削除</div>
+                    </div>
+                    <button class="btn" style="font-size:0.8rem;padding:6px 14px;background:var(--bg2);border:1px solid var(--border)" onclick="loadApiKeys()">🔄 更新</button>
+                </div>
+
+                <!-- 統計カード -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem">
+                    <div class="stat-card">
+                        <div class="stat-value" id="akTotal">—</div>
+                        <div class="stat-label">総APIキー数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="akActive" style="color:var(--success)">—</div>
+                        <div class="stat-label">有効</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="akInactive" style="color:var(--text3)">—</div>
+                        <div class="stat-label">無効</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="akUsedToday" style="color:var(--accent)">—</div>
+                        <div class="stat-label">24h以内に使用</div>
+                    </div>
+                </div>
+
+                <!-- 検索 -->
+                <div style="margin-bottom:1rem">
+                    <input type="text" id="akSearch" placeholder="ユーザー名・メール・キー名で検索..."
+                        oninput="filterApiKeys()"
+                        style="width:100%;max-width:400px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-size:0.85rem">
+                </div>
+
+                <!-- テーブル -->
+                <div class="table-card">
+                    <div style="overflow-x:auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ユーザー</th>
+                                    <th>キー名</th>
+                                    <th>プレフィックス</th>
+                                    <th>発行日</th>
+                                    <th>最終使用</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="apiKeyTableBody">
+                                <tr><td colspan="8" style="text-align:center;color:var(--text3);padding:2rem"><div class="spinner"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ OUTAGE MANAGEMENT ═══ -->
+            <div class="section" id="section-outage">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">⚡ 障害管理・補償</div>
+                        <div class="section-sub">GPU障害を記録し、影響を受けたユーザーへポイント補償を実行</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="showOutageForm()">+ 障害を報告</button>
+                </div>
+
+                <!-- 障害報告フォーム -->
+                <div id="outageFormCard" class="table-card" style="display:none;margin-bottom:1.5rem">
+                    <div class="table-header"><h3>🔴 新規障害報告</h3></div>
+                    <div style="padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                        <div>
+                            <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:4px">対象GPU *</label>
+                            <select id="outageGpuId" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:0.85rem">
+                                <option value="">GPUを選択...</option>
+                            </select>
+                        </div>
+                        <div></div>
+                        <div>
+                            <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:4px">障害開始日時 *</label>
+                            <input type="datetime-local" id="outageStart" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:0.85rem">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:4px">障害終了日時 *</label>
+                            <input type="datetime-local" id="outageEnd" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:0.85rem">
+                        </div>
+                        <div style="grid-column:1/-1">
+                            <label style="font-size:0.8rem;color:var(--text2);display:block;margin-bottom:4px">障害原因（任意）</label>
+                            <input type="text" id="outageReason" placeholder="例: プロバイダーのネットワーク障害" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:0.85rem">
+                        </div>
+                        <div id="outagePreview" style="grid-column:1/-1;display:none;
+                            background:rgba(255,71,87,.06);border:1px solid rgba(255,71,87,.2);border-radius:10px;padding:1rem;font-size:0.82rem"></div>
+                        <div id="outageFormMsg" style="grid-column:1/-1;display:none"></div>
+                        <div style="grid-column:1/-1;display:flex;gap:8px">
+                            <button class="btn btn-primary" onclick="submitOutageReport()">📋 障害を報告する</button>
+                            <button class="btn" style="background:var(--bg2);border:1px solid var(--border)" onclick="hideOutageForm()">キャンセル</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 障害一覧テーブル -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>障害レポート一覧</h3>
+                        <button class="btn" style="font-size:0.8rem;padding:6px 14px;background:var(--bg2);border:1px solid var(--border)" onclick="loadOutageReports()">🔄 更新</button>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>GPU</th>
+                                    <th>障害開始</th>
+                                    <th>障害終了</th>
+                                    <th>時間</th>
+                                    <th>原因</th>
+                                    <th>影響ユーザー</th>
+                                    <th>補償ポイント</th>
+                                    <th>状態</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="outageTableBody">
+                                <tr><td colspan="10" style="text-align:center;color:var(--text3);padding:2rem"><div class="spinner"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ RENDER JOBS ═══ -->
+            <div class="section" id="section-render-jobs">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">🎬 レンダリングジョブ管理</div>
+                        <div class="section-sub">FFmpegレンダリングジョブの監視・管理</div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <select id="renderJobStatusFilter"
+                            onchange="loadRenderJobs()"
+                            style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:0.82rem">
+                            <option value="">全ステータス</option>
+                            <option value="running">🔄 処理中</option>
+                            <option value="queued">⏳ 待機中</option>
+                            <option value="done">✅ 完了</option>
+                            <option value="failed">❌ 失敗</option>
+                            <option value="cancelled">⏹ キャンセル</option>
+                        </select>
+                        <button class="btn btn-ghost btn-sm" onclick="loadRenderJobs()">🔄 更新</button>
+                    </div>
+                </div>
+
+                <!-- KPI カード -->
+                <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:1.25rem">
+                    <div class="kpi c-primary">
+                        <div class="kpi-icon">🎬</div>
+                        <div class="kpi-val" id="rjTotal">—</div>
+                        <div class="kpi-label">総ジョブ数</div>
+                    </div>
+                    <div class="kpi c-accent">
+                        <div class="kpi-icon">🔄</div>
+                        <div class="kpi-val" id="rjRunning">—</div>
+                        <div class="kpi-label">処理中</div>
+                    </div>
+                    <div class="kpi c-success">
+                        <div class="kpi-icon">✅</div>
+                        <div class="kpi-val" id="rjDone">—</div>
+                        <div class="kpi-label">完了</div>
+                    </div>
+                    <div class="kpi c-danger">
+                        <div class="kpi-icon">❌</div>
+                        <div class="kpi-val" id="rjFailed">—</div>
+                        <div class="kpi-label">失敗</div>
+                    </div>
+                    <div class="kpi c-warning">
+                        <div class="kpi-icon">⏳</div>
+                        <div class="kpi-val" id="rjQueued">—</div>
+                        <div class="kpi-label">待機中</div>
+                    </div>
+                </div>
+
+                <!-- ジョブ一覧テーブル -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>ジョブ一覧</h3>
+                        <span style="font-size:0.78rem;color:var(--text3)" id="rjCount"></span>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>ユーザー</th>
+                                    <th>入力ファイル</th>
+                                    <th>出力ファイル</th>
+                                    <th>フォーマット</th>
+                                    <th>ステータス</th>
+                                    <th>進捗</th>
+                                    <th>開始日時</th>
+                                    <th>完了日時</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="renderJobsTableBody">
+                                <tr>
+                                    <td colspan="10" style="text-align:center;color:var(--text3);padding:2rem">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── MAINTENANCE SECTION ───────────────────────────── -->
+            <div class="section" id="section-maintenance">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">🔧 メンテナンスモード</h2>
+                        <p class="section-sub">サイト全体のメンテナンスモードをON/OFFします</p>
+                    </div>
+                </div>
+
+                <!-- Status Card -->
+                <div id="maintStatusCard" style="background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.3);
+                border-radius:16px;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;
+                align-items:center;gap:1rem;transition:all .3s">
+                    <span id="maintStatusIcon" style="font-size:2rem">🟢</span>
+                    <div>
+                        <div id="maintStatusTitle" style="font-size:1.1rem;font-weight:700;margin-bottom:.25rem">
+                            通常稼働中
+                        </div>
+                        <div id="maintStatusSub" style="font-size:.85rem;color:var(--text2)">
+                            サービスは正常に稼働しています
+                        </div>
+                    </div>
+                    <div style="margin-left:auto">
+                        <span id="maintStatusBadge" style="padding:.4rem 1rem;border-radius:100px;
+                        font-size:.8rem;font-weight:700;background:var(--success);color:#000">
+                            ONLINE
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Toggle Card -->
+                <div
+                    style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.75rem 2rem;margin-bottom:1.5rem">
+                    <h3 style="margin-bottom:1.25rem;font-size:.95rem;display:flex;align-items:center;gap:.5rem">
+                        ⚡ モード切替
+                    </h3>
+                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+                        <label style="display:flex;align-items:center;gap:.75rem;cursor:pointer;user-select:none">
+                            <div style="position:relative">
+                                <input type="checkbox" id="maintToggle"
+                                    style="width:0;height:0;opacity:0;position:absolute">
+                                <div id="maintToggleTrack" onclick="toggleMaintenance()" style="
+                                width:56px;height:28px;background:#2a2a4a;border-radius:100px;
+                                cursor:pointer;transition:background .3s;border:1px solid rgba(120,120,200,.2)">
+                                    <div id="maintToggleThumb" style="
+                                    width:22px;height:22px;background:#5a5a7a;border-radius:50%;
+                                    margin:2px;transition:all .3s;box-shadow:0 2px 6px rgba(0,0,0,.4)">
+                                    </div>
+                                </div>
+                            </div>
+                            <span id="maintToggleLabel" style="font-weight:600;font-size:.9rem">メンテナンスモードをONにする</span>
+                        </label>
+                    </div>
+
+                    <div style="margin-bottom:1.25rem">
+                        <label style="font-size:.82rem;color:var(--text2);margin-bottom:.5rem;display:block">
+                            ⚠️ ユーザーに表示するメッセージ
+                        </label>
+                        <textarea id="maintMessage" rows="3" style="
+                        width:100%;background:#0a0a1a;border:1px solid var(--border);
+                        border-radius:10px;padding:.75rem 1rem;color:var(--text);
+                        font-family:inherit;font-size:.85rem;resize:vertical;outline:none;
+                        transition:border-color .2s" placeholder="メンテナンス中のメッセージを入力..."
+                            onfocus="this.style.borderColor='var(--primary)'"
+                            onblur="this.style.borderColor='var(--border)'">
+ただいまメンテナンス中です。しばらくお待ちください。</textarea>
+                    </div>
+
+                    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+                        <button onclick="applyMaintenance(true)" id="btnMaintOn" style="padding:.6rem 1.5rem;background:linear-gradient(135deg,#ff4757,#c0392b);
+                        color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.85rem;
+                        transition:opacity .2s" onmouseover="this.style.opacity='.85'"
+                            onmouseout="this.style.opacity='1'">
+                            🔴 メンテモードをONにする
+                        </button>
+                        <button onclick="applyMaintenance(false)" id="btnMaintOff" style="padding:.6rem 1.5rem;background:linear-gradient(135deg,#00e5a0,#00b37a);
+                        color:#000;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-size:.85rem;
+                        transition:opacity .2s" onmouseover="this.style.opacity='.85'"
+                            onmouseout="this.style.opacity='1'">
+                            🟢 メンテモードをOFFにする
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info Card -->
+                <div style="background:rgba(108,71,255,.06);border:1px solid rgba(108,71,255,.2);
+                border-radius:12px;padding:1rem 1.25rem;font-size:.83rem;color:var(--text2)">
+                    <strong style="color:var(--text)">⚠️ 注意事項</strong><br>
+                    <ul style="margin-top:.5rem;padding-left:1.25rem;line-height:2">
+                        <li>メンテモードON中、ユーザーはすべてのページでメンテナンス画面が表示されます</li>
+                        <li>管理者 (<code>/admin/</code>) は引き続きアクセス可能です</li>
+                        <li>サーバーを再起動するとメンテモードはOFFにリセットされます</li>
+                        <li>APIへの影響: <code>/api/auth</code>・<code>/api/admin</code>・<code>/api/health</code> はバイパスされます
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        
+        <!-- Stripe Connect Section -->
+        <div class="section" id="section-stripe">
+            <div class="section-header">
+                <h2>⚡ Stripe Connect アカウント管理</h2>
+            </div>
+            <div style="background:rgba(108,71,255,0.08);border:1px solid rgba(108,71,255,0.2);border-radius:12px;padding:1.25rem;margin-bottom:1.5rem">
+                <div style="font-size:0.85rem;color:var(--text2);line-height:1.7">
+                    <strong style="color:#a08cff">Stripe Connectとは？</strong><br>
+                    プロバイダーがStripeアカウントを連携することで、GPU利用料金から自動的に報酬が送金されます。<br>
+                    プラットフォーム手数料（10%）を差し引いた金額が自動送金されます。
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                <span style="color:var(--text2);font-size:0.875rem" id="stripeAccountCount">読み込み中...</span>
+                <button class="btn btn-ghost btn-sm" onclick="loadStripeAccounts()">🔄 更新</button>
+            </div>
+            <div id="stripeAccountsGrid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+                <div style="text-align:center;padding:2rem;color:var(--text2)"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+            <!-- ═══ HEALTH MONITOR ═══ -->
+            <div class="section" id="section-monitoring">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">🔍 ヘルスモニター</div>
+                        <div class="section-sub" id="monitorLastRun">最終チェック: —</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn btn-ghost btn-sm" onclick="loadMonitoring()">↻ 更新</button>
+                        <button class="btn btn-primary btn-sm" onclick="runHealthCheck()">▶ 今すぐ実行</button>
+                    </div>
+                </div>
+
+                <!-- ステータスバナー -->
+                <div id="monitorStatusBanner" style="display:none;border-radius:12px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;font-weight:600"></div>
+
+                <!-- KPIサマリー -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem" id="monitorKpis">
+                    <div class="kpi c-success"><div class="kpi-icon">🌐</div><div class="kpi-val" id="mkLocal">—</div><div class="kpi-label">ローカルサーバー</div></div>
+                    <div class="kpi c-primary"><div class="kpi-icon">☁️</div><div class="kpi-val" id="mkExternal">—</div><div class="kpi-label">外部アクセス</div></div>
+                    <div class="kpi c-accent"><div class="kpi-icon">💳</div><div class="kpi-val" id="mkStripe">—</div><div class="kpi-label">Stripe API</div></div>
+                    <div class="kpi c-warning"><div class="kpi-icon">🔔</div><div class="kpi-val" id="mkWebhook">—</div><div class="kpi-label">Webhook未配信</div></div>
+                    <div class="kpi c-danger"><div class="kpi-icon">⚠️</div><div class="kpi-val" id="mkPending">—</div><div class="kpi-label">未処理購入</div></div>
+                    <div class="kpi c-success"><div class="kpi-icon">💾</div><div class="kpi-val" id="mkDisk">—</div><div class="kpi-label">Cドライブ空き</div></div>
+                </div>
+
+                <!-- チェック詳細一覧 -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>チェック詳細</h3>
+                    </div>
+                    <table>
+                        <thead><tr>
+                            <th>ステータス</th><th>チェック項目</th><th>メッセージ</th><th>詳細</th>
+                        </tr></thead>
+                        <tbody id="monitorTableBody">
+                            <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:2rem"><div class="spinner"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ═══ PURCHASES (決済承認) ═══ -->
+            <div class="section" id="section-purchases">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">💳 決済承認管理</div>
+                        <div class="section-sub">Webhook未着などでポイント付与されていない決済を手動承認</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <select id="purchaseStatusFilter" onchange="loadPurchases()" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text);font-size:0.82rem">
+                            <option value="pending">Pending（未付与）</option>
+                            <option value="">全件表示</option>
+                            <option value="completed">完了済み</option>
+                        </select>
+                        <button class="btn btn-ghost btn-sm" onclick="loadPurchases()">↻ 更新</button>
+                    </div>
+                </div>
+
+                <!-- 統計 -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem">
+                    <div class="kpi c-warning"><div class="kpi-icon">⏳</div><div class="kpi-val" id="puPending">—</div><div class="kpi-label">Pending件数</div></div>
+                    <div class="kpi c-success"><div class="kpi-icon">✅</div><div class="kpi-val" id="puCompleted">—</div><div class="kpi-label">完了件数</div></div>
+                    <div class="kpi c-primary"><div class="kpi-icon">💰</div><div class="kpi-val" id="puTotalPt">—</div><div class="kpi-label">付与済みPt合計</div></div>
+                </div>
+
+                <div class="table-card">
+                    <table>
+                        <thead><tr>
+                            <th>ID</th><th>ユーザー</th><th>プラン</th><th>金額</th><th>ポイント</th><th>ステータス</th><th>日時</th><th>操作</th>
+                        </tr></thead>
+                        <tbody id="purchasesTableBody">
+                            <tr><td colspan="8" style="text-align:center;color:var(--text3);padding:2rem"><div class="spinner"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+</main>
     </div>
 
     <!-- GPU EDIT MODAL -->
     <div class="modal-overlay" id="gpuModal">
-        <div class="modal">
+        <div class="modal" style="width:560px">
             <button class="modal-close" onclick="closeModal('gpuModal')">✕</button>
             <h3 id="gpuModalTitle">GPU設定</h3>
             <input type="hidden" id="editGpuId" />
+
+            <!-- GPU情報 -->
+            <div
+                style="background:rgba(108,71,255,.06);border:1px solid rgba(108,71,255,.2);border-radius:8px;padding:0.75rem;margin-bottom:1rem;font-size:0.78rem;color:var(--text2)">
+                🖥 <strong style="color:var(--text)">GPU基本情報</strong>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
+                <div class="form-group" style="margin:0">
+                    <label>GPU名 *</label>
+                    <input type="text" id="editGpuName" placeholder="NVIDIA RTX A4000" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label>VRAM (GB) *</label>
+                    <input type="number" id="editGpuVram" placeholder="16" min="1" max="200" />
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+                <div class="form-group" style="margin:0">
+                    <label>ドライバーバージョン</label>
+                    <input type="text" id="editGpuDriver" placeholder="552.74" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label>設置場所</label>
+                    <select id="editGpuLocation">
+                        <option value="Home PC">🏠 自宅PC</option>
+                        <option value="Enterprise">🏢 企業サーバー</option>
+                        <option value="Data Center">🏭 データセンター</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 運用設定 -->
+            <div
+                style="background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:8px;padding:0.75rem;margin-bottom:1rem;font-size:0.78rem;color:var(--text2)">
+                ⚙️ <strong style="color:var(--text)">運用設定</strong>
+            </div>
             <div class="form-group"><label>ステータス</label>
                 <select id="editGpuStatus">
-                    <option value="available">利用可能</option>
-                    <option value="maintenance">メンテ中</option>
-                    <option value="offline">オフライン</option>
+                    <option value="available">✅ 利用可能</option>
+                    <option value="rented">🔒 使用中</option>
+                    <option value="maintenance">🔧 メンテ中</option>
+                    <option value="offline">⚫ オフライン</option>
                 </select>
             </div>
-            <div class="form-group"><label>時間単価 (円/時間)</label><input type="number" id="editGpuPrice" min="100" /></div>
-            <div class="form-group"><label>温度閾値 (°C)</label><input type="number" id="editGpuTemp" min="60" max="100" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+                <div class="form-group" style="margin:0">
+                    <label>時間単価 (円/時間)</label>
+                    <input type="number" id="editGpuPrice" min="100" step="50" />
+                </div>
+                <div class="form-group" style="margin:0">
+                    <label>温度閾値 (°C)</label>
+                    <input type="number" id="editGpuTemp" min="60" max="100" />
+                </div>
             </div>
+
             <div class="modal-actions">
                 <button class="btn btn-ghost" onclick="closeModal('gpuModal')">キャンセル</button>
-                <button class="btn btn-primary" onclick="saveGpu()">保存</button>
+                <button class="btn btn-primary" onclick="saveGpu()">💾 保存</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <!-- BONUS POINT MODAL -->
+    <div class="modal-overlay" id="bonusModal" style="display:none">
+        <div class="modal" style="width:480px;max-width:96vw">
+            <button class="modal-close" onclick="closeBonusModal()">✕</button>
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem">🎁 ボーナスポイント付与</h3>
+            <div id="bonusTargetInfo"
+                style="background:rgba(108,71,255,0.08);border:1px solid rgba(108,71,255,0.25);border-radius:8px;padding:0.875rem;margin-bottom:1rem;font-size:0.85rem;display:none">
+                <div style="color:var(--text3);font-size:0.75rem;margin-bottom:2px">付与対象</div>
+                <div id="bonusTargetName" style="font-weight:700"></div>
+                <div id="bonusTargetBalance" style="color:var(--text2);font-size:0.8rem;margin-top:2px"></div>
+            </div>
+            <div class="form-group">
+                <label>ユーザー選択</label>
+                <select id="bonusUserId" onchange="onBonusUserChange()">
+                    <option value="">-- ユーザーを選択 --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>付与ポイント数（マイナスで減算）</label>
+                <div style="display:flex;align-items:center;gap:0.5rem">
+                    <input type="number" id="bonusPoints" placeholder="例: 100" step="1" style="flex:1" />
+                    <span style="color:var(--text2);font-size:0.85rem">pt</span>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="setBonusPt(50)">+50</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="setBonusPt(100)">+100</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="setBonusPt(500)">+500</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="setBonusPt(1000)">+1,000</button>
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="setBonusPt(5000)">+5,000</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>理由（オプション）</label>
+                <input type="text" id="bonusReason" placeholder="例: キャンペーン報酬、障害補償 など" />
+            </div>
+            <div id="bonusError"
+                style="background:rgba(255,71,87,0.1);border:1px solid rgba(255,71,87,0.3);border-radius:8px;padding:0.75rem;font-size:0.85rem;color:var(--danger);margin-bottom:0.75rem;display:none">
+            </div>
+            <div id="bonusSuccess"
+                style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:8px;padding:0.75rem;font-size:0.85rem;color:#00e5a0;margin-bottom:0.75rem;display:none">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="closeBonusModal()">キャンセル</button>
+                <button class="btn btn-primary" id="bonusSubmitBtn" onclick="submitBonus()">🎁 付与する</button>
+            </div>
+        </div>
+    </div>
+    <!-- COUPON SECTION -->
+    <div class="section" id="section-coupons">
+        <div class="section-header">
+            <div>
+                <div class="section-title">🎟️ クーポン管理</div>
+                <div class="section-sub">クーポンコードの発行・管理・使用履歴</div>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateCouponModal()">➕ 新規発行</button>
+        </div>
+        <!-- 統計 -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem"
+            id="couponStats"></div>
+        <!-- クーポン一覧 -->
+        <div class="card">
+            <div class="card-header"><span class="card-title">発行済みクーポン</span></div>
+            <div id="couponList" style="overflow-x:auto"></div>
+        </div>
+    </div>
+
+    <!-- PRICING SECTION -->
+    <div class="section" id="section-pricing">
+        <div class="section-header">
+            <div>
+                <div class="section-title">📊 RunPod価格監視</div>
+                <div class="section-sub">毎敥0時30分に自動取得・コンペティター比較</div>
+            </div>
+            <button class="btn btn-primary" onclick="fetchRunPodPrices()">🔄 今すぐ取得</button>
+        </div>
+        <div id="pricingLastFetch" style="font-size:.8rem;color:var(--text3);margin-bottom:1rem"></div>
+        <!-- 比較テーブル -->
+        <div class="card">
+            <div class="card-header"><span class="card-title">GPU価格比較（RunPod vs Janction）</span></div>
+            <div id="pricingTable" style="overflow-x:auto"></div>
+        </div>
+    </div>
+
+            <!-- ═══ BACKUP MANAGEMENT ═══ -->
+            <div class="section" id="section-backup">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">🗄 バックアップ管理</div>
+                        <div class="section-sub">DBの自動バックアップ履歴・手動実行</div>
+                    </div>
+                    <button class="btn btn-primary" id="btnRunBackup">🗄 今すぐバックアップ</button>
+                </div>
+
+                <!-- KPI -->
+                <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem">
+                    <div class="kpi c-primary">
+                        <div class="kpi-icon">💰</div>
+                        <div class="kpi-value" id="kTotalRevenue">—</div>
+                        <div class="kpi-label">累計売上</div>
+                    </div>
+                    <div class="kpi c-success">
+                        <div class="kpi-icon">🏦</div>
+                        <div class="kpi-value" id="kTotalPayout">—</div>
+                        <div class="kpi-label">累計プロバイダー収益</div>
+                    </div>
+                    <div class="kpi c-accent">
+                        <div class="kpi-icon">⏱</div>
+                        <div class="kpi-value" id="kAvgSession">—</div>
+                        <div class="kpi-label">平均セッション時間</div>
+                    </div>
+                </div>
+
+                <!-- Backup table -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>バックアップ履歴</h3>
+                        <button class="btn btn-ghost btn-sm" onclick="loadBackups()">🔄 更新</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ファイル名</th>
+                                <th>サイズ</th>
+                                <th>作成日時</th>
+                            </tr>
+                        </thead>
+                        <tbody id="backupTableBody">
+                            <tr><td colspan="3" style="text-align:center;color:var(--text3);padding:2rem">読み込み中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top:1.5rem;padding:1.25rem;background:rgba(108,71,255,0.06);border:1px solid rgba(108,71,255,0.2);border-radius:12px;font-size:0.875rem;color:var(--text2)">
+                    <strong style="color:var(--text)">📋 バックアップ設定</strong><br>
+                    毎日 午前3時に自動バックアップを実行。最大7日分を保持します。<br>
+                    保存先: <code style="color:var(--accent)">/backups/</code> フォルダ
+                </div>
+            </div>
+
+    <!-- COUPON CREATE MODAL -->
+
+    <div id="couponModal"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center">
+        <div
+            style="background:var(--card);border:1px solid var(--border-h);border-radius:16px;padding:2rem;width:min(480px,95vw)">
+            <h3 style="margin-bottom:1.5rem">🎟️ クーポン発行</h3>
+            <div style="display:grid;gap:1rem">
+                <div>
+                    <label style="font-size:.85rem;color:var(--text2)">クーポンコード *</label>
+                    <input id="cpCode" placeholder="BETA2025"
+                        style="width:100%;margin-top:.35rem;padding:.6rem .9rem;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem" />
+                </div>
+                <div>
+                    <label style="font-size:.85rem;color:var(--text2)">説明</label>
+                    <input id="cpDesc" placeholder="ベータユーザー限定"
+                        style="width:100%;margin-top:.35rem;padding:.6rem .9rem;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem" />
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+                    <div>
+                        <label style="font-size:.85rem;color:var(--text2)">割引タイプ</label>
+                        <select id="cpType"
+                            style="width:100%;margin-top:.35rem;padding:.6rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+                            <option value="percent">割引率 (%)</option>
+                            <option value="fixed">固定額 (円)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:.85rem;color:var(--text2)">値 *</label>
+                        <input id="cpValue" type="number" placeholder="20"
+                            style="width:100%;margin-top:.35rem;padding:.6rem .9rem;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem" />
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+                    <div>
+                        <label style="font-size:.85rem;color:var(--text2)">最大使用回数 (0=無限)</label>
+                        <input id="cpMaxUses" type="number" placeholder="100"
+                            style="width:100%;margin-top:.35rem;padding:.6rem .9rem;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem" />
+                    </div>
+                    <div>
+                        <label style="font-size:.85rem;color:var(--text2)">有効期限</label>
+                        <input id="cpUntil" type="date"
+                            style="width:100%;margin-top:.35rem;padding:.6rem .9rem;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem" />
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem">
+                <button class="btn btn-ghost" onclick="closeCouponModal()">キャンセル</button>
+                <button class="btn btn-primary" onclick="submitCreateCoupon()">🎟️ 発行する</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RENDER JOB ERROR LOG MODAL -->
+    <div id="renderJobErrorModal"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center">
+        <div
+            style="background:var(--card);border:1px solid rgba(255,71,87,0.35);border-radius:16px;padding:2rem;width:min(720px,95vw);max-height:85vh;display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+                <h3 style="font-size:1rem;font-weight:700">🔍 ジョブ詳細 / エラーログ <span id="rjErrJobId" style="color:var(--text3);font-weight:400"></span></h3>
+                <button onclick="closeRenderErrorModal()" style="background:none;border:none;color:var(--text3);font-size:1.3rem;cursor:pointer;line-height:1">✕</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem;font-size:.83rem">
+                <div><span style="color:var(--text3)">ステータス:</span> <span id="rjErrStatus" style="font-weight:600"></span></div>
+                <div><span style="color:var(--text3)">フォーマット:</span> <span id="rjErrFormat"></span></div>
+                <div style="grid-column:1/-1"><span style="color:var(--text3)">入力:</span> <code id="rjErrInput" style="font-size:.78rem;color:var(--accent)"></code></div>
+                <div style="grid-column:1/-1"><span style="color:var(--text3)">出力:</span> <code id="rjErrOutput" style="font-size:.78rem;color:var(--success)"></code></div>
+            </div>
+            <div style="margin-bottom:.75rem">
+                <div style="font-size:.78rem;color:var(--text3);margin-bottom:.4rem">FFmpegコマンド:</div>
+                <pre id="rjErrCmd" style="background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:8px;padding:.75rem;font-size:.72rem;color:#a0a0c0;overflow-x:auto;white-space:pre-wrap;word-break:break-all;max-height:120px;overflow-y:auto"></pre>
+            </div>
+            <div style="font-size:.78rem;color:var(--text3);margin-bottom:.4rem">エラーログ (最後の2KB):</div>
+            <pre id="rjErrLog" style="flex:1;background:rgba(255,0,0,.04);border:1px solid rgba(255,71,87,.25);border-radius:8px;padding:.75rem;font-size:.72rem;color:#ff9090;overflow-y:auto;white-space:pre-wrap;word-break:break-all;min-height:80px"></pre>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+
+    <footer
+        style="border-top:1px solid rgba(255,255,255,.07);padding:1.5rem 2rem;margin-top:2rem;text-align:center;font-size:0.78rem;color:rgba(255,255,255,.35)">
+        <div
+            style="display:flex;justify-content:center;align-items:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:.75rem">
+            <a href="/landing/" style="color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">🏠 トップページ</a>
+            <a href="/portal/" style="color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">ポータル</a>
+            <a href="/provider/" style="color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">プロバイダー</a>
+            <a href="/landing/terms.html" style="color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">利用規約</a>
+            <a href="/landing/privacy.html" style="color:rgba(255,255,255,.5);text-decoration:none;transition:color .2s"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">プライバシー</a>
+        </div>
+        <span>© 2026 Janction by METADATALAB.INC.</span>
+    </footer>
+    <script src="/lib/chart.umd.min.js"></script>
+    <script src="/lib/socket.io.min.js"></script>
     <script src="app.js"></script>
+    <script src="bonus.js"></script>
+<script>
+function toggleAdminSidebar(){
+    var s=document.querySelector('.sidebar');
+    if(!s)return;
+    s.classList.toggle('mob-open');
+    var b=document.getElementById('mobHamburger');
+    if(b)b.classList.toggle('open',s.classList.contains('mob-open'));
+}
+</script>
+
+    <!-- Google Translate (非表示) -->
+    <div id="google_translate_element" style="display:none"></div>
+
+
+    <!-- Language Switcher JS -->
+    <script>
+    (function(){
+        var LANGS = {
+            ja: { flag: '🇯🇵', name: '日本語' },
+            en: { flag: '🇺🇸', name: 'English' },
+            zh: { flag: '🇨🇳', name: '中文' }
+        };
+        var GT_LANG = { en: 'en', zh: 'zh-CN', ja: 'ja' };
+
+        function setGoogCookie(val) {
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + d;
+            document.cookie = 'googtrans=' + val + '; path=/';
+        }
+        function clearGoogCookie() {
+            var exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=; path=/; ' + exp + '; domain=' + d;
+            document.cookie = 'googtrans=; path=/; ' + exp;
+        }
+
+        function updateLangBtn(lang) {
+            var info = LANGS[lang] || LANGS['ja'];
+            document.querySelectorAll('.lang-btn').forEach(function(b){
+                b.innerHTML = '<span class="lang-flag">' + info.flag + '</span>'
+                    + info.name + ' <span style="opacity:.6;font-size:.7rem">&#9660;</span>';
+            });
+            document.querySelectorAll('.lang-option').forEach(function(o){
+                o.classList.toggle('active', o.dataset.lang === lang);
+            });
+        }
+
+        window.googleTranslateElementInit = function() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ja',
+                includedLanguages: 'en,zh-CN',
+                autoDisplay: false
+            }, 'google_translate_element');
+        };
+
+        window.selectLang = function(lang) {
+            var current = localStorage.getItem('site_lang') || 'ja';
+            document.querySelectorAll('.lang-switcher').forEach(function(s){ s.classList.remove('open'); });
+            if (lang === current) return;
+            localStorage.setItem('site_lang', lang);
+            if (lang === 'ja') {
+                clearGoogCookie();
+            } else {
+                setGoogCookie('/ja/' + GT_LANG[lang]);
+            }
+            location.reload();
+        };
+
+        window.toggleLangMenu = function(el) {
+            var switcher = el.closest ? el.closest('.lang-switcher') : el.parentElement;
+            if (!switcher) return;
+            var isOpen = switcher.classList.toggle('open');
+            if (isOpen) {
+                setTimeout(function(){
+                    document.addEventListener('click', function handler(e){
+                        if (!switcher.contains(e.target)){
+                            switcher.classList.remove('open');
+                            document.removeEventListener('click', handler);
+                        }
+                    });
+                }, 10);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function(){
+            var saved = localStorage.getItem('site_lang') || 'ja';
+            updateLangBtn(saved);
+        });
+    })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async>
+
+    // ─── Stripe Connect 管理 ─────────────────────────────────────────
+    async function loadStripeAccounts() {
+        var token = localStorage.getItem('token');
+        var grid  = document.getElementById('stripeAccountsGrid');
+        var count = document.getElementById('stripeAccountCount');
+        if (!grid) return;
+        try {
+            var r = await fetch('/api/stripe/admin/accounts', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            var accounts = await r.json();
+            if (count) count.textContent = accounts.length + ' アカウント';
+            if (!accounts.length) {
+                grid.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text2)">Stripe Connect連携プロバイダーなし</div>';
+                return;
+            }
+            grid.innerHTML = accounts.map(function(a) {
+                var si = a.stripeInfo || {};
+                var badges = '';
+                if (si.chargesEnabled)  badges += '<span style="background:rgba(0,229,160,0.15);color:#00e5a0;padding:2px 8px;border-radius:4px;font-size:0.7rem">決済有効</span> ';
+                if (si.payoutsEnabled)  badges += '<span style="background:rgba(108,71,255,0.15);color:#a08cff;padding:2px 8px;border-radius:4px;font-size:0.7rem">出金有効</span>';
+                if (!si.chargesEnabled) badges += '<span style="background:rgba(255,71,87,0.15);color:#ff4757;padding:2px 8px;border-radius:4px;font-size:0.7rem">未完了</span>';
+                return '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">' +
+                    '<div><div style="font-weight:600">' + a.username + '</div>' +
+                    '<div style="font-size:0.78rem;color:var(--text2)">' + a.email + '</div></div>' +
+                    '<div>' + badges + '</div></div>' +
+                    '<div style="font-size:0.75rem;color:var(--text3);margin-bottom:1rem">' + a.stripe_account_id + '</div>' +
+                    '<div style="display:flex;gap:0.5rem;flex-wrap:wrap">' +
+                    '<div style="flex:1;background:rgba(0,229,160,0.06);border-radius:8px;padding:0.5rem;text-align:center">' +
+                    '<div style="font-size:0.68rem;color:var(--text3)">ウォレット</div>' +
+                    '<div style="font-weight:700;color:var(--success)">¥' + Math.round(a.wallet_balance || 0).toLocaleString() + '</div></div>' +
+                    '<button class="btn btn-ghost btn-sm" onclick="adminStripePayout(' + a.id + ', '' + a.username + '')" style="align-self:center">💸 送金</button>' +
+                    '</div></div>';
+            }).join('');
+        } catch(e) {
+            if (grid) grid.innerHTML = '<div style="color:var(--danger)">Error: ' + e.message + '</div>';
+        }
+    }
+
+    async function adminStripePayout(userId, username) {
+        var amount = prompt(username + ' への送金額（円）を入力してください:');
+        if (!amount || isNaN(amount) || Number(amount) < 100) return;
+        var token = localStorage.getItem('token');
+        try {
+            var r = await fetch('/api/stripe/admin/payout/' + userId, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount_yen: Number(amount) })
+            });
+            var d = await r.json();
+            if (d.success) {
+                showToast('✅ ¥' + Number(amount).toLocaleString() + ' を ' + username + ' へ送金しました', 'success');
+                loadStripeAccounts();
+            } else {
+                showToast('❌ ' + (d.error || 'エラー'), 'error');
+            }
+        } catch(e) {
+            showToast('ネットワークエラー: ' + e.message, 'error');
+        }
+    }
+
+</script>
+
 </body>
 
 </html>

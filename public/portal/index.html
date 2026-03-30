@@ -4,14 +4,48 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GPU Rental — High-Performance GPU Cloud</title>
-    <meta name="description" content="個人・企業・データセンターのGPUを時間単位でレンタル。RTX A4500から始まるオープンGPUマーケットプレイス。" />
+    <title>Janction — GPU計算クラウド | AI・機械学習・3DCG向けGPUレンタル</title>
+    <meta name="description" content="RTX 4090・A100・H100などのハイエンドGPUを時間単位でレンタル。AI開発・機械学習・動画レンダリングに。初期費用0円、¥200/時間から。" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
+
+    <!-- OG / Twitter Card -->
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="https://janction.net/portal/">
+    <meta property="og:title"       content="GPU検索 — Janction">
+    <meta property="og:description" content="RTX 4090・A100・H100など豊富なGPUを時間単位でレンタル。AI学習・3D制作・映像処理に。">
+    <meta property="og:image"       content="https://janction.net/favicon.ico">
+    <meta property="og:locale"      content="ja_JP">
+    <meta property="og:site_name"   content="Janction">
+    <meta name="twitter:card"       content="summary_large_image">
+    <meta name="twitter:title"      content="GPU検索 — Janction">
+    <meta name="twitter:description" content="RTX 4090・A100・H100など豊富なGPUを時間単位でレンタル。AI学習・3D制作・映像処理に。">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6c47ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Janction">
+
+    <!-- reCAPTCHA v3 (動的ロード - サイトキーが設定されている場合のみ) -->
+    <script>
+    (function() {
+        // /api/config からサイトキーを取得してreCAPTCHAを動的ロード
+        fetch('/api/config/recaptcha').then(r => r.json()).then(d => {
+            if (!d.site_key) return;
+            window._recaptchaSiteKey = d.site_key;
+            const s = document.createElement('script');
+            s.src = 'https://www.google.com/recaptcha/api.js?render=' + d.site_key;
+            document.head.appendChild(s);
+        }).catch(() => {}); // エラーは無視（CAPTCHAなしでも動作継続）
+    })();
+    </script>
 </head>
+
 
 <body>
     <!-- NAV -->
@@ -21,9 +55,9 @@
             <span class="nav-title">GPU<span class="accent">Rental</span></span>
         </div>
         <div class="nav-links" id="navLinks">
-            <a href="#gpus" class="nav-link">GPU一覧</a>
-            <a href="#how" class="nav-link">使い方</a>
-            <a href="#pricing" class="nav-link">料金</a>
+            <a href="#gpus" class="nav-link">&#x1F5A5; GPU&#x4E00;&#x89A7;&#x30FB;&#x6599;&#x91D1;</a>
+            <a href="#how" class="nav-link">&#x4F7F;&#x3044;&#x65B9;</a>
+            <a href="/landing/" class="nav-link">&#x30B5;&#x30FC;&#x30D3;&#x30B9;&#x7D39;&#x4ECB;</a>
         </div>
         <div class="nav-auth" id="navAuth">
             <button class="btn btn-ghost" id="btnLogin">ログイン</button>
@@ -33,32 +67,103 @@
             <span class="nav-username" id="navUsername"></span>
             <button class="btn btn-secondary" id="btnProvideGuide" title="自分のGPUを公開する手順">🏭 GPUを公開する</button>
             <button class="btn btn-ghost" id="btnWithdraw" title="出金管理" style="display:none">💰 出金管理</button>
+            <a href="/mypage/" class="btn btn-ghost" id="btnMyPage">👤 マイページ</a>
             <a href="/workspace/" class="btn btn-ghost" id="btnWorkspace">ワークスペース</a>
             <a href="/admin/" class="btn btn-ghost hidden" id="btnAdmin">管理画面</a>
             <button class="btn btn-ghost" id="btnLogout">ログアウト</button>
         </div>
         <!-- ナビバー: ログイン不要でも表示するGPU公開ボタン -->
-        <button class="btn btn-provide" id="btnProvideGuidePublic" title="自分のPCのGPUを貸し出す">🏭 GPUを公開する</button>
+        <button class="btn btn-provide" id="btnProvideGuidePublic" title="自分のPCのGPUを貸し出す" style="font-size:0.78rem;opacity:0.6">GPU貸出（パートナー）</button>
+    <!-- ハンバーガーボタン -->
+        <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn" onclick="toggleLangMenu(this)" aria-label="言語切り替え">
+            <span class="lang-flag">🇯🇵</span>日本語 <span style="opacity:.6;font-size:.7rem">▼</span>
+        </button>
+        <div class="lang-dropdown">
+            <button class="lang-option active" data-lang="ja" onclick="selectLang('ja')">
+                <span class="lang-flag">🇯🇵</span><span class="lang-option-name">日本語</span>
+            </button>
+            <button class="lang-option" data-lang="en" onclick="selectLang('en')">
+                <span class="lang-flag">🇺🇸</span><span class="lang-option-name">English</span>
+            </button>
+            <button class="lang-option" data-lang="zh" onclick="selectLang('zh')">
+                <span class="lang-flag">🇨🇳</span><span class="lang-option-name">中文</span>
+            </button>
+        </div>
+    </div>
+        <button class="nav-hamburger" id="navHamburger" aria-label="メニューを開く" onclick="toggleMobileMenu()"><span></span><span></span><span></span></button>
     </nav>
+
+    <!-- モバイルドロワー -->
+    <div class="nav-drawer" id="navDrawer">
+        <a href="#gpus" class="drawer-link" onclick="closeMobileMenu()">🖥️ GPU一覧</a>
+        <a href="#how" class="drawer-link" onclick="closeMobileMenu()">📖 使い方</a>
+        <a href="/pricing.html" class="drawer-link" target="_blank">💰 料金表</a>
+        <div class="drawer-divider"></div>
+        <div style="padding:0.75rem 0"><div class="lang-switcher" id="langSwitcherDrawer">
+        <button class="lang-btn" onclick="toggleLangMenu(this)" aria-label="言語切り替え">
+            <span class="lang-flag">🇯🇵</span>日本語 <span style="opacity:.6;font-size:.7rem">▼</span>
+        </button>
+        <div class="lang-dropdown">
+            <button class="lang-option active" data-lang="ja" onclick="selectLang('ja')">
+                <span class="lang-flag">🇯🇵</span><span class="lang-option-name">日本語</span>
+            </button>
+            <button class="lang-option" data-lang="en" onclick="selectLang('en')">
+                <span class="lang-flag">🇺🇸</span><span class="lang-option-name">English</span>
+            </button>
+            <button class="lang-option" data-lang="zh" onclick="selectLang('zh')">
+                <span class="lang-flag">🇨🇳</span><span class="lang-option-name">中文</span>
+            </button>
+        </div>
+    </div></div>
+        <div class="drawer-divider"></div>
+        <div id="drawerAuthSection" style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-ghost drawer-btn" onclick="closeMobileMenu();document.getElementById('btnLogin').click()">ログイン</button>
+            <button class="btn btn-primary drawer-btn" onclick="closeMobileMenu();document.getElementById('btnRegister').click()">無料登録</button>
+        </div>
+        <div id="drawerUserSection" style="display:none;flex-direction:column;gap:8px">
+            <div class="drawer-section" id="drawerUsername"></div>
+            <a href="/mypage/" class="drawer-link">👤 マイページ</a>
+            <a href="/workspace/" class="drawer-link">🖥️ ワークスペース</a>
+            <a href="/admin/" class="drawer-link hidden" id="drawerAdmin">⚙️ 管理画面</a>
+            <div class="drawer-divider"></div>
+            <button class="btn btn-ghost drawer-btn" onclick="closeMobileMenu();document.getElementById('btnLogout').click()">ログアウト</button>
+        </div>
+    </div>
 
     <!-- HERO -->
     <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-content">
-            <div class="hero-badge">🚀 Today: RTX A4500 · 20GB VRAM Available</div>
-            <h1 class="hero-title">あなたのGPUを<br /><span class="gradient-text">世界に貸し出す</span></h1>
-            <p class="hero-sub">個人・企業・データセンターのGPUを時間単位でレンタル。<br />AI学習・動画レンダリング・研究計算に最適。</p>
+            <div class="hero-badge">&#x26A1; &#x9AD8;&#x6027;&#x80FD;GPU&#x30AF;&#x30E9;&#x30A6;&#x30C9;&#x30EC;&#x30F3;&#x30BF;&#x30EB;&#x30B5;&#x30FC;&#x30D3;&#x30B9; &#x2014; &#x6642;&#x9593;&#x5358;&#x4F4D;&#x3067;&#x5373;&#x5229;&#x7528;</div>
+            <h1 class="hero-title">&#x5FC5;&#x8981;&#x306A;&#x6642;&#x3060;&#x3051;&#x3001;<br /><span class="gradient-text">&#x6700;&#x9AD8;&#x5CF0;&#x306E;&#x8A08;&#x7B97;&#x30D1;&#x30EF;&#x30FC;&#x3092;&#x3002;</span></h1>
+            <p class="hero-sub">RTX 4090&#x30FBRTX 4080&#x30FBA100&#x306A;&#x3069;&#x306E;&#x30CF;&#x30A4;&#x30A8;&#x30F3;&#x30C9;GPU&#x3092;<strong>&#x6642;&#x9593;&#x5358;&#x4F4D;</strong>&#x3067;&#x30EC;&#x30F3;&#x30BF;&#x30EB;&#x3002;<br />AI&#x958B;&#x767A;&#x30FB;&#x6A5F;&#x68B0;&#x5B66;&#x7FD2;&#x30FB;&#x52D5;&#x753B;&#x30EC;&#x30F3;&#x30C0;&#x30EA;&#x30F3;&#x30B0;&#x306B;&#x3002;&#x521D;&#x671F;&#x8CBB;&#x75280;&#x5186;&#x3001;&#xFFE5;200/&#x6642;&#x9593;&#x304B;&#x3089;&#x3002;</p>
             <div class="hero-actions">
-                <button class="btn btn-primary btn-lg" id="heroReserve">今すぐ予約する</button>
-                <button class="btn btn-outline btn-lg" id="heroProvide">GPUを貸し出す</button>
+                <button class="btn btn-primary btn-lg" id="heroReserve">&#x1F5A5; &#x5229;&#x7528;&#x53EF;&#x80FD;&#x306AGPU&#x3092;&#x898B;&#x308B;</button>
+                <button class="btn btn-outline btn-lg" id="heroProvide" style="font-size:0.85rem;opacity:0.75">GPU&#x3092;&#x8CB8;&#x3057;&#x51FA;&#x3059;</button>
             </div>
             <div class="hero-stats">
-                <div class="stat"><span class="stat-val" id="statGpus">1</span><span class="stat-label">GPU</span></div>
-                <div class="stat-div"></div>
-                <div class="stat"><span class="stat-val" id="statUsers">-</span><span class="stat-label">ユーザー</span>
+                <div class="stat">
+                    <span class="stat-val" id="statGpus">&#x2014;</span>
+                    <span class="stat-label">&#x767B;&#x9332;GPU&#x6570;</span>
                 </div>
                 <div class="stat-div"></div>
-                <div class="stat"><span class="stat-val">24/7</span><span class="stat-label">稼働</span></div>
+                <div class="stat">
+                    <span class="stat-val" id="statAvail" style="color:#00e5a0">&#x2014;</span>
+                    <span class="stat-label">&#x4ECA;&#x3059;&#x3050;&#x501F;&#x308A;&#x3089;&#x308C;&#x308B;GPU</span>
+                </div>
+                <div class="stat-div"></div>
+                <div class="stat">
+                    <span class="stat-val" id="statUsers">&#x2014;</span>
+                    <span class="stat-label">&#x5229;&#x7528;&#x30E6;&#x30FC;&#x30B6;&#x30FC;&#x6570;</span>
+                </div>
+            </div>
+        </div>
+                <div class="stat-div"></div>
+                <div class="stat">
+                    <span class="stat-val" id="statUsers">—</span>
+                    <span class="stat-label">ユーザー数</span>
+                </div>
             </div>
         </div>
         <div class="hero-visual">
@@ -72,13 +177,24 @@
             </div>
         </div>
     </section>
+    <!-- BENEFIT BAR -->
+    <div style="background:rgba(0,212,255,0.04);border-top:1px solid rgba(0,212,255,0.1);border-bottom:1px solid rgba(0,212,255,0.1);padding:0.875rem 2rem">
+        <div style="max-width:1100px;margin:0 auto;display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;font-size:0.82rem;color:#9898b8">
+            <span>&#x2705; <strong style="color:#e8e8f0">&#x521D;&#x671F;&#x8CBB;&#x75280;&#x5186;</strong></span>
+            <span>&#x2705; <strong style="color:#e8e8f0">1&#x6642;&#x9593;&#x5358;&#x4F4D;</strong>&#x3067;&#x4E88;&#x7D04;&#x53EF;&#x80FD;</span>
+            <span>&#x2705; <strong style="color:#e8e8f0">&#xFFE5;200/h&#x5186;</strong>&#x304B;&#x3089;</span>
+            <span>&#x2705; Stripe&#x5B89;&#x5168;&#x6C7A;&#x6E08;&#xFF08;Visa&#x30FB;JCB&#x30FB;&#x4ED6&#xFF09;</span>
+            <span>&#x2705; 35&#x7A2E;&#x985E;&#x4EE5;&#x4E0A;&#x306FGPU&#x5BFE;&#x5FDC;</span>
+        </div>
+    </div>
+
 
     <!-- GPU LIST -->
     <section class="section" id="gpus">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">利用可能な GPU</h2>
-                <p class="section-sub">リアルタイムで空き状況を確認できます</p>
+                <h2 class="section-title">&#x30EC;&#x30F3;&#x30BF;&#x30EB;&#x53EF;&#x80FD;&#x306A; GPU &#x4E00;&#x89A7;</h2>
+                <p class="section-sub">&#x30EA;&#x30A2;&#x30EB;&#x30BF;&#x30A4;&#x30E0;&#x3067;&#x7A7A;&#x304D;&#x72B6;&#x6CC1;&#x3092;&#x78BA;&#x8A8D;&#x3067;&#x304D;&#x307E;&#x3059;&#x3002;&#x7528;&#x9014;&#x30FB;&#x4E88;&#x7B97;&#x306B;&#x5408;&#x308F;&#x305B;&#x3066;GPU&#x3092;&#x9078;&#x3093;&#x3067;&#x4E88;&#x7D04;&#x3057;&#x3066;&#x304F;&#x3060;&#x3055;&#x3044;&#x3002;</p>
                 <div class="filter-bar">
                     <button class="filter-btn active" data-filter="all">すべて</button>
                     <button class="filter-btn" data-filter="available">空きあり</button>
@@ -96,11 +212,11 @@
     <!-- HOW IT WORKS -->
     <section class="section section-dark" id="how">
         <div class="container">
-            <h2 class="section-title">使い方</h2>
+            <h2 class="section-title">3&#x30B9;&#x30C6;&#x30C3;&#x30D7;&#x3067;&#x3059;&#x3050;&#x4F7F;&#x3048;&#x308B;</h2>
             <div class="steps">
                 <div class="step">
                     <div class="step-icon">📅</div>
-                    <h3>1. 予約</h3>
+                    <h3>1. GPU&#x3092;&#x9078;&#x3093;&#x3067;&#x4E88;&#x7D04;</h3>
                     <p>GPUを選んで利用時間を予約。カレンダーで空き状況を確認。</p>
                 </div>
                 <div class="step-arrow">→</div>
@@ -150,18 +266,19 @@
                         <button class="cal-nav-btn" id="calNext">›</button>
                     </div>
                     <div class="cal-grid">
-                        <div class="cal-day-hdr">日</div>
-                        <div class="cal-day-hdr">月</div>
-                        <div class="cal-day-hdr">火</div>
-                        <div class="cal-day-hdr">水</div>
-                        <div class="cal-day-hdr">木</div>
+                                                <div class="cal-day-hdr">木</div>
                         <div class="cal-day-hdr">金</div>
                         <div class="cal-day-hdr">土</div>
                         <div id="calDays" style="display:contents"></div>
                     </div>
 
+                    <!-- Docker Template -->
+                    <div class="cal-section-title" style="margin-top:1.25rem">🐳 環境テンプレート</div>
+                    <div id="dockerTemplates" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem"></div>
+                    <div id="templateDetail" style="display:none;background:rgba(108,71,255,.08);border:1px solid rgba(108,71,255,.2);border-radius:8px;padding:.5rem .75rem;font-size:.78rem;color:var(--text2);margin-bottom:.5rem"></div>
+
                     <!-- Purpose -->
-                    <div class="cal-section-title" style="margin-top:1.25rem">🎯 利用目的</div>
+                    <div class="cal-section-title" style="margin-top:.75rem">🎯 利用目的</div>
                     <select id="notes" class="cal-select">
                         <option value="AI/機械学習">🤖 AI / 機械学習</option>
                         <option value="動画レンダリング">🎬 動画レンダリング</option>
@@ -246,6 +363,11 @@
                 </div>
                 <div class="form-error hidden" id="loginError"></div>
                 <button type="submit" class="btn btn-primary btn-full">ログイン</button>
+                <p style="text-align:center;margin-top:0.75rem;font-size:0.8rem">
+                    <a href="#" id="forgotPasswordLink" style="color:var(--primary);text-decoration:underline">
+                        パスワードをお忘れの方？
+                    </a>
+                </p>
             </form>
             <!-- Register -->
             <form id="registerForm" class="auth-form hidden">
@@ -266,6 +388,60 @@
             </form>
         </div>
     </div>
+
+    <!-- PASSWORD RESET MODAL -->
+    <div class="modal-overlay hidden" id="resetOverlay">
+        <div class="modal modal-sm" id="resetModal" style="max-width:400px">
+            <button class="modal-close" id="resetClose">✕</button>
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.25rem">🔑 パスワードのリセット</h3>
+
+            <!-- Step 1: メールアドレス入力 -->
+            <div id="resetStep1">
+                <p style="font-size:0.85rem;color:var(--text2);margin-bottom:1rem">
+                    登録済みのメールアドレスを入力してください。<br>パスワードリセット用のリンクをお送りします。
+                </p>
+                <form id="forgotForm">
+                    <div class="form-group">
+                        <label>メールアドレス</label>
+                        <input type="email" id="forgotEmail" placeholder="you@example.com" required />
+                    </div>
+                    <div class="form-error hidden" id="forgotError"></div>
+                    <div class="form-success hidden" id="forgotSuccess"
+                        style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:8px;padding:0.75rem;font-size:0.85rem;color:#00e5a0;margin-bottom:0.75rem">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" id="forgotSubmitBtn">
+                        リセットメールを送信
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 2: 新しいパスワード設定（URLトークンがある場合に表示） -->
+            <div id="resetStep2" class="hidden">
+                <p style="font-size:0.85rem;color:var(--text2);margin-bottom:1rem">
+                    新しいパスワードを入力してください。
+                </p>
+                <form id="resetPasswordForm">
+                    <div class="form-group">
+                        <label>新しいパスワード</label>
+                        <input type="password" id="newPassword" placeholder="6文字以上" required minlength="6" />
+                    </div>
+                    <div class="form-group">
+                        <label>パスワード（確認）</label>
+                        <input type="password" id="newPasswordConfirm" placeholder="もう一度入力" required minlength="6" />
+                    </div>
+                    <div class="form-error hidden" id="resetError"></div>
+                    <div class="form-success hidden" id="resetSuccess"
+                        style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:8px;padding:0.75rem;font-size:0.85rem;color:#00e5a0;margin-bottom:0.75rem">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">パスワードを変更する</button>
+                </form>
+            </div>
+            <p style="text-align:center;margin-top:1rem;font-size:0.8rem">
+                <a href="#" id="backToLoginLink" style="color:var(--primary)">← ログインに戻る</a>
+            </p>
+        </div>
+    </div>
+
 
     <!-- MY RESERVATIONS PANEL -->
     <div class="side-panel hidden" id="myPanel">
@@ -634,15 +810,354 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-brand">⚡ GPU<span class="accent">Rental</span></div>
-            <p class="footer-copy">© 2026 GPU Rental Platform. RTX A4500 · 20GB VRAM</p>
+        <!-- SAFETY BANNER -->
+    <div style="background:rgba(0,229,160,0.04);border-top:1px solid rgba(0,229,160,0.15);padding:1.5rem 2rem;text-align:center">
+        <div style="max-width:800px;margin:0 auto;font-size:0.82rem;color:#9898b8;line-height:1.7">
+            <strong style="color:#00e5a0">&#x1F512; &#x6C7A;&#x6E08;&#x306E;&#x5B89;&#x5168;&#x6027;&#x306B;&#x3064;&#x3044;&#x3066;</strong><br>
+            &#x5F53;&#x30B5;&#x30FC;&#x30D3;&#x30B9;&#x306F;Stripe&#xFF08;PCI DSS&#x6E96;&#x62E0;&#xFF09;&#x306B;&#x3088;&#x308B;&#x5B89;&#x5168;&#x306A;&#x30AF;&#x30EC;&#x30B8;&#x30C3;&#x30C8;&#x30AB;&#x30FC;&#x30C9;&#x6C7A;&#x6E08;&#x3092;&#x63A1;&#x7528;&#x3002;Visa&#x30FBMastercard&#x30FBJCB&#x30FBAmex&#x5BFE;&#x5FDC;&#x3002;&#x30AB;&#x30FC;&#x30C9;&#x60C5;&#x5831;&#x306F;&#x5F53;&#x30B5;&#x30FC;&#x30D3;&#x30B9;&#x306E;&#x30B5;&#x30FC;&#x30D0;&#x30FC;&#x306B;&#x306F;&#x4E00;&#x5207;&#x4FDD;&#x5B58;&#x3055;&#x308C;&#x307E;&#x305B;&#x3093;&#x3002;
+            &#x30C7;&#x30FC;&#x30BF;&#x306E;&#x53D6;&#x308A;&#x6271;&#x3044;&#x306B;&#x3064;&#x3044;&#x3066;&#x306F;<a href="/privacy/" style="color:#00d4ff">&#x30D7;&#x30E9;&#x30A4;&#x30D0;&#x30B7;&#x30FC;&#x30DD;&#x30EA;&#x30B7;&#x30FC;</a>&#x3092;&#x3001;&#x5546;&#x53D6;&#x5F15;&#x306B;&#x3064;&#x3044;&#x3066;&#x306F;<a href="/tokushoho/" style="color:#00d4ff">&#x7279;&#x5B9A;&#x5546;&#x53D6;&#x5F15;&#x6CD5;&#x306B;&#x57FA;&#x3065;&#x304F;&#x8868;&#x8A18;</a>&#x3092;&#x3054;&#x78BA;&#x8A8D;&#x304F;&#x3060;&#x3055;&#x3044;&#x3002;
+        </div>
+    </div>
+<footer class="footer site-footer">
+        <div class="sf-inner">
+            <div class="sf-brand">
+                <div class="sf-logo">⚡ GPU<span style="color:var(--primary)">Rental</span></div>
+                <p class="sf-desc">日本初の個人・法人GPU貸出プラットフォーム。<br>アイドルGPUリソースをAI開発者・クリエイターへ。</p>
+            </div>
+            <div class="sf-col">
+                <h4>サービス</h4>
+                <a href="/portal/">GPU利用（ポータル）</a>
+                <a href="/provider/">GPU貸出（プロバイダー）</a>
+                <a href="/workspace/">ワークスペース</a>
+                <a href="/landing/">🏠 トップページへ</a>
+            </div>
+            <div class="sf-col">
+                <h4>サポート</h4>
+                <a href="/landing/terms.html">利用規約</a>
+                <a href="/landing/privacy.html">プライバシーポリシー</a>
+                <a href="mailto:info@metadatalab.net">お問い合わせ</a>
+            </div>
+        </div>
+        <div class="sf-bottom">
+            <span>© 2026 Janction by METADATALAB.INC. All rights reserved.</span>
+            <span>Made with ⚡ in Japan</span>
         </div>
     </footer>
 
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=20260325"></script>
+
+    <!-- Google Translate (非表示) -->
+    <div id="google_translate_element" style="display:none"></div>
+
+
+    <!-- Language Switcher JS -->
+    <script>
+    (function(){
+        var LANGS = {
+            ja: { flag: '🇯🇵', name: '日本語' },
+            en: { flag: '🇺🇸', name: 'English' },
+            zh: { flag: '🇨🇳', name: '中文' }
+        };
+        var GT_LANG = { en: 'en', zh: 'zh-CN', ja: 'ja' };
+
+        function setGoogCookie(val) {
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + d;
+            document.cookie = 'googtrans=' + val + '; path=/';
+        }
+        function clearGoogCookie() {
+            var exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=; path=/; ' + exp + '; domain=' + d;
+            document.cookie = 'googtrans=; path=/; ' + exp;
+        }
+
+        function updateLangBtn(lang) {
+            var info = LANGS[lang] || LANGS['ja'];
+            document.querySelectorAll('.lang-btn').forEach(function(b){
+                b.innerHTML = '<span class="lang-flag">' + info.flag + '</span>'
+                    + info.name + ' <span style="opacity:.6;font-size:.7rem">&#9660;</span>';
+            });
+            document.querySelectorAll('.lang-option').forEach(function(o){
+                o.classList.toggle('active', o.dataset.lang === lang);
+            });
+        }
+
+        /* Google Translate コールバック: cookieが既にセットされていれば自動翻訳 */
+        window.googleTranslateElementInit = function() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ja',
+                includedLanguages: 'en,zh-CN',
+                autoDisplay: false
+            }, 'google_translate_element');
+        };
+
+        /* 言語選択: cookieセット → リロード（1回のみ） */
+        window.selectLang = function(lang) {
+            var current = localStorage.getItem('site_lang') || 'ja';
+            document.querySelectorAll('.lang-switcher').forEach(function(s){ s.classList.remove('open'); });
+            if (lang === current) return;
+            localStorage.setItem('site_lang', lang);
+            if (lang === 'ja') {
+                clearGoogCookie();
+            } else {
+                setGoogCookie('/ja/' + GT_LANG[lang]);
+            }
+            location.reload();
+        };
+
+        window.toggleLangMenu = function(el) {
+            var switcher = el.closest ? el.closest('.lang-switcher') : el.parentElement;
+            if (!switcher) return;
+            var isOpen = switcher.classList.toggle('open');
+            if (isOpen) {
+                setTimeout(function(){
+                    document.addEventListener('click', function handler(e){
+                        if (!switcher.contains(e.target)){
+                            switcher.classList.remove('open');
+                            document.removeEventListener('click', handler);
+                        }
+                    });
+                }, 10);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function(){
+            var saved = localStorage.getItem('site_lang') || 'ja';
+            updateLangBtn(saved);
+        });
+    })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async>
+    // Mobile menu
+    function toggleMobileMenu() {
+        var links = document.getElementById('navLinks');
+        var btn = document.getElementById('mobHamburger');
+        if (!links) return;
+        links.classList.toggle('open');
+        if (btn) btn.classList.toggle('open');
+    }
+    // ESCで閉じる
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            var links = document.getElementById('navLinks');
+            var btn = document.getElementById('mobHamburger');
+            if (links) links.classList.remove('open');
+            if (btn) btn.classList.remove('open');
+        }
+    });
+
+
+
+    // ─── Portal Stripe ポイント購入 ─────────────────────────────
+    function openStripeModal() {
+        document.getElementById('stripeBuyModal').style.display = 'flex';
+    }
+    function closeStripeModal() {
+        document.getElementById('stripeBuyModal').style.display = 'none';
+    }
+    // ESCで閉じる
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeStripeModal();
+    });
+
+    async function stripeCheckoutPortal() {
+        var token = localStorage.getItem('token');
+        if (!token) { alert('ログインが必要です'); return; }
+        var planId   = document.getElementById('portalPlanSelect')?.value || 'plan_1h';
+        var coupon   = document.getElementById('portalCouponInput')?.value?.trim() || '';
+        var btn      = document.getElementById('btnPortalStripe');
+        try {
+            if(btn){ btn.disabled=true; btn.textContent='処理中...'; }
+            var body = { plan_id: planId };
+            if (coupon) body.coupon_code = coupon;
+            var r = await fetch('/api/stripe/checkout/points', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            var d = await r.json();
+            if (!r.ok) { alert('エラー: ' + (d.error || 'Stripe未設定')); return; }
+            if (d.url) window.location.href = d.url;
+        } catch(e) {
+            alert('接続エラー: ' + e.message);
+        } finally {
+            if(btn){ btn.disabled=false; btn.textContent='💳 Stripeで安全決済'; }
+        }
+    }
+
+    // ログイン後にフローティングボタンを表示
+    var _origSetUser = typeof setUserInfo === 'function' ? setUserInfo : null;
+    function showStripeBuyBtn() {
+        var token = localStorage.getItem('token');
+        if (token) {
+            var el = document.getElementById('stripeBuyBtn');
+            if (el) el.style.display = 'block';
+        }
+    }
+    setTimeout(showStripeBuyBtn, 800);
+
+    // 購入完了URLチェック  
+    (function(){
+        var p = new URLSearchParams(location.search);
+        if (p.get('payment') === 'success') {
+            var pid = p.get('purchase');
+            if (typeof showToast === 'function') {
+                showToast('✅ ポイント購入完了！' + (pid ? ' #' + pid : ''), 'success');
+            }
+            history.replaceState(null, '', '/portal/');
+        } else if (p.get('payment') === 'cancelled') {
+            if (typeof showToast === 'function') showToast('決済がキャンセルされました', 'info');
+            history.replaceState(null, '', '/portal/');
+        }
+    })();
+
+</script>
+
+
+    <!-- Stripe ポイント購入フローティングボタン -->
+    <div id="stripeBuyBtn" style="position:fixed;bottom:24px;right:24px;z-index:8000;display:none">
+        <button onclick="openStripeModal()" style="background:linear-gradient(135deg,#6c47ff,#00d4ff);border:none;border-radius:50px;padding:14px 22px;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(108,71,255,0.5);display:flex;align-items:center;gap:8px">
+            💳 ポイント購入
+        </button>
+    </div>
+
+    <!-- Stripe Checkout モーダル -->
+    <div id="stripeBuyModal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+        <div style="background:#16162a;border:1px solid rgba(108,71,255,0.3);border-radius:20px;padding:2rem;width:min(420px,92vw);max-height:90vh;overflow-y:auto">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+                <h3 style="font-size:1.1rem;font-weight:700">💳 ポイント購入</h3>
+                <button onclick="closeStripeModal()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px 10px;color:#e8e8f0;cursor:pointer;font-size:1rem">✕</button>
+            </div>
+            <!-- プラン選択 -->
+            <div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.25rem">
+                <label style="font-size:0.8rem;color:#9898b8;text-transform:uppercase;letter-spacing:0.5px">プランを選択</label>
+                <select id="portalPlanSelect" style="padding:0.75rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e8e8f0;font-size:0.9rem">
+                    <option value="plan_1h">1時間チケット  — ¥800 / 80pt</option>
+                    <option value="plan_3h">3時間チケット  — ¥2,400 / 240pt</option>
+                    <option value="plan_10h" selected>10時間チケット — ¥7,500 / 750pt ⭐ 6%OFF</option>
+                    <option value="plan_30h">30時間チケット — ¥21,000 / 2,100pt 🔥 12%OFF</option>
+                    <option value="plan_100h">100時間チケット — ¥65,000 / 6,500pt 🏆 18%OFF</option>
+                </select>
+                <input type="text" id="portalCouponInput" placeholder="クーポンコード（任意）"
+                    style="padding:0.65rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e8e8f0;font-size:0.875rem">
+            </div>
+            <button id="btnPortalStripe" onclick="stripeCheckoutPortal()" style="width:100%;padding:0.9rem;background:linear-gradient(135deg,#6c47ff,#00d4ff);border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;margin-bottom:1rem">
+                💳 Stripeで安全決済
+            </button>
+            <p style="font-size:0.75rem;color:#5a5a7a;text-align:center;line-height:1.6">
+                ✅ Visa・Mastercard・JCB・Amex &nbsp;|&nbsp; 🔒 Stripe暗号化決済 &nbsp;|&nbsp; ⚡ 即時付与
+            </p>
+        </div>
+    </div>
+
+
+
+    <!-- Blender Cloud Render Section -->
+    <section id="blenderSection" style="max-width:1200px;margin:3rem auto 0;padding:0 1.5rem">
+        <div style="background:linear-gradient(135deg,rgba(108,71,255,0.06),rgba(0,229,160,0.04));border:1px solid rgba(108,71,255,0.15);border-radius:20px;padding:2.5rem;position:relative;overflow:hidden">
+            <!-- Decorative glow -->
+            <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,71,255,0.15),transparent);border-radius:50%"></div>
+
+            <!-- Header -->
+            <div style="text-align:center;margin-bottom:2rem;position:relative;z-index:1">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem">🎨</div>
+                <h2 style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem">
+                    Blender クラウドレンダリング
+                </h2>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.95rem;max-width:600px;margin:0 auto;line-height:1.6">
+                    自分のPCのBlenderから直接クラウドGPUでレンダリング。<br>
+                    GPUのないMacBookでも、RTX 4090クラスの高速レンダリングが可能です。
+                </p>
+            </div>
+
+            <!-- 4-Step Flow -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:2rem">
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.2rem;text-align:center">
+                    <div style="width:36px;height:36px;background:linear-gradient(135deg,#6c47ff,#00e5a0);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;color:#fff;margin:0 auto 10px">1</div>
+                    <div style="font-size:0.88rem;font-weight:600;margin-bottom:4px">Addonをダウンロード</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5)">ワークスペースの「🎨 Blender」タブから1クリックでDL</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.2rem;text-align:center">
+                    <div style="width:36px;height:36px;background:linear-gradient(135deg,#6c47ff,#00e5a0);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;color:#fff;margin:0 auto 10px">2</div>
+                    <div style="font-size:0.88rem;font-weight:600;margin-bottom:4px">Blenderにインストール</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5)">編集 → プリファレンス → アドオン → インストール</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.2rem;text-align:center">
+                    <div style="width:36px;height:36px;background:linear-gradient(135deg,#6c47ff,#00e5a0);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;color:#fff;margin:0 auto 10px">3</div>
+                    <div style="font-size:0.88rem;font-weight:600;margin-bottom:4px">GPUを選んでレンダリング</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5)">サイドバー → Janction → GPU選択 → ☁ 開始</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.2rem;text-align:center">
+                    <div style="width:36px;height:36px;background:linear-gradient(135deg,#6c47ff,#00e5a0);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;color:#fff;margin:0 auto 10px">4</div>
+                    <div style="font-size:0.88rem;font-weight:600;margin-bottom:4px">結果を自動ダウンロード</div>
+                    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5)">レンダリング完了後、結果画像をワンクリックでDL</div>
+                </div>
+            </div>
+
+            <!-- Features row -->
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;margin-bottom:1.5rem">
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:rgba(255,255,255,0.6);padding:6px 12px;background:rgba(255,255,255,0.03);border-radius:8px">
+                    ✅ <span>Cycles/Eevee 対応</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:rgba(255,255,255,0.6);padding:6px 12px;background:rgba(255,255,255,0.03);border-radius:8px">
+                    ✅ <span>進捗リアルタイム表示</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:rgba(255,255,255,0.6);padding:6px 12px;background:rgba(255,255,255,0.03);border-radius:8px">
+                    ✅ <span>アニメーション一括レンダリング</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:rgba(255,255,255,0.6);padding:6px 12px;background:rgba(255,255,255,0.03);border-radius:8px">
+                    ✅ <span>GPU選択可能</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:rgba(255,255,255,0.6);padding:6px 12px;background:rgba(255,255,255,0.03);border-radius:8px">
+                    ✅ <span>Blender 3.6〜4.x 対応</span>
+                </div>
+            </div>
+
+            <!-- Use Case -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem">
+                <div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:1rem">
+                    <div style="font-size:0.82rem;font-weight:600;margin-bottom:6px;color:#c4b5fd">🖥 こんな方におすすめ</div>
+                    <ul style="font-size:0.78rem;color:rgba(255,255,255,0.55);line-height:1.8;padding-left:1rem;margin:0">
+                        <li>MacBookなどGPUのないPCでBlenderを使っている</li>
+                        <li>レンダリングに何時間もかかってPCが使えない</li>
+                        <li>高品質なCyclesレンダリングをスピーディに仕上げたい</li>
+                        <li>RunPodのような海外サービスは英語で不安</li>
+                    </ul>
+                </div>
+                <div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:1rem">
+                    <div style="font-size:0.82rem;font-weight:600;margin-bottom:6px;color:#86efac">⚡ RunPodとの違い</div>
+                    <ul style="font-size:0.78rem;color:rgba(255,255,255,0.55);line-height:1.8;padding-left:1rem;margin:0">
+                        <li>🇯🇵 完全日本語対応（UI・サポート・決済）</li>
+                        <li>🎨 Blender専用Addonで簡単操作</li>
+                        <li>💳 クレジットカード + 日本円決済</li>
+                        <li>🔰 初心者でも5分でセットアップ完了</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div style="text-align:center">
+                <a href="/downloads/janction_addon.py" download
+                    style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,#6c47ff,#00d4ff);border-radius:12px;color:#fff;font-weight:700;font-size:0.95rem;text-decoration:none;box-shadow:0 4px 20px rgba(108,71,255,0.4);transition:transform 0.2s,box-shadow 0.2s"
+                    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 30px rgba(108,71,255,0.6)'"
+                    onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(108,71,255,0.4)'">
+                    ⬇ Blender Addon をダウンロード
+                </a>
+                <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:8px">janction_addon.py — Python標準ライブラリのみで動作（依存関係なし）</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Legal Footer -->
+    <div style="text-align:center;padding:1.5rem;font-size:0.78rem;color:#3a3a5a;border-top:1px solid rgba(120,120,200,0.1);margin-top:2rem">
+        <a href="/terms/" style="color:#5a5a7a;margin:0 0.5rem">利用規約</a> ·
+        <a href="/privacy/" style="color:#5a5a7a;margin:0 0.5rem">プライバシーポリシー</a> ·
+        <a href="/tokushoho/" style="color:#5a5a7a;margin:0 0.5rem">特定商取引法</a> ·
+        <a href="/downloads/janction_addon.py" download style="color:#6c47ff;margin:0 0.5rem">🎨 Blender Addon</a> ·
+        © 2026 METADATALAB.INC
+    </div>
 </body>
 
 </html>

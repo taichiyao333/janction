@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blenderアドオン・ワークスペース 使い方ガイド — Janction</title>
+    <meta name="description" content="Janction Blenderアドオンのレンダーファーム方式の「仕組み」とワークスペースの使い方を山下探からないよう詳しく解説。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --green: #00e5a0; --purple: #6c47ff; --blue: #00d4ff;
+            --bg: #07071a; --bg2: #0d0d24; --bg3: #12122e;
+            --card: #101028; --border: rgba(255,255,255,0.08);
+            --text: #e8e8f0; --text2: #9898b8; --text3: #5a5a7a;
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+        /* ── NAV ── */
+        .nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 60px; background: rgba(7,7,26,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+        .nav-logo { font-size: 1rem; font-weight: 800; text-decoration: none; color: var(--text); }
+        .nav-logo em { color: var(--green); font-style: normal; }
+        .nav-links { display: flex; gap: 1rem; }
+        .nav-links a { font-size: 0.85rem; color: var(--text2); text-decoration: none; padding: 0.4rem 0.8rem; border-radius: 8px; transition: all 0.2s; }
+        .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+        /* ── HERO ── */
+        .hero { padding: 4rem 2rem 3rem; text-align: center; background: linear-gradient(180deg, rgba(108,71,255,0.08) 0%, transparent 60%); }
+        .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
+        .hero h1 span { background: linear-gradient(135deg, var(--green), var(--blue)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { color: var(--text2); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+        /* ── CONTAINER ── */
+        .container { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+        /* ── TOC ── */
+        .toc { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin: 2rem auto; }
+        .toc h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--green); }
+        .toc ol { padding-left: 1.5rem; }
+        .toc li { margin-bottom: 0.5rem; }
+        .toc a { color: var(--text2); text-decoration: none; font-size: 0.95rem; transition: color 0.2s; }
+        .toc a:hover { color: var(--green); }
+
+        /* ── SECTION ── */
+        .guide-section { padding: 3rem 0; border-bottom: 1px solid var(--border); }
+        .guide-section:last-child { border-bottom: none; }
+        .section-num { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: linear-gradient(135deg, var(--purple), var(--blue)); border-radius: 10px; font-size: 0.9rem; font-weight: 800; margin-bottom: 1rem; }
+        .guide-section h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .guide-section h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: var(--green); }
+        .guide-section p { color: var(--text2); margin-bottom: 1rem; }
+
+        /* ── CODE BLOCK ── */
+        .code-block { background: #0a0a1e; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1rem 0 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; overflow-x: auto; line-height: 1.8; }
+        .code-block .comment { color: var(--text3); }
+        .code-block .cmd { color: var(--green); }
+        .code-block .output { color: var(--text2); }
+        .code-block .highlight { color: #ff9f1c; }
+
+        /* ── USE CASE CARDS ── */
+        .usecase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .usecase-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; transition: border-color 0.3s, transform 0.2s; }
+        .usecase-card:hover { border-color: rgba(108,71,255,0.4); transform: translateY(-2px); }
+        .usecase-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+        .usecase-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .usecase-card p { font-size: 0.88rem; color: var(--text2); margin: 0; }
+
+        /* ── STEP CARDS ── */
+        .step-flow { display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0; }
+        .step-item { display: flex; gap: 1.25rem; align-items: flex-start; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; }
+        .step-badge { flex-shrink: 0; width: 40px; height: 40px; background: linear-gradient(135deg, var(--purple), var(--blue)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; }
+        .step-content h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.35rem; }
+        .step-content p { font-size: 0.88rem; color: var(--text2); margin: 0; }
+
+        /* ── TIP BOX ── */
+        .tip-box { background: rgba(0,229,160,0.06); border: 1px solid rgba(0,229,160,0.2); border-radius: 12px; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+        .tip-box.warning { background: rgba(255,159,28,0.06); border-color: rgba(255,159,28,0.2); }
+        .tip-box h4 { font-size: 0.9rem; font-weight: 700; color: var(--green); margin-bottom: 0.5rem; }
+        .tip-box.warning h4 { color: #ff9f1c; }
+        .tip-box p { font-size: 0.88rem; color: var(--text2); margin: 0; }
+
+        /* ── TABLE ── */
+        .guide-table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.9rem; }
+        .guide-table th { text-align: left; padding: 0.75rem 1rem; background: var(--bg3); color: var(--green); font-weight: 600; border-bottom: 1px solid var(--border); }
+        .guide-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text2); }
+        .guide-table code { background: rgba(108,71,255,0.12); color: var(--text); padding: 2px 6px; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+
+        /* ── FOOTER ── */
+        footer { padding: 2rem; text-align: center; color: var(--text3); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 3rem; }
+        footer a { color: var(--text2); text-decoration: none; }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.8rem; }
+            .usecase-grid { grid-template-columns: 1fr; }
+            .step-item { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="/" class="nav-logo">⚡ GPU<em>Rental</em></a>
+    <div class="nav-links">
+        <a href="/portal/">ポータル</a>
+        <a href="/workspace/">ワークスペース</a>
+        <a href="/landing/">ホーム</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <h1>Blenderアドオン &ワークスペース<br><span>使い方ガイド</span></h1>
+    <p>Blenderアドオンの仕組みとワークスペースの利用方法を山下探からないよう詳しく解説します。</p>
+</section>
+
+<div class="container">
+
+    <!-- TOC -->
+    <div class="toc">
+        <h3>📖 目次</h3>
+        <ol>
+            <li><a href="#blender-addon">🎮 Blenderアドオンの仕組み（まずここを読んで！）</a></li>
+            <li><a href="#what">ワークスペースとは？</a></li>
+            <li><a href="#usecase">どんなときに使うの？</a></li>
+            <li><a href="#start">ワークスペースに入る方法</a></li>
+            <li><a href="#terminal">ターミナルの基本操作</a></li>
+            <li><a href="#upload">ファイルのアップロード</a></li>
+            <li><a href="#download">成果物のダウンロード</a></li>
+            <li><a href="#gpu">GPUを使ったコマンド例</a></li>
+            <li><a href="#tips">便利なTips</a></li>
+        </ol>
+    </div>
+
+    <!-- 0. Blenderアドオンの仕組み（最重要セクション） -->
+    <section class="guide-section" id="blender-addon">
+        <div class="section-num">🎮</div>
+        <h2>Blenderアドオンの仕組みと正しい使い方</h2>
+
+        <!-- 重要なお知らせ -->
+        <div class="tip-box warning" style="margin-bottom:2rem">
+            <h4>⚠️ まずこれを最初に確認してください（初心者の方へ）</h4>
+            <p>本サービスは <strong>「レンダーファーム」</strong>です。<strong>GeForce NOWやクラウドPCとは異なります</strong>。
+            ビューポートのリアルタイム描画（Renderedプレビューなど）は引き続き手元PCの底力で処理されます。</p>
+        </div>
+
+        <!-- サービスの仕組み比較 -->
+        <h3>📊 Janction vs GeForce NOW — どこが違う？</h3>
+        <table class="guide-table">
+            <thead>
+                <tr><th>機能</th><th>GeForce NOW / クラウドPC</th><th>Janction (本サービス)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>ビューポートのリアルタイム描画</td><td>☁ クラウドGPUが処理</td><td>🖥️ <strong>手元PCが処理</strong></td></tr>
+                <tr><td>レンダーモードプレビュー (Ctrl+Z等)</td><td>☁ クラウド</td><td>🖥️ <strong>手元PC</strong></td></tr>
+                <tr><td>最終レンダリング (検索・アニメーション)</td><td>☁ クラウド</td><td>☁ <strong>クラウドGPUが処理 ✅</strong></td></tr>
+                <tr><td>料金模型</td><td>定額月額 (USD)</td><td>使った分だけ (ポイント)</td></tr>
+                <tr><td>アドオン連携</td><td>✖ なし</td><td>✔ Blender直結</td></tr>
+                <tr><td>手元PCスペック要件</td><td>ネット接続のみ</td><td>作業に足りるCPU/RAM</td></tr>
+            </tbody>
+        </table>
+
+        <!-- ベストプラクティス -->
+        <h3>✅ 低スペックPCでのおすすめワークフロー</h3>
+        <div class="step-flow">
+            <div class="step-item">
+                <div class="step-badge">🖥️</div>
+                <div class="step-content">
+                    <h4>「Solidモード」で作業する（強く推奨）</h4>
+                    <p>Blenderのビューポート左上のドロップダウンを「ソリッド」に。リアルタイムレンダリングはオフになり、手元PCの負荷が極小になります。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">☁</div>
+                <div class="step-content">
+                    <h4>「最終レンダリング」だけクラウドへ投げる</h4>
+                    <p>モデリング完了後、アドオンから「クラウドレンダリング開始」をクリック。.blendファイルがサーバーにアップロードされ、GPUが高品質レンダリングを実行します。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">🔄</div>
+                <div class="step-content">
+                    <h4>レンダリング中は次の作業を続けられる</h4>
+                    <p>クラウドでレンダリング中、手元のBlenderで次のシーンのモデリングを続けられます。完成したらアドオンの「DL」ボタンで結果をダウンロード。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">📈</div>
+                <div class="step-content">
+                    <h4>高負荷なアニメーションに最適</h4>
+                    <p>例: 1920x1080 / 500サンプル / 300フレーム → 手元PCで数時間がかかる処理も、RTX 4090で数分で完了。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tip-box">
+            <h4>💡 将来の機能: ストリーミング操作について</h4>
+            <p>現在水面下で、ビューポート自体もクラウドで処理し、リモート操作できる「ストリーミング方式」を検討中です。GeForce NOWのようにビューポート描画がクラウドで実行される機能は、実験的に実装を検討しています。請うこうご期待ください。</p>
+        </div>
+    </section>
+
+    <!-- 1. ワークスペースとは -->
+    <section class="guide-section" id="what">
+        <div class="section-num">1</div>
+        <h2>ワークスペースとは？</h2>
+        <p>ワークスペースは、<strong>ブラウザの中でGPUマシンを操作できる</strong>開発環境です。インストール不要・特別なソフトも不要。ブラウザを開くだけで、高性能GPUを搭載したPCのターミナルが使えます。</p>
+
+        <div class="step-flow">
+            <div class="step-item">
+                <div class="step-badge">📺</div>
+                <div class="step-content">
+                    <h4>ブラウザターミナル</h4>
+                    <p>コマンドを入力して、GPUマシン上でプログラムを実行できます。Python、CUDA、pip、git など使い慣れたツールがそのまま使えます。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">📁</div>
+                <div class="step-content">
+                    <h4>ファイルマネージャー</h4>
+                    <p>左サイドバーでファイルの一覧を確認。ファイルをクリックするだけでダウンロードでき、アップロードボタンでファイルを送信できます。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">📊</div>
+                <div class="step-content">
+                    <h4>GPUモニター</h4>
+                    <p>GPU使用率・温度・VRAM使用量をリアルタイムで確認できます。学習の進行状況を監視するのに便利です。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. ユースケース -->
+    <section class="guide-section" id="usecase">
+        <div class="section-num">2</div>
+        <h2>どんなときに使うの？</h2>
+        <p>「GPUを使うとき」と言われてもピンとこない方へ。以下のような作業でGPU環境が活躍します。</p>
+
+        <div class="usecase-grid">
+            <div class="usecase-card">
+                <div class="usecase-icon">🤖</div>
+                <h4>AI・機械学習</h4>
+                <p>PyTorchやTensorFlowでモデルの学習を実行。自分のPCでは何時間もかかる学習が、GPUなら数分で完了。</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">🎨</div>
+                <h4>画像生成AI</h4>
+                <p>Stable Diffusion、ComfyUI、FLUX等で高品質な画像を生成。VRAMが大きいほど高解像度の画像が作れます。</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">💻</div>
+                <h4>AIコーディング</h4>
+                <p>Claude Code（OpenClaw）などのAIコーディングツールをGPU環境で使用。大規模プロジェクトの高速処理に。</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">🎬</div>
+                <h4>動画レンダリング</h4>
+                <p>Blender、FFmpegなどでGPUアクセラレーションを利用した高速動画レンダリング。</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">🧬</div>
+                <h4>科学計算</h4>
+                <p>分子シミュレーション、流体力学、データ分析などCUDAを活用した大規模計算処理。</p>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon">📊</div>
+                <h4>LLMファインチューニング</h4>
+                <p>ChatGPTのようなLLM（大規模言語モデル）を自分のデータで追加学習。カスタムAIを作成。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. ワークスペースに入る方法 -->
+    <section class="guide-section" id="start">
+        <div class="section-num">3</div>
+        <h2>ワークスペースに入る方法</h2>
+
+        <div class="step-flow">
+            <div class="step-item">
+                <div class="step-badge">1</div>
+                <div class="step-content">
+                    <h4>ポータルにログイン</h4>
+                    <p><a href="/portal/" style="color:var(--green)">janction.net/portal/</a> にアクセスして、アカウントでログインします。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">2</div>
+                <div class="step-content">
+                    <h4>GPUを予約</h4>
+                    <p>使いたいGPUを選んで予約します。ポイントで支払い、利用時間を選択します。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">3</div>
+                <div class="step-content">
+                    <h4>ワークスペースを開く</h4>
+                    <p>予約時間になると、ポータルに「ワークスペースを開く」ボタンが表示されます。クリックするとブラウザで開発環境が開きます。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">4</div>
+                <div class="step-content">
+                    <h4>開発スタート！</h4>
+                    <p>ターミナルが表示されたら準備完了。コマンドを入力してGPU環境で作業を始められます。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ターミナルの基本操作 -->
+    <section class="guide-section" id="terminal">
+        <div class="section-num">4</div>
+        <h2>ターミナルの基本操作</h2>
+
+        <p>ワークスペースのターミナルは、LinuxやMacの「ターミナル」と同じように使えます。</p>
+
+        <h3>🔰 最初に試すコマンド</h3>
+        <div class="code-block">
+            <span class="comment"># GPUの状態を確認</span><br>
+            <span class="cmd">nvidia-smi</span><br><br>
+            <span class="comment"># 現在のフォルダを確認</span><br>
+            <span class="cmd">pwd</span><br><br>
+            <span class="comment"># ファイル一覧を表示</span><br>
+            <span class="cmd">dir</span><br><br>
+            <span class="comment"># Pythonのバージョンを確認</span><br>
+            <span class="cmd">python --version</span><br>
+        </div>
+
+        <h3>📋 よく使うコマンド</h3>
+        <table class="guide-table">
+            <thead>
+                <tr><th>やりたいこと</th><th>コマンド</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>GPUの状態を確認</td><td><code>nvidia-smi</code></td></tr>
+                <tr><td>Pythonスクリプトを実行</td><td><code>python train.py</code></td></tr>
+                <tr><td>pipでパッケージをインストール</td><td><code>pip install torch numpy</code></td></tr>
+                <tr><td>ファイル一覧を見る</td><td><code>dir</code></td></tr>
+                <tr><td>フォルダ移動</td><td><code>cd フォルダ名</code></td></tr>
+                <tr><td>ファイルの中身を表示</td><td><code>type ファイル名</code></td></tr>
+                <tr><td>Gitでコードを取得</td><td><code>git clone https://github.com/...</code></td></tr>
+                <tr><td>実行中のプログラムを停止</td><td><code>Ctrl + C</code></td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 5. ファイルのアップロード -->
+    <section class="guide-section" id="upload">
+        <div class="section-num">5</div>
+        <h2>ファイルのアップロード</h2>
+
+        <p>自分のPCにあるデータやコードをGPU環境にアップロードできます。</p>
+
+        <div class="step-flow">
+            <div class="step-item">
+                <div class="step-badge">1</div>
+                <div class="step-content">
+                    <h4>左サイドバーの「⬆」ボタンをクリック</h4>
+                    <p>ファイルマネージャーの上部にあるアップロードボタンを押します。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">2</div>
+                <div class="step-content">
+                    <h4>ファイルを選択</h4>
+                    <p>ファイル選択ダイアログが開くので、アップロードしたいファイルを選びます。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">3</div>
+                <div class="step-content">
+                    <h4>アップロード完了</h4>
+                    <p>プログレスバーが100%になったら完了。ファイルマネージャーに表示されます。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tip-box">
+            <h4>💡 ヒント: Gitを使う方法もあります</h4>
+            <p>GitHubにコードがある場合は、ターミナルで <code>git clone</code> するのが最も簡単です。</p>
+        </div>
+    </section>
+
+    <!-- 6. 成果物のダウンロード -->
+    <section class="guide-section" id="download">
+        <div class="section-num">6</div>
+        <h2>成果物のダウンロード</h2>
+
+        <p>学習済みモデル、生成した画像、レンダリング結果など、GPU環境で作成したファイルを自分のPCにダウンロードできます。</p>
+
+        <div class="step-flow">
+            <div class="step-item">
+                <div class="step-badge">1</div>
+                <div class="step-content">
+                    <h4>左サイドバーでファイルを探す</h4>
+                    <p>ファイルマネージャーでフォルダを移動して、ダウンロードしたいファイルを見つけます。</p>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-badge">2</div>
+                <div class="step-content">
+                    <h4>ファイル名をクリック</h4>
+                    <p>ダウンロードしたいファイルをクリックすると、自動的にダウンロードが始まります。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tip-box">
+            <h4>💡 ヒント: 大きなファイルの管理</h4>
+            <p>学習済みモデル（数GB）など大きなファイルは、Google DriveやHugging Faceにターミナルから直接アップロードすることも可能です。</p>
+        </div>
+    </section>
+
+    <!-- 7. GPUを使った具体的な作業例 -->
+    <section class="guide-section" id="gpu">
+        <div class="section-num">7</div>
+        <h2>GPUを使った具体的な作業例</h2>
+
+        <h3>🤖 例1: PyTorchでAI学習を実行</h3>
+        <div class="code-block">
+            <span class="comment"># PyTorchをインストール（初回のみ）</span><br>
+            <span class="cmd">pip install torch torchvision</span><br><br>
+            <span class="comment"># GPUが使えるか確認</span><br>
+            <span class="cmd">python -c "import torch; print(torch.cuda.is_available())"</span><br>
+            <span class="output">True</span><br><br>
+            <span class="comment"># 自分の学習スクリプトを実行</span><br>
+            <span class="cmd">python train.py --epochs 100 --batch-size 64</span>
+        </div>
+
+        <h3>🎨 例2: Stable Diffusionで画像生成</h3>
+        <div class="code-block">
+            <span class="comment"># リポジトリをクローン</span><br>
+            <span class="cmd">git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git</span><br>
+            <span class="cmd">cd stable-diffusion-webui</span><br><br>
+            <span class="comment"># 起動</span><br>
+            <span class="cmd">python launch.py --listen</span>
+        </div>
+
+        <h3>💻 例3: Claude Code（AI開発アシスタント）</h3>
+        <div class="code-block">
+            <span class="comment"># Claude Code をインストール</span><br>
+            <span class="cmd">npm install -g @anthropic-ai/claude-code</span><br><br>
+            <span class="comment"># APIキーを設定（自分のキーを使用）</span><br>
+            <span class="cmd">set ANTHROPIC_API_KEY=sk-ant-xxxxx</span><br><br>
+            <span class="comment"># プロジェクトフォルダで起動</span><br>
+            <span class="cmd">cd my-project</span><br>
+            <span class="cmd">claude</span>
+        </div>
+
+        <h3>🎬 例4: FFmpegでGPUエンコード</h3>
+        <div class="code-block">
+            <span class="comment"># GPUアクセラレーション（NVENC）でH.264エンコード</span><br>
+            <span class="cmd">ffmpeg -i input.mp4 -vcodec h264_nvenc -preset p5 output.mp4</span>
+        </div>
+
+        <div class="tip-box warning">
+            <h4>⚠️ 注意: セッション時間</h4>
+            <p>予約した時間を過ぎるとセッションが自動終了します。長時間の学習タスクは、予約時間に余裕を持って計画してください。</p>
+        </div>
+    </section>
+
+    <!-- 8. Tips -->
+    <section class="guide-section" id="tips">
+        <div class="section-num">8</div>
+        <h2>便利なTips</h2>
+
+        <table class="guide-table">
+            <thead>
+                <tr><th>ヒント</th><th>説明</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>GPU使用率を確認する</strong></td><td>ワークスペース右上のGPUモニターでリアルタイムに確認できます。使用率が0%なら、プログラムがGPUを使っていない可能性があります。</td></tr>
+                <tr><td><strong>学習を中断・再開する</strong></td><td>学習途中のチェックポイントを保存するようにしましょう。<code>torch.save(model, 'checkpoint.pth')</code></td></tr>
+                <tr><td><strong>大量ファイルの管理</strong></td><td>ターミナルで <code>tar -czf results.tar.gz output/</code> してからダウンロードすると効率的です。</td></tr>
+                <tr><td><strong>GPUメモリ不足（OOM）</strong></td><td>バッチサイズを小さくするか、<code>torch.cuda.empty_cache()</code> でメモリを解放してみてください。</td></tr>
+                <tr><td><strong>コマンドの履歴</strong></td><td>キーボードの ↑ ↓ キーで過去のコマンドを呼び出せます。</td></tr>
+                <tr><td><strong>画面を広く使う</strong></td><td>ブラウザをフルスクリーン（F11）にすると作業しやすくなります。</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+</div>
+
+<footer>
+    <p>© 2025 METADATALAB.INC / Janction &nbsp;|&nbsp;
+        <a href="/landing/terms.html">利用規約</a> &nbsp;|&nbsp;
+        <a href="/landing/privacy.html">プライバシーポリシー</a> &nbsp;|&nbsp;
+        <a href="/portal/">ポータルへ戻る</a>
+    </p>
+</footer>
+
+</body>
+</html>

@@ -8,6 +8,13 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+
+# Debug / admin scripts (sensitive)
+server/db/reset_admin.js
+server/db/check_db.js
+server/db/test_reset_table.js
 
 # Database
 *.db
@@ -40,4 +47,15 @@ tmp/
 temp/
 
 # GPU Rental Storage (F:ドライブのデータは除外)
-# F:/gpu-rental/ は .gitignore の対象外 (別ドライブのため)
+# F:/janction/ は .gitignore の対象外 (別ドライブのため)
+
+agent/node_modules/
+
+public/downloads/
+
+gpu-monitor/data/
+gpu-monitor/node_modules/
+
+# Temporary scripts
+fix*.js
+check_status.js

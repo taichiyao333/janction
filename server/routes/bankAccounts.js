@@ -111,14 +111,29 @@ router.post('/payout', authMiddleware, async (req, res) => {
 
     const payout = db.prepare('SELECT * FROM payouts WHERE id = ?').get(result.lastInsertRowid);
 
-    // 出金申請メールを非同期送信
-    const { mailPayoutRequest } = require('../services/email');
+    // 出金申請メールを非同期送信（申請者 + 運営）
+    const { mailPayoutRequest, mailPayoutRequestAdmin } = require('../services/email');
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+
+    // 申請者へ確認メール
     if (user.email) {
         mailPayoutRequest({ to: user.email, username: user.username, amount: Number(amount), account: acct, payout })
-            .catch(e => console.error('Payout mail error:', e.message));
+            .catch(e => console.error('Payout mail (user) error:', e.message));
+    }
+    // 運営へ通知メール
+    if (adminEmail) {
+        mailPayoutRequestAdmin({
+            to: adminEmail,
+            username: user.username,
+            email: user.email,
+            amount: Number(amount),
+            account: acct,
+            payout
+        }).catch(e => console.error('Payout mail (admin) error:', e.message));
     }
 
     res.status(201).json({ ...payout, bank_name: acct.bank_name, branch_name: acct.branch_name });
+
 });
 
 module.exports = router;

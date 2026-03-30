@@ -1,0 +1,791 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>GPU料金表 | GPU Rental Platform</title>
+    <meta name="description" content="NVIDIA 3000/4000/5000番台・RTX Aシリーズ・H100/H200の時間貸し料金一覧。運営が設定する統一価格制。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #07070f;
+            --bg2: #0d0d1a;
+            --panel: #12121f;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f0f0ff;
+            --text2: #9090b0;
+            --text3: #5a5a7a;
+            --primary: #6c47ff;
+            --accent: #00d4ff;
+            --success: #00e5a0;
+            --warning: #fbbf24;
+            --danger: #ff4757;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        /* NAV */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(7, 7, 15, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .brand {
+            font-size: 1.1rem;
+            font-weight: 800
+        }
+
+        .brand span {
+            color: var(--accent)
+        }
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center
+        }
+
+        nav a {
+            font-size: 0.875rem;
+            color: var(--text2);
+            transition: color .2s
+        }
+
+        nav a:hover {
+            color: var(--text)
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all .2s
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: #fff
+        }
+
+        .btn-primary:hover {
+            opacity: .9;
+            transform: translateY(-1px)
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border)
+        }
+
+        .btn-outline:hover {
+            border-color: rgba(108, 71, 255, .5)
+        }
+
+        /* HERO */
+        .page-hero {
+            text-align: center;
+            padding: 5rem 2rem 3rem;
+            background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(108, 71, 255, .18) 0%, transparent 70%)
+        }
+
+        .page-hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem
+        }
+
+        .page-hero p {
+            font-size: 1.05rem;
+            color: var(--text2);
+            max-width: 600px;
+            margin: 0 auto 2rem
+        }
+
+        .pricing-note {
+            display: inline-flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text2)
+        }
+
+        .pnote {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid var(--border);
+            border-radius: 100px
+        }
+
+        /* TABS */
+        .tab-bar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1100px;
+            margin: 3rem auto 0;
+            padding: 0 2rem
+        }
+
+        .tab-btn {
+            padding: 7px 18px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text2);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .tab-btn.active,
+        .tab-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary)
+        }
+
+        /* PRICE TABLE */
+        .price-section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem
+        }
+
+        .series-block {
+            display: none
+        }
+
+        .series-block.visible {
+            display: block
+        }
+
+        .series-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 2rem 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .series-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border)
+        }
+
+        .series-badge {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 100px;
+            background: rgba(108, 71, 255, .2);
+            color: #a78bfa;
+            border: 1px solid rgba(108, 71, 255, .3)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem
+        }
+
+        thead th {
+            text-align: left;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, .03);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--text3);
+            font-weight: 600
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            transition: background .15s
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, .03)
+        }
+
+        tbody td {
+            padding: 12px 14px
+        }
+
+        .gpu-name {
+            font-weight: 700;
+            font-size: 0.9rem
+        }
+
+        .gpu-vram {
+            font-size: 0.72rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .gpu-use {
+            font-size: 0.75rem;
+            color: var(--text3)
+        }
+
+        .price-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--success)
+        }
+
+        .price-cell small {
+            font-size: 0.65rem;
+            color: var(--text3);
+            font-weight: 400
+        }
+
+        .prov-cell {
+            font-size: 0.82rem;
+            color: var(--text2)
+        }
+
+        .tier-badge {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700
+        }
+
+        .tier-entry {
+            background: rgba(0, 229, 160, .12);
+            color: var(--success);
+            border: 1px solid rgba(0, 229, 160, .2)
+        }
+
+        .tier-mid {
+            background: rgba(108, 71, 255, .12);
+            color: #a78bfa;
+            border: 1px solid rgba(108, 71, 255, .2)
+        }
+
+        .tier-pro {
+            background: rgba(251, 191, 36, .12);
+            color: var(--warning);
+            border: 1px solid rgba(251, 191, 36, .2)
+        }
+
+        .tier-hpc {
+            background: rgba(255, 71, 87, .12);
+            color: var(--danger);
+            border: 1px solid rgba(255, 71, 87, .2)
+        }
+
+        /* RULES */
+        .rules-section {
+            max-width: 1100px;
+            margin: 3rem auto;
+            padding: 0 2rem 4rem
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem
+        }
+
+        .rule-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem
+        }
+
+        .rule-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .rule-card ul {
+            padding-left: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+            font-size: 0.82rem;
+            color: var(--text2);
+            line-height: 1.6
+        }
+
+        .rule-card ul li::marker {
+            color: var(--primary)
+        }
+
+        .fee-box {
+            background: linear-gradient(135deg, rgba(108, 71, 255, .12), rgba(0, 212, 255, .06));
+            border: 1px solid rgba(108, 71, 255, .25);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 1.5rem
+        }
+
+        .fee-item {
+            text-align: center
+        }
+
+        .fee-val {
+            font-size: 2rem;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .fee-label {
+            font-size: 0.72rem;
+            color: var(--text3);
+            margin-top: 4px
+        }
+
+        .fee-arrow {
+            font-size: 1.5rem;
+            color: var(--text3);
+            align-self: center
+        }
+
+        .section-head {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: .5rem
+        }
+
+        .section-sub {
+            font-size: 0.85rem;
+            color: var(--text2);
+            margin-bottom: 1.5rem
+        }
+
+        /* ADMIN notice */
+        .admin-note {
+            background: rgba(251, 191, 36, .06);
+            border: 1px solid rgba(251, 191, 36, .2);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            font-size: 0.82rem;
+            color: var(--text2);
+            margin-top: 1rem;
+            line-height: 1.6
+        }
+
+        .admin-note strong {
+            color: var(--warning)
+        }
+
+        /* LOADING */
+        .loading-row td {
+            text-align: center;
+            color: var(--text3);
+            padding: 2rem
+        }
+
+        @media(max-width:768px) {
+            nav {
+                display: none
+            }
+
+            table {
+                font-size: 0.78rem
+            }
+
+            .fee-box {
+                flex-direction: column;
+                gap: 1rem
+            }
+
+            .fee-arrow {
+                transform: rotate(90deg)
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="brand">⚡ GPU<span>Rental</span></div>
+        <nav>
+            <a href="/">ホーム</a>
+            <a href="#rules">運営ルール</a>
+            <a href="/portal/">ログイン</a>
+            <a href="/portal/" class="btn btn-primary">今すぐ借りる</a>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <div class="page-hero">
+        <h1>GPU 料金表</h1>
+        <p>NVIDIA 3000番台〜H200まで全モデル対応。運営設定の統一価格で安心・透明な従量課金。</p>
+        <div class="pricing-note">
+            <div class="pnote">⏱ 時間単位の従量課金</div>
+            <div class="pnote">🏢 運営統一設定価格</div>
+            <div class="pnote">💰 プロバイダー収益80%</div>
+            <div class="pnote">🔒 Stripe決済</div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+        <button class="tab-btn active" data-series="all">すべて</button>
+        <button class="tab-btn" data-series="3000">3000番台</button>
+        <button class="tab-btn" data-series="4000">4000番台</button>
+        <button class="tab-btn" data-series="5000">5000番台</button>
+        <button class="tab-btn" data-series="rtxa">RTX Aシリーズ</button>
+        <button class="tab-btn" data-series="datacenter">データセンター</button>
+    </div>
+
+    <!-- PRICE TABLE -->
+    <div class="price-section">
+        <!-- 3000番台 -->
+        <div class="series-block visible" id="block-3000">
+            <div class="series-title">NVIDIA GeForce RTX 3000シリーズ <span class="series-badge">コンシューマー・エントリー</span></div>
+            <table id="table-3000">
+                <thead>
+                    <tr>
+                        <th>モデル</th><th>VRAM</th><th>主な用途</th><th>料金/時間</th><th style="color:var(--text3)">RunPod参考</th><th>プロバイダー収益</th><th>ティア</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="loading-row">
+                        <td colspan="7">読み込み中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 4000番台 -->
+        <div class="series-block visible" id="block-4000">
+            <div class="series-title">NVIDIA GeForce RTX 4000シリーズ <span class="series-badge">コンシューマー・ミッドレンジ</span></div>
+            <table id="table-4000">
+                <thead>
+                    <tr>
+                        <th>モデル</th><th>VRAM</th><th>主な用途</th><th>料金/時間</th><th style="color:var(--text3)">RunPod参考</th><th>プロバイダー収益</th><th>ティア</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="loading-row">
+                        <td colspan="7">読み込み中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 5000番台 -->
+        <div class="series-block visible" id="block-5000">
+            <div class="series-title">NVIDIA GeForce RTX 5000シリーズ <span class="series-badge">コンシューマー・最新世代</span></div>
+            <table id="table-5000">
+                <thead>
+                    <tr>
+                        <th>モデル</th><th>VRAM</th><th>主な用途</th><th>料金/時間</th><th style="color:var(--text3)">RunPod参考</th><th>プロバイダー収益</th><th>ティア</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="loading-row">
+                        <td colspan="7">読み込み中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- RTX A -->
+        <div class="series-block visible" id="block-rtxa">
+            <div class="series-title">NVIDIA RTX Aシリーズ <span class="series-badge">プロフェッショナル</span></div>
+            <table id="table-rtxa">
+                <thead>
+                    <tr>
+                        <th>モデル</th><th>VRAM</th><th>主な用途</th><th>料金/時間</th><th style="color:var(--text3)">RunPod参考</th><th>プロバイダー収益</th><th>ティア</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="loading-row">
+                        <td colspan="7">読み込み中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- データセンター -->
+        <div class="series-block visible" id="block-datacenter">
+            <div class="series-title">NVIDIA データセンター / HPC <span class="series-badge">エンタープライズ</span></div>
+            <table id="table-datacenter">
+                <thead>
+                    <tr>
+                        <th>モデル</th><th>VRAM</th><th>主な用途</th><th>料金/時間</th><th style="color:var(--text3)">RunPod参考</th><th>プロバイダー収益</th><th>ティア</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="loading-row">
+                        <td colspan="7">読み込み中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-note">
+            <strong>⚙️ 価格設定について：</strong>
+            料金は運営（管理者）が設定・変更します。
+            プロバイダーは GPU を登録する際に, 運営が設定した標準価格が自動適用されます。
+            管理ダッシュボード（<a href="/admin/" style="color:var(--accent)">/admin/</a>）の「料金設定」タブから随時変更可能です。
+        </div>
+    </div>
+
+    <!-- RULES -->
+    <div class="rules-section" id="rules">
+        <div class="section-head">💳 手数料と収益配分</div>
+        <div class="section-sub">運営は利用料金の20%を手数料として徴収し、残り80%がプロバイダーに支払われます。</div>
+
+        <div class="fee-box">
+            <div class="fee-item">
+                <div class="fee-val" style="color:var(--text)">¥650</div><div class="fee-label">ユーザー支払い (RTX 4090/h)</div>
+            </div>
+            <div class="fee-arrow">→</div>
+            <div class="fee-item">
+                <div class="fee-val" style="color:var(--danger)">¥130</div><div class="fee-label">運営手数料 (20%)</div>
+            </div>
+            <div class="fee-arrow">+</div>
+            <div class="fee-item">
+                <div class="fee-val" style="color:var(--success)">¥520</div><div class="fee-label">プロバイダー収益 (80%)</div>
+            </div>
+        </div>
+
+        <div class="rules-grid" style="margin-top:2rem">
+            <div class="rule-card">
+                <h3>⏱ 課金ルール</h3>
+                <ul>
+                    <li>時間単位の従量課金（時間超過分は延長料金）</li>
+                    <li>最低利用時間：1時間〜</li>
+                    <li>予約後のキャンセル・返金は原則不可</li>
+                    <li>問題が生じた場合は運営（<a href="mailto:info@metadatalab.net" style="color:var(--accent)">info@metadatalab.net</a>）までお問い合わせください</li>
+                    <li>ポイント残高から自動決済（1pt=10円）</li>
+                </ul>
+            </div>
+            <div class="rule-card">
+                <h3>🏢 価格設定ルール</h3>
+                <ul>
+                    <li>価格は運営が一元管理・設定</li>
+                    <li>プロバイダーは個別に価格変更不可</li>
+                    <li>管理者は管理画面から随時変更可能</li>
+                    <li>価格変更は既存予約には適用されない</li>
+                    <li>需要に応じた動的価格調整あり（予告あり）</li>
+                </ul>
+            </div>
+            <div class="rule-card">
+                <h3>📶 接続保証ルール</h3>
+                <ul>
+                    <li>プロバイダーのPC障害は補償対象</li>
+                    <li>補償額：障害時間比×支払額のポイント還元</li>
+                    <li>故意の切断は警告・アカウント停止対象</li>
+                    <li>接続率はGPUカードに公開表示</li>
+                    <li>接続率95%未満は一時掲載停止</li>
+                </ul>
+            </div>
+            <div class="rule-card">
+                <h3>💸 出金ルール</h3>
+                <ul>
+                    <li>出金申請：1,000円〜（銀行振込）</li>
+                    <li>振込：3〜5営業日以内</li>
+                    <li>振込手数料：300円（5万円以上は無料）</li>
+                    <li>月次精算：毎月25日締め・翌月末払い</li>
+                    <li>本人確認済みアカウントのみ出金可</li>
+                </ul>
+            </div>
+            <div class="rule-card">
+                <h3>🔒 セキュリティルール</h3>
+                <ul>
+                    <li>ユーザー間のデータ完全分離</li>
+                    <li>セッション終了後のデータ自動消去</li>
+                    <li>暗号資産マイニング目的の利用禁止</li>
+                    <li>不正利用はアカウント即時停止</li>
+                    <li>HTTPS（Cloudflare経由）で通信暗号化</li>
+                </ul>
+            </div>
+            <div class="rule-card">
+                <h3>📋 利用可能用途</h3>
+                <ul>
+                    <li>✅ AI/機械学習トレーニング</li>
+                    <li>✅ LLM推論・ファインチューニング</li>
+                    <li>✅ 映像レンダリング・エンコード</li>
+                    <li>✅ Stable Diffusion等画像生成</li>
+                    <li>❌ 暗号通貨マイニング（禁止）</li>
+                    <li>❌ DDoS・不正アクセスツール（禁止）</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer
+        style="border-top:1px solid var(--border);padding:2rem;text-align:center;font-size:0.78rem;color:var(--text3)">
+        © 2026 GPU Rental Platform · <a href="/terms.html" style="color:var(--text3)">利用規約</a> · <a href="/privacy.html"
+            style="color:var(--text3)">プライバシーポリシー</a>
+    </footer>
+
+    <script>
+        // GPU価格マスターデータ（API優先・フォールバック）
+        const GPU_CATALOG = [
+  // ─── RTX 3000 Series ───────────────────────────────────────
+  {series:'3000', model:'RTX 3060',         vram:'12 GB', use:'入門AI・Stable Diffusion',      price:200,  tier:'entry', runpod:'~$0.12/h'},
+  {series:'3000', model:'RTX 3070',         vram:'8 GB',  use:'中規模推論・映像編集',           price:220,  tier:'entry', runpod:'~$0.15/h'},
+  {series:'3000', model:'RTX 3070 Ti',      vram:'8 GB',  use:'中規模推論・映像編集',           price:250,  tier:'entry', runpod:'~$0.17/h'},
+  {series:'3000', model:'RTX 3080',         vram:'10 GB', use:'大規模推論・4Kレンダリング',     price:280,  tier:'entry', runpod:'~$0.20/h'},
+  {series:'3000', model:'RTX 3080 Ti',      vram:'12 GB', use:'大規模推論・4Kレンダリング',     price:320,  tier:'mid',   runpod:'~$0.22/h'},
+  {series:'3000', model:'RTX 3090',         vram:'24 GB', use:'LLM推論・大規模モデル学習',      price:500,  tier:'mid',   runpod:'~$0.39-0.49/h'},
+  {series:'3000', model:'RTX 3090 Ti',      vram:'24 GB', use:'LLM推論・大規模モデル学習',      price:550,  tier:'mid',   runpod:'~$0.45/h'},
+  // ─── RTX 4000 Series ───────────────────────────────────────
+  {series:'4000', model:'RTX 4060',         vram:'8 GB',  use:'入門AI・軽量推論',               price:200,  tier:'entry', runpod:'~$0.13/h'},
+  {series:'4000', model:'RTX 4060 Ti',      vram:'16 GB', use:'中規模学習・SDXL',               price:280,  tier:'entry', runpod:'~$0.18/h'},
+  {series:'4000', model:'RTX 4070',         vram:'12 GB', use:'中規模学習・映像編集',           price:350,  tier:'mid',   runpod:'~$0.25/h'},
+  {series:'4000', model:'RTX 4070 Ti',      vram:'12 GB', use:'大規模学習・4Kレンダリング',     price:400,  tier:'mid',   runpod:'~$0.30/h'},
+  {series:'4000', model:'RTX 4070 Ti Super',vram:'16 GB', use:'大規模学習・高速推論',           price:450,  tier:'mid',   runpod:'~$0.33/h'},
+  {series:'4000', model:'RTX 4080',         vram:'16 GB', use:'LLM・映像プロダクション',        price:550,  tier:'mid',   runpod:'~$0.44/h'},
+  {series:'4000', model:'RTX 4080 Super',   vram:'16 GB', use:'LLM・映像プロダクション',        price:580,  tier:'mid',   runpod:'~$0.46/h'},
+  {series:'4000', model:'RTX 4090',         vram:'24 GB', use:'大規模LLM・最高速推論',          price:650,  tier:'pro',   runpod:'~$0.39-0.74/h', featured:true},
+  // ─── RTX 5000 Series ───────────────────────────────────────
+  {series:'5000', model:'RTX 5070',         vram:'12 GB', use:'次世代AI・映像編集',             price:450,  tier:'mid',   runpod:'~$0.30/h est.'},
+  {series:'5000', model:'RTX 5070 Ti',      vram:'16 GB', use:'次世代大規模学習',               price:550,  tier:'mid',   runpod:'~$0.38/h est.'},
+  {series:'5000', model:'RTX 5080',         vram:'16 GB', use:'次世代LLM推論',                  price:650,  tier:'pro',   runpod:'~$0.45/h est.'},
+  {series:'5000', model:'RTX 5090',         vram:'32 GB', use:'最大規模モデル・研究用途',        price:1200, tier:'pro',   runpod:'~$1.00/h est.'},
+  // ─── RTX A Series ──────────────────────────────────────────
+  {series:'rtxa', model:'RTX A2000',        vram:'12 GB', use:'CAD・3D・軽量AI',                price:250,  tier:'entry', runpod:'~$0.17/h'},
+  {series:'rtxa', model:'RTX A4000',        vram:'16 GB', use:'プロ映像・中規模AI',             price:400,  tier:'mid',   runpod:'~$0.35/h'},
+  {series:'rtxa', model:'RTX A4500',        vram:'20 GB', use:'AI学習・プロレンダリング',       price:450,  tier:'mid',   runpod:'~$0.40/h'},
+  {series:'rtxa', model:'RTX A5000',        vram:'24 GB', use:'大規模AI・映像制作',             price:500,  tier:'mid',   runpod:'~$0.45/h'},
+  {series:'rtxa', model:'RTX A6000',        vram:'48 GB', use:'超大規模モデル・研究',            price:900,  tier:'pro',   runpod:'~$0.76/h'},
+  {series:'rtxa', model:'RTX A6000 Ada',    vram:'48 GB', use:'最高峰プロAI・CGI',              price:1100, tier:'hpc',   runpod:'~$0.80/h'},
+  // ─── Datacenter / HPC ──────────────────────────────────────
+  {series:'datacenter', model:'Tesla T4',   vram:'16 GB', use:'推論・エッジAI',                 price:300,  tier:'mid',   runpod:'~$0.22/h'},
+  {series:'datacenter', model:'A30',        vram:'24 GB', use:'推論・小規模学習',               price:500,  tier:'mid',   runpod:'~$0.39/h'},
+  {series:'datacenter', model:'L4',         vram:'24 GB', use:'推論・エッジ展開',               price:550,  tier:'mid',   runpod:'~$0.44/h'},
+  {series:'datacenter', model:'L40S',       vram:'48 GB', use:'推論・映像AI・生成AI',           price:1300, tier:'pro',   runpod:'~$1.14/h'},
+  {series:'datacenter', model:'A100 40GB',  vram:'40 GB', use:'大規模学習・科学計算',           price:1200, tier:'hpc',   runpod:'~$0.89-1.04/h'},
+  {series:'datacenter', model:'A100 80GB',  vram:'80 GB', use:'超大規模LLM・マルチモーダル',    price:2100, tier:'hpc',   runpod:'~$1.89-2.30/h'},
+  {series:'datacenter', model:'H100 PCIe',  vram:'80 GB', use:'GPT-4クラス推論',                price:2800, tier:'hpc',   runpod:'~$2.39-2.89/h'},
+  {series:'datacenter', model:'H100 SXM5',  vram:'80 GB', use:'GPT-4クラス学習・最高性能',      price:3500, tier:'hpc',   runpod:'~$2.69-3.89/h'},
+  {series:'datacenter', model:'H200 SXM5',  vram:'141 GB',use:'次世代フロンティアモデル',        price:5000, tier:'hpc',   runpod:'~$4.50-5.00/h'},
+];
+
+        const TIER_META = {
+            entry: { label: 'エントリー', cls: 'tier-entry' },
+            mid: { label: 'ミッドレンジ', cls: 'tier-mid' },
+            pro: { label: 'プロフェッショナル', cls: 'tier-pro' },
+            hpc: { label: 'HPC / データセンター', cls: 'tier-hpc' },
+        };
+
+        // APIから実際の価格を取得して上書き
+        async function loadLivePrices() {
+            try {
+                const API = ''; // same-origin
+                const r = await fetch(`${API}/api/prices`);
+                if (!r.ok) return;
+                const liveData = await r.json();
+                liveData.forEach(lp => {
+                    const found = GPU_CATALOG.find(g => g.model === lp.model);
+                    if (found) found.price = lp.price_per_hour;
+                });
+            } catch { }
+        }
+
+        function buildRow(g) {
+            const prov = Math.round(g.price * 0.8);
+            const t = TIER_META[g.tier] || TIER_META.entry;
+            return `<tr${g.featured ? ' style="background:rgba(108,71,255,.06)"' : ''}>
+    <td><div class="gpu-name">${g.model}${g.featured ? ' ★' : ''}</div></td>
+    <td><div class="gpu-vram">${g.vram}</div></td>
+    <td><div class="gpu-use">${g.use}</div></td>
+    <td><div class="price-cell">¥${g.price.toLocaleString()}<small>/時間</small></div></td>
+    <td><div class="prov-cell">¥${prov.toLocaleString()}<span style="font-size:.7rem;color:var(--text3)">/時間 (80%)</span></div></td>
+    <td><span class="tier-badge ${t.cls}">${t.label}</span></td>
+  </tr>`;
+        }
+
+        function renderTables() {
+            ['3000', '4000', '5000', 'rtxa', 'datacenter'].forEach(s => {
+                const items = GPU_CATALOG.filter(g => g.series === s);
+                const tbody = document.querySelector(`#table-${s} tbody`);
+                if (tbody) tbody.innerHTML = items.map(buildRow).join('');
+            });
+        }
+
+        // Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const s = btn.dataset.series;
+                document.querySelectorAll('.series-block').forEach(b => b.classList.remove('visible'));
+                if (s === 'all') {
+                    document.querySelectorAll('.series-block').forEach(b => b.classList.add('visible'));
+                } else {
+                    const el = document.getElementById('block-' + s);
+                    if (el) el.classList.add('visible');
+                }
+            });
+        });
+
+        (async () => {
+            await loadLivePrices();
+            renderTables();
+        })();
+    </script>
+</body>
+
+</html>
+

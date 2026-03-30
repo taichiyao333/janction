@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>GPU Platform — Auto Login Demo</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #05050f;
+            color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0
+        }
+
+        .card {
+            background: #12122a;
+            border: 1px solid rgba(108, 71, 255, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            color: #fff
+        }
+
+        p {
+            color: #9898b8;
+            font-size: 0.88rem;
+            margin-bottom: 24px
+        }
+
+        .info {
+            background: rgba(0, 229, 160, 0.08);
+            border: 1px solid rgba(0, 229, 160, 0.2);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
+            font-size: 0.82rem;
+            line-height: 1.8;
+            color: #9898b8
+        }
+
+        .info strong {
+            color: #00e5a0
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #6c47ff, #8b5cf6);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px
+        }
+
+        .btn:hover {
+            opacity: 0.9
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ccc
+        }
+
+        #status {
+            margin-top: 16px;
+            font-size: 0.82rem;
+            color: #6c47ff
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>⚡ GPU Rental Platform</h1>
+        <p>デモ用自動ログインページ</p>
+        <div class="info">
+            <div><strong>ユーザー:</strong> taichiyao333</div>
+            <div><strong>メール:</strong> taichi.yao@gmail.com</div>
+            <div><strong>権限:</strong> Admin</div>
+            <div><strong>残高:</strong> ¥6,400</div>
+            <div><strong>予約:</strong> RTX A4500 (Reservation #4)</div>
+        </div>
+        <button class="btn" onclick="loginAndGo('portal')">🚀 ポータルへ（GPU一覧・予約確認）</button>
+        <button class="btn" onclick="loginAndGo('workspace')">🖥 ワークスペースへ（ターミナル・ファイル管理）</button>
+        <button class="btn btn-ghost" onclick="loginAndGo('admin')">⚙️ 管理画面へ（Admin Dashboard）</button>
+        <div id="status"></div>
+    </div>
+    <script>
+        const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJ0YWljaGl5YW8zMzMiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NzI4MTAzMTcsImV4cCI6MTc3Mjg5NjcxN30.E9UhzOaFnr1LY9tECV-29G0q5cKmiioLi0o3dE5SMCI';
+        const USER = { id: 1, username: 'taichiyao333', email: 'taichi.yao@gmail.com', role: 'admin', wallet_balance: 6400 };
+
+        function loginAndGo(dest) {
+            localStorage.setItem('gpu_token', TOKEN);
+            localStorage.setItem('gpu_user', JSON.stringify(USER));
+            document.getElementById('status').textContent = 'ログイン情報を設定しました。移動中...';
+            setTimeout(() => {
+                const urls = {
+                    portal: '/portal/',
+                    workspace: '/workspace/',
+                    admin: '/admin/'
+                };
+                window.location.href = urls[dest];
+            }, 500);
+        }
+        // 自動的にトークンを設定
+        localStorage.setItem('gpu_token', TOKEN);
+        localStorage.setItem('gpu_user', JSON.stringify(USER));
+        document.getElementById && (document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('status').textContent = '✅ ログイン情報を事前設定済み。ボタンをクリックしてください。';
+        }));
+    </script>
+</body>
+
+</html>

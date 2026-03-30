@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>マイページ — Janction</title>
+    <meta name="description" content="GPUの収益確認、ポイント履歴、プロフィール管理" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --bg2: #111128;
+            --bg3: #181830;
+            --border: rgba(255, 255, 255, .08);
+            --text: #e8e8f0;
+            --text2: #9898b8;
+            --text3: #606080;
+            --primary: #6c47ff;
+            --accent: #00d4ff;
+            --success: #00e5a0;
+            --warning: #ffa502;
+            --danger: #ff4757;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        
+            overflow-x: hidden;
+        }
+
+        /* ── NAV ── */
+        .nav {
+            display: flex;
+            align-items: center;
+            padding: .875rem 1.5rem;
+            background: rgba(10, 10, 26, .95);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            gap: 1rem;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .nav-logo {
+            font-size: 1.3rem;
+        }
+
+        .nav-spacer {
+            flex: 1;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .875rem;
+        }
+
+        .nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .8rem;
+        }
+
+        .btn-sm-nav {
+            padding: .35rem .8rem;
+            border-radius: 7px;
+            font-size: .8rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--bg3);
+            color: var(--text2);
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-sm-nav:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        /* ── LAYOUT ── */
+        .page-content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .profile-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .profile-role {
+            color: var(--text2);
+            font-size: .85rem;
+            margin-top: .2rem;
+        }
+
+        .profile-meta {
+            margin-top: .5rem;
+            font-size: .8rem;
+            color: var(--text2);
+        }
+
+        /* ── TABS ── */
+        .tabs {
+            display: flex;
+            gap: .5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            padding: .6rem 1.2rem;
+            border: none;
+            background: none;
+            color: var(--text2);
+            font-size: .9rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all .2s;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* ── STAT CARDS ── */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(108, 71, 255, .06), transparent);
+        }
+
+        .stat-label {
+            font-size: .75rem;
+            color: var(--text2);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: .3rem 0;
+        }
+
+        .stat-unit {
+            font-size: .8rem;
+            color: var(--text2);
+        }
+
+        .stat-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            opacity: .4;
+        }
+
+        /* ── TABLE ── */
+        .table-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-title {
+            font-weight: 600;
+            font-size: .95rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: .75rem 1.25rem;
+            font-size: .75rem;
+            color: var(--text2);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: .875rem 1.25rem;
+            font-size: .875rem;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, .02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: .2rem .6rem;
+            border-radius: 6px;
+            font-size: .72rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(0, 229, 160, .15);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(255, 165, 2, .15);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(255, 71, 87, .15);
+            color: var(--danger);
+        }
+
+        .badge-info {
+            background: rgba(0, 212, 255, .15);
+            color: var(--accent);
+        }
+
+        .badge-purple {
+            background: rgba(108, 71, 255, .2);
+            color: #a08cff;
+        }
+
+        /* ── GPU CARD ── */
+        .gpu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1rem;
+        }
+
+        .gpu-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            transition: border-color .2s;
+        }
+
+        .gpu-card:hover {
+            border-color: rgba(108, 71, 255, .4);
+        }
+
+        .gpu-card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: .875rem;
+        }
+
+        .gpu-name {
+            font-weight: 700;
+            font-size: .95rem;
+        }
+
+        .gpu-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .5rem;
+            margin-top: .75rem;
+        }
+
+        .gpu-stat {
+            background: var(--bg3);
+            border-radius: 8px;
+            padding: .5rem .75rem;
+        }
+
+        .gpu-stat-label {
+            font-size: .7rem;
+            color: var(--text2);
+        }
+
+        .gpu-stat-value {
+            font-size: .95rem;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        /* ── POINT ── */
+        .pt-amount {
+            font-weight: 700;
+        }
+
+        .pt-plus {
+            color: var(--success);
+        }
+
+        .pt-minus {
+            color: var(--danger);
+        }
+
+        /* ── PAYOUT ── */
+        .quick-btn {
+            padding: .25rem .65rem;
+            border: 1px solid rgba(108, 71, 255, .3);
+            background: rgba(108, 71, 255, .12);
+            color: #a08cff;
+            border-radius: 6px;
+            font-size: .78rem;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .quick-btn:hover {
+            background: rgba(108, 71, 255, .3);
+            color: #fff;
+        }
+
+        .form-label {
+            font-size: .78rem;
+            color: var(--text2);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            display: block;
+            margin-bottom: .4rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #0a0a1a;
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 8px;
+            padding: .6rem .9rem;
+            color: var(--text);
+            font-size: .875rem;
+            font-family: inherit;
+        }
+
+        select.form-input {
+            cursor: pointer;
+        }
+
+        .fee-box {
+            background: rgba(255, 165, 2, .06);
+            border: 1px solid rgba(255, 165, 2, .2);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: .875rem;
+            padding: .3rem 0;
+        }
+
+        .fee-row.total {
+            border-top: 1px solid rgba(255, 255, 255, .08);
+            margin-top: .5rem;
+            padding-top: .75rem;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .fee-row.total .fee-val {
+            color: var(--success);
+        }
+
+        .payout-confirm-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: rgba(0, 0, 0, .75);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .payout-confirm-inner {
+            background: #13132a;
+            border: 1px solid rgba(108, 71, 255, .4);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 460px;
+            max-width: 94vw;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, .6);
+        }
+
+        /* ── EMPTY / LOADING ── */
+        .empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text2);
+            font-size: .9rem;
+        }
+
+        .empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: .75rem;
+            opacity: .5;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-row td {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 640px) {
+            .page-content {
+                padding: 1rem;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .gpu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 1.4rem;
+            }
+
+            th,
+            td {
+                padding: .6rem .75rem;
+                font-size: .8rem;
+            }
+        }
+
+        /* ── Mobile Hamburger ── */
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 9999;
+            flex-shrink: 0;
+        }
+        .nav-hamburger span {
+            display: block;
+            width: 20px;
+            height: 2px;
+            background: #e8e8f0;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+        .mob-drawer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10,10,20,0.98);
+            backdrop-filter: blur(20px);
+            z-index: 9998;
+            flex-direction: column;
+            padding: 5rem 1.5rem 2rem;
+            gap: 0;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .mob-drawer.open { transform: translateX(0); }
+        .mob-drawer a, .mob-drawer button.drawer-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            color: #e8e8f0;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            background: transparent;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+        .mob-drawer a:hover, .mob-drawer button.drawer-item:hover {
+            background: rgba(108,71,255,0.1);
+        }
+        .mob-drawer-title {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1rem 0.75rem 0.25rem;
+        }
+        @media (max-width: 768px) {
+            .nav-hamburger { display: flex !important; }
+            .mob-drawer { display: flex; }
+        }
+
+        /* ── Language Switcher ── */
+        .lang-switcher {
+            position: relative;
+            display: flex;
+            align-items: center;
+            z-index: 200;
+        }
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: #e8e8f0;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .lang-btn:hover {
+            background: rgba(108,71,255,0.15);
+            border-color: rgba(108,71,255,0.4);
+        }
+        .lang-flag { font-size: 1rem; line-height: 1; }
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #16162a;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 140px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 9999;
+        }
+        .lang-switcher.open .lang-dropdown { display: block; }
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            color: #e8e8f0;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: background 0.15s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .lang-option:hover { background: rgba(108,71,255,0.15); }
+        .lang-option.active { color: #6c47ff; background: rgba(108,71,255,0.1); }
+        .lang-option-name { font-weight: 500; }
+        /* Google Translate hidden */
+        #google_translate_element { display: none !important; }
+        .skiptranslate { display: none !important; }
+        body { top: 0 !important; }
+        .goog-te-banner-frame { display: none !important; }
+
+        /* end mobile */
+    
+        html, body { overflow-x: hidden; }
+    </style>
+
+    <!-- OG / Twitter Card -->
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="https://janction.net/mypage/">
+    <meta property="og:title"       content="マイページ — Janction">
+    <meta property="og:description" content="ポイント管理・予約履歴・決済履歴をまとめて確認。">
+    <meta property="og:image"       content="https://janction.net/favicon.ico">
+    <meta property="og:locale"      content="ja_JP">
+    <meta property="og:site_name"   content="Janction">
+    <meta name="twitter:card"       content="summary_large_image">
+    <meta name="twitter:title"      content="マイページ — Janction">
+    <meta name="twitter:description" content="ポイント管理・予約履歴・決済履歴をまとめて確認。">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6c47ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Janction">
+</head>
+
+<body>
+    <!-- NAV -->
+    <nav class="nav">
+        <div class="nav-brand">
+            <span class="nav-logo">⚡</span>
+            <span>Janction</span>
+        </div>
+        <div class="nav-spacer"></div>
+        <a href="/portal/" class="btn-sm-nav">← ポータルへ</a>
+        <div class="nav-user">
+            <div class="nav-avatar" id="navAvatar">?</div>
+            <span id="navUsername">読み込み中...</span>
+        </div>
+    
+    <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn" onclick="toggleLangMenu(this)" aria-label="言語切り替え">
+            <span class="lang-flag">🇯🇵</span>日本語 <span style="opacity:.6;font-size:.7rem">▼</span>
+        </button>
+        <div class="lang-dropdown">
+            <button class="lang-option active" data-lang="ja" onclick="selectLang('ja')">
+                <span class="lang-flag">🇯🇵</span><span class="lang-option-name">日本語</span>
+            </button>
+            <button class="lang-option" data-lang="en" onclick="selectLang('en')">
+                <span class="lang-flag">🇺🇸</span><span class="lang-option-name">English</span>
+            </button>
+            <button class="lang-option" data-lang="zh" onclick="selectLang('zh')">
+                <span class="lang-flag">🇨🇳</span><span class="lang-option-name">中文</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+    <!-- MAIN -->
+    <div class="page-content">
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="profile-avatar" id="profileAvatar">?</div>
+            <div>
+                <div class="profile-name" id="profileName">読み込み中...</div>
+                <div class="profile-role" id="profileRole"></div>
+                <div class="profile-meta" id="profileMeta"></div>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="points" onclick="switchTab('points')">💳 ポイント残高・購入</button>
+            <button class="tab-btn" data-tab="reservations" onclick="switchTab('reservations')">📅 予約履歴</button>
+            <button class="tab-btn" data-tab="gpus" onclick="switchTab('gpus')">🖥️ マイGPU（貸出）</button>
+            <button class="tab-btn" data-tab="payout" onclick="switchTab('payout')">💸 出金申請</button>
+            <button class="tab-btn" data-tab="apikeys" onclick="switchTab('apikeys')">🔑 APIキー</button>
+        </div>
+
+        <!-- ── TAB: POINTS ── -->
+        <div class="tab-pane active" id="tab-points">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">💎</div>
+                    <div class="stat-label">現在のポイント残高</div>
+                    <div class="stat-value" id="ptBalance">—</div>
+                    <div class="stat-unit">pt</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💴</div>
+                    <div class="stat-label">円換算</div>
+                    <div class="stat-value" id="ptYen">—</div>
+                    <div class="stat-unit">円相当（1pt = 10円）</div>
+                </div>
+            </div>
+                            <!-- GPU一覧へのCTA -->
+        <div style="background:linear-gradient(135deg,rgba(0,212,255,0.07),rgba(108,71,255,0.07));border:1px solid rgba(0,212,255,0.2);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+            <div>
+                <div style="font-size:0.75rem;color:#9898b8;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.08em">GPU&#x30EC;&#x30F3;&#x30BF;&#x30EB;</div>
+                <div style="font-weight:700;font-size:0.95rem">&#x30DD;&#x30A4;&#x30F3;&#x30C8;&#x3092;&#x4F7F;&#x3063;&#x3066;GPU&#x3092;&#x501F;&#x308A;&#x307E;&#x3057;&#x3087;&#x3046;</div>
+                <div style="font-size:0.8rem;color:#9898b8;margin-top:2px">&#x30DD;&#x30A4;&#x30F3;&#x30C8;&#x306F;GPU&#x30EC;&#x30F3;&#x30BF;&#x30EB;&#x306E;&#x652F;&#x6255;&#x3044;&#x306B;&#x4F7F;&#x7528;&#x3067;&#x304D;&#x307E;&#x3059;&#x3002;</div>
+            </div>
+            <a href="/portal/" style="display:inline-flex;align-items:center;gap:6px;padding:0.6rem 1.25rem;background:linear-gradient(135deg,#6c47ff,#00d4ff);border-radius:10px;color:#fff;font-weight:700;font-size:0.875rem;text-decoration:none">&#x1F5A5; GPU&#x4E00;&#x89A7;&#x3078; &#x2192;</a>
+        </div>
+<!-- Stripe ポイント購入 -->
+        <div class="table-card" style="margin-bottom:1.5rem">
+            <div class="table-header" style="margin-bottom:1rem">
+                <span class="table-title">💳 ポイント購入（Stripeカード決済）</span>
+            </div>
+            <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap">
+                <select id="stripePlanSelect" style="flex:1;min-width:200px;padding:0.6rem 1rem;background:#1a1a3a;border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#e8e8f0;font-size:0.9rem;color-scheme:dark">
+                    <option value="plan_1h"   style="background:#1a1a3a;color:#e8e8f0">1時間チケット  — ¥800 / 80pt</option>
+                    <option value="plan_3h"   style="background:#1a1a3a;color:#e8e8f0">3時間チケット  — ¥2,400 / 240pt</option>
+                    <option value="plan_10h" selected style="background:#1a1a3a;color:#e8e8f0">10時間チケット — ¥7,500 / 750pt ⭐ 6%OFF</option>
+                    <option value="plan_30h"  style="background:#1a1a3a;color:#e8e8f0">30時間チケット — ¥21,000 / 2,100pt 🔥 12%OFF</option>
+                    <option value="plan_100h" style="background:#1a1a3a;color:#e8e8f0">100時間チケット — ¥65,000 / 6,500pt 🏆 18%OFF</option>
+                </select>
+                <div style="display:flex;gap:0.5rem;align-items:center">
+                    <input type="text" id="stripeCouponInput" placeholder="クーポンコード（任意）"
+                        style="padding:0.6rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e8e8f0;font-size:0.875rem;width:160px">
+                    <button class="btn btn-primary" id="btnStripeCheckout" onclick="stripeCheckoutPoints()">
+                        💳 Stripeで購入
+                    </button>
+                </div>
+            </div>
+            <p style="font-size:0.78rem;color:var(--text2);line-height:1.6">
+                ✅ Visa・Mastercard・JCB・Amex対応  |  🔒 Stripe安全決済  |  ⚡ 即時ポイント付与
+            </p>
+        </div>
+
+        <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title">💾 ポイント利用・付与履歴</span>
+                    <button onclick="loadPointLogs()"
+                        style="border:none;background:rgba(108,71,255,.2);color:#a08cff;padding:.3rem .8rem;border-radius:6px;cursor:pointer;font-size:.8rem;">🔄
+                        更新</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日時</th>
+                            <th>種別</th>
+                            <th>内容</th>
+                            <th style="text-align:right">ポイント</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ptLogsBody">
+                        <tr class="loading-row">
+                            <td colspan="4">
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── TAB: GPUs ── -->
+        <div class="tab-pane" id="tab-gpus">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🖥️</div>
+                    <div class="stat-label">登録GPU数</div>
+                    <div class="stat-value" id="gpuCount">—</div>
+                    <div class="stat-unit">台</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">累計収益</div>
+                    <div class="stat-value" id="gpuTotalEarned">—</div>
+                    <div class="stat-unit">円</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💳</div>
+                    <div class="stat-label">ウォレット残高</div>
+                    <div class="stat-value" id="walletBalance">—</div>
+                    <div class="stat-unit">円</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-label">総稼働時間</div>
+                    <div class="stat-value" id="gpuTotalHours">—</div>
+                    <div class="stat-unit">時間</div>
+                </div>
+            </div>
+            <div class="gpu-grid" id="gpuGrid">
+                <div style="text-align:center;padding:2rem;color:var(--text2)">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+            <div class="table-card" style="margin-top:1.5rem">
+                <div class="table-header">
+                    <span class="table-title">📊 月別収益</span>
+                    <button onclick="loadEarnings()"
+                        style="border:none;background:rgba(108,71,255,.2);color:#a08cff;padding:.3rem .8rem;border-radius:6px;cursor:pointer;font-size:.8rem;">🔄
+                        更新</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>期間</th>
+                            <th>GPU名</th>
+                            <th>セッション数</th>
+                            <th>稼働時間</th>
+                            <th style="text-align:right">収益（円）</th>
+                        </tr>
+                    </thead>
+                    <tbody id="earningsBody">
+                        <tr class="loading-row">
+                            <td colspan="5">
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── TAB: RESERVATIONS ── -->
+        <div class="tab-pane" id="tab-reservations">
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title">📅 予約・利用履歴</span>
+                    <button onclick="loadReservations()"
+                        style="border:none;background:rgba(108,71,255,.2);color:#a08cff;padding:.3rem .8rem;border-radius:6px;cursor:pointer;font-size:.8rem;">🔄
+                        更新</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>日時</th>
+                            <th>GPU</th>
+                            <th>時間</th>
+                            <th>コスト</th>
+                            <th>ステータス</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservationsBody">
+                        <tr class="loading-row">
+                            <td colspan="5">
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── TAB: PAYOUT ── -->
+        <div class="tab-pane" id="tab-payout">
+
+            <!-- ウォレット残高 -->
+            <div class="stat-grid" style="margin-bottom:1.5rem">
+                <div class="stat-card">
+                    <div class="stat-icon">💳</div>
+                    <div class="stat-label">出金可能残高</div>
+                    <div class="stat-value" id="payoutWalletBalance">—</div>
+                    <div class="stat-unit">円</div>
+                </div>
+            </div>
+
+            <!-- 最終確認モーダル -->
+            <div class="payout-confirm-modal" id="payoutConfirmModal">
+                <div class="payout-confirm-inner">
+                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">⚠️ 出金申請の最終確認</h3>
+                    <p style="color:var(--text2);font-size:.875rem;margin-bottom:1rem">以下の内容で出金申請を行います。よろしいですか？</p>
+                    <div id="payoutConfirmDetail"
+                        style="background:rgba(108,71,255,.08);border:1px solid rgba(108,71,255,.2);border-radius:10px;padding:1rem;font-size:.875rem;margin-bottom:1rem;line-height:2">
+                    </div>
+                    <div
+                        style="background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.25);border-radius:8px;padding:.875rem;font-size:.8rem;color:#ffcc44;margin-bottom:1.25rem">
+                        ⚠️ 申請後はキャンセルできません。振込手数料550円を差し引いた金額を3〜5営業日以内にお振込みいたします。
+                    </div>
+                    <div style="display:flex;gap:.75rem;justify-content:flex-end">
+                        <button id="payoutCancelBtn" onclick="closePayoutConfirm()"
+                            style="padding:.6rem 1.2rem;border:1px solid rgba(255,255,255,.15);background:none;color:var(--text);border-radius:8px;cursor:pointer;font-size:.875rem">キャンセル</button>
+                        <button id="payoutConfirmBtn" onclick="confirmPayout()"
+                            style="padding:.6rem 1.4rem;background:linear-gradient(135deg,#00b894,#00d4ff);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.875rem;font-weight:700">✅
+                            申請する</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 申請フォーム -->
+            <div class="table-card" style="margin-bottom:1.5rem">
+                <div class="table-header">
+                    <span class="table-title">💸 新規出金申請</span>
+                </div>
+                <div style="padding:1.5rem">
+
+                    <!-- 口座未登録メッセージ -->
+                    <div id="noAccountMsg"
+                        style="display:none;text-align:center;padding:2rem 1rem;color:var(--text2);font-size:.875rem">
+                        振込先口座が登録されていません。<br>
+                        <a href="/portal/" style="color:var(--primary)">ポータルの出金管理</a>から口座を追加してください。
+                    </div>
+
+                    <!-- フォーム本体 -->
+                    <div id="payoutFormBody">
+                        <!-- 口座選択 -->
+                        <div style="margin-bottom:1.25rem">
+                            <label class="form-label">振込先口座</label>
+                            <select id="payoutAccountId" class="form-input" onchange="onPayoutAccountChange()">
+                                <option value="">-- 口座を選択してください --</option>
+                            </select>
+                            <div id="payoutAccountDetail"
+                                style="display:none;background:rgba(108,71,255,.06);border:1px solid rgba(108,71,255,.2);border-radius:8px;padding:.875rem;margin-top:.5rem;font-size:.82rem;color:var(--text2);line-height:2">
+                            </div>
+                        </div>
+
+                        <!-- 金額入力 -->
+                        <div style="margin-bottom:1rem">
+                            <label class="form-label">出金申請金額（円）</label>
+                            <div style="display:flex;gap:.5rem;align-items:center">
+                                <input type="number" id="payoutAmount" class="form-input" style="flex:1"
+                                    placeholder="例: 5000" min="1001" step="1" oninput="updateFeeBox()">
+                                <span style="color:var(--text2);font-size:.875rem">円</span>
+                            </div>
+                            <div style="display:flex;gap:.4rem;margin-top:.5rem;flex-wrap:wrap">
+                                <button onclick="setPayoutAmount(2000)" class="quick-btn">¥2,000</button>
+                                <button onclick="setPayoutAmount(5000)" class="quick-btn">¥5,000</button>
+                                <button onclick="setPayoutAmount(10000)" class="quick-btn">¥10,000</button>
+                                <button onclick="setPayoutAmount(30000)" class="quick-btn">¥30,000</button>
+                                <button onclick="setPayoutAmountMax()" class="quick-btn"
+                                    style="background:rgba(0,229,160,.15);color:var(--success);border-color:rgba(0,229,160,.3)">全額</button>
+                            </div>
+                        </div>
+
+                        <!-- 手数料計算ボックス -->
+                        <div class="fee-box" id="feeBox">
+                            <div class="fee-row">
+                                <span style="color:var(--text2)">申請金額</span>
+                                <span class="fee-val" id="feeRequestAmt">—</span>
+                            </div>
+                            <div class="fee-row">
+                                <span style="color:var(--text2)">振込手数料</span>
+                                <span class="fee-val" style="color:var(--danger)">− ¥550</span>
+                            </div>
+                            <div class="fee-row total">
+                                <span>実際の振込金額</span>
+                                <span class="fee-val" id="feeActualAmt">—</span>
+                            </div>
+                        </div>
+
+                        <!-- 備考 -->
+                        <div style="margin-bottom:1.25rem">
+                            <label class="form-label">備考（任意）</label>
+                            <input type="text" id="payoutNotes" class="form-input" placeholder="例: キャンペーン収益分">
+                        </div>
+
+                        <!-- エラー / 成功メッセージ -->
+                        <div id="payoutError"
+                            style="display:none;background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.3);border-radius:8px;padding:.75rem;font-size:.85rem;color:var(--danger);margin-bottom:1rem">
+                        </div>
+                        <div id="payoutSuccess"
+                            style="display:none;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);border-radius:8px;padding:.75rem;font-size:.875rem;color:var(--success);margin-bottom:1rem">
+                        </div>
+
+                        <button id="payoutSubmitBtn" onclick="openPayoutConfirm()"
+                            style="width:100%;padding:.875rem;background:linear-gradient(135deg,var(--primary),#8b5cf6);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;transition:opacity .2s">
+                            💸 出金申請を確認する
+                        </button>
+                        <p style="text-align:center;font-size:.75rem;color:var(--text2);margin-top:.75rem">最低申請金額:
+                            ¥1,001（手数料550円を含む）</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 申請履歴 -->
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title">📋 出金申請履歴</span>
+                    <button onclick="loadPayouts()"
+                        style="border:none;background:rgba(108,71,255,.2);color:#a08cff;padding:.3rem .8rem;border-radius:6px;cursor:pointer;font-size:.8rem">🔄
+                        更新</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>申請日</th>
+                            <th>申請額</th>
+                            <th>振込額（手数料差引後）</th>
+                            <th>振込先</th>
+                            <th>ステータス</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payoutsBody">
+                        <tr class="loading-row">
+                            <td colspan="5">
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── TAB: API KEYS ── -->
+        <div class="tab-pane" id="tab-apikeys">
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title">🔑 APIキー管理</span>
+                    <button onclick="openCreateApiKeyModal()"
+                        style="border:none;background:linear-gradient(135deg,var(--primary),#8b5cf6);color:#fff;padding:.4rem .9rem;border-radius:6px;cursor:pointer;font-size:.82rem;font-weight:600">➕
+                        新規発行</button>
+                </div>
+                <div
+                    style="padding:1rem 1.25rem;font-size:.82rem;color:var(--text2);border-bottom:1px solid var(--border)">
+                    APIキーを使うとCLI・スクリプトからJanctionのリソースにプログラム的にアクセスできます。最大5本まで。
+                </div>
+                <div id="apiKeysList" style="padding:1rem 1.25rem">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- APIキードキュメント -->
+            <div class="table-card" style="margin-top:1.25rem">
+                <div class="table-header"><span class="table-title">📚 API クイックスタート</span></div>
+                <div style="padding:1.25rem;font-size:.875rem;line-height:2">
+                    <div style="margin-bottom:1rem">
+                        <strong style="color:var(--accent)">認証方法</strong><br>
+                        <code
+                            style="background:var(--bg3);padding:.2rem .5rem;border-radius:4px;font-size:.8rem">Authorization: Bearer YOUR_API_KEY</code>
+                    </div>
+                    <div style="margin-bottom:1rem">
+                        <strong style="color:var(--accent)">使用例 (curl)</strong>
+                        <pre
+                            style="background:var(--bg3);padding:.75rem 1rem;border-radius:8px;margin-top:.5rem;font-size:.78rem;overflow-x:auto">curl https://janction.net/api/points/balance \
+  -H "Authorization: Bearer gpr_xxxxxxxxxxxx"</pre>
+                    </div>
+                    <div>
+                        <strong style="color:var(--accent)">主なエンドポイント</strong>
+                        <table style="margin-top:.5rem;font-size:.8rem">
+                            <thead>
+                                <tr>
+                                    <th>メソッド</th>
+                                    <th>パス</th>
+                                    <th>説明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span style="color:var(--success)">GET</span></td>
+                                    <td>/api/points/balance</td>
+                                    <td>ポイント残高確認</td>
+                                </tr>
+                                <tr>
+                                    <td><span style="color:var(--success)">GET</span></td>
+                                    <td>/api/reservations</td>
+                                    <td>予約一覧</td>
+                                </tr>
+                                <tr>
+                                    <td><span style="color:var(--primary)">POST</span></td>
+                                    <td>/api/reservations</td>
+                                    <td>新規予約作成</td>
+                                </tr>
+                                <tr>
+                                    <td><span style="color:var(--success)">GET</span></td>
+                                    <td>/api/prices</td>
+                                    <td>GPU料金一覧</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.page-content -->
+
+    <!-- API KEY CREATE MODAL -->
+    <div id="apiKeyModal"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center">
+        <div
+            style="background:#13132a;border:1px solid rgba(108,71,255,.4);border-radius:16px;padding:2rem;width:min(460px,95vw)">
+            <h3 style="margin-bottom:1.25rem">🔑 APIキー発行</h3>
+            <label style="font-size:.85rem;color:var(--text2)">キー名（任意）</label>
+            <input id="apiKeyName" placeholder="例: CI/CD用"
+                style="width:100%;margin:.4rem 0 1.25rem;padding:.65rem .9rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);font-size:.9rem">
+            <div id="apiKeyResult" style="display:none;margin-bottom:1.25rem"></div>
+            <div style="display:flex;gap:.75rem;justify-content:flex-end">
+                <button onclick="closeApiKeyModal()"
+                    style="padding:.6rem 1.2rem;border:1px solid rgba(255,255,255,.15);background:none;color:var(--text);border-radius:8px;cursor:pointer">キャンセル</button>
+                <button id="apiKeySubmitBtn" onclick="submitCreateApiKey()"
+                    style="padding:.6rem 1.4rem;background:linear-gradient(135deg,var(--primary),#8b5cf6);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700">🔑
+                    発行する</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── CONFIG ──────────────────────────────────────────────────
+        const API_BASE = (function () {
+            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return '';
+            return ''; // same-origin
+        })();
+        const token = localStorage.getItem('gpu_token');
+        const user = JSON.parse(localStorage.getItem('gpu_user') || 'null');
+
+        if (!token || !user) { location.href = '/portal/'; }
+
+        // ── HELPERS ─────────────────────────────────────────────────
+        const JST = { timeZone: 'Asia/Tokyo' };
+        function fmt(d) {
+            try { return new Date(d).toLocaleString('ja-JP', { ...JST, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }); }
+            catch { return d || '—'; }
+        }
+
+        async function apiGet(path) {
+            const res = await fetch(`${API_BASE}/api${path}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!res.ok) {
+                const e = await res.json().catch(() => ({}));
+                throw new Error(e.error || `HTTP ${res.status}`);
+            }
+            return res.json();
+        }
+
+        function statusBadge(s) {
+            const map = {
+                active: ['info', '稼働中'], available: ['success', '利用可'],
+                offline: ['warning', 'オフライン'], completed: ['success', '完了'],
+                cancelled: ['danger', 'キャンセル'], running: ['info', '実行中'],
+                pending: ['warning', '保留中'], confirmed: ['success', '確定済'],
+            };
+            const [cls, label] = map[s] || ['info', s];
+            return `<span class="badge badge-${cls}">${label}</span>`;
+        }
+
+        function roleLabel(r) {
+            return { admin: '管理者', provider: 'プロバイダー', user: 'ユーザー' }[r] || r;
+        }
+
+        // ── INIT ─────────────────────────────────────────────────────
+        (function init() {
+            const initial = (user.username || '?')[0].toUpperCase();
+            document.getElementById('navAvatar').textContent = initial;
+            document.getElementById('profileAvatar').textContent = initial;
+            document.getElementById('navUsername').textContent = user.username;
+            document.getElementById('profileName').textContent = user.username;
+            document.getElementById('profileRole').textContent = roleLabel(user.role);
+            document.getElementById('profileMeta').textContent = user.email || '';
+        })();
+
+        // ── TAB SWITCH ──────────────────────────────────────────────
+        const loaded = {};
+        function switchTab(name) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === `tab-${name}`));
+            if (!loaded[name]) {
+                loaded[name] = true;
+                if (name === 'points') { loadPointBalance(); loadPointLogs(); }
+                if (name === 'gpus') { loadMyGpus(); loadEarnings(); }
+                if (name === 'reservations') { loadReservations(); }
+                if (name === 'payout') { loadPayoutTab(); }
+                if (name === 'apikeys') { loadApiKeys(); }
+            }
+        }
+
+        // ── POINTS ──────────────────────────────────────────────────
+        // 初期表示: ポイントタブのデータを自動ロード
+        switchTab('points');
+
+        async function loadPointBalance() {
+            try {
+                const d = await apiGet('/points/balance');
+                document.getElementById('ptBalance').textContent = Math.round(d.point_balance).toLocaleString();
+                document.getElementById('ptYen').textContent = Math.round(d.yen_value).toLocaleString();
+            } catch (e) {
+                document.getElementById('ptBalance').textContent = 'エラー';
+            }
+        }
+
+        async function loadPointLogs() {
+            const tbody = document.getElementById('ptLogsBody');
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>';
+            try {
+                const logs = await apiGet('/points/logs');
+                if (!logs.length) {
+                    tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty-icon">💎</div>ポイント履歴がありません</div></td></tr>';
+                    return;
+                }
+                const typeMap = {
+                    purchase:     ['purple',  '購入'],
+                    usage:        ['danger',  '利用'],
+                    bonus:        ['success', 'ボーナス'],
+                    refund:       ['info',    '返金'],
+                    compensation: ['warning', '障害補償'],
+                    coupon:       ['purple',  'クーポン'],
+                    adjustment:   ['info',    '調整'],
+                };
+                tbody.innerHTML = logs.map(l => {
+                    const [cls, label] = typeMap[l.type] || ['info', l.type];
+                    const sign = l.points >= 0 ? '+' : '';
+                    return `<tr>
+                        <td style="color:var(--text2);font-size:.8rem">${fmt(l.created_at)}</td>
+                        <td><span class="badge badge-${cls}">${label}</span></td>
+                        <td>${l.description || '—'}</td>
+                        <td style="text-align:right" class="pt-amount ${l.points >= 0 ? 'pt-plus' : 'pt-minus'}">${sign}${l.points.toLocaleString()} pt</td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="4" style="color:var(--danger);text-align:center;padding:1.5rem">${e.message}</td></tr>`;
+            }
+        }
+
+        // ── MY GPUs ──────────────────────────────────────────────────
+        async function loadMyGpus() {
+            const grid = document.getElementById('gpuGrid');
+            grid.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text2)"><div class="spinner"></div></div>';
+            try {
+                const d = await apiGet('/providers/my-gpus');
+                const { gpus, wallet_balance } = d;
+                document.getElementById('gpuCount').textContent = gpus.length;
+                document.getElementById('walletBalance').textContent = Math.round(wallet_balance || 0).toLocaleString();
+                const totalEarned = gpus.reduce((s, g) => s + (g.total_earned || 0), 0);
+                const totalMins = gpus.reduce((s, g) => s + (g.total_minutes || 0), 0);
+                document.getElementById('gpuTotalEarned').textContent = Math.round(totalEarned).toLocaleString();
+                document.getElementById('gpuTotalHours').textContent = (totalMins / 60).toFixed(1);
+
+                if (!gpus.length) {
+                    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🖥️</div>登録済みGPUがありません</div>`;
+                    return;
+                }
+                grid.innerHTML = gpus.map(g => `
+                    <div class="gpu-card">
+                        <div class="gpu-card-head">
+                            <div class="gpu-name">🖥️ ${g.name}</div>
+                            ${statusBadge(g.status)}
+                        </div>
+                        <div style="font-size:.78rem;color:var(--text2);margin-bottom:.5rem">
+                            VRAM: ${Math.round((g.vram_total || 0) / 1024)}GB &nbsp;·&nbsp; ¥${(g.price_per_hour || 0).toLocaleString()}/時間 &nbsp;·&nbsp; ${g.location || '—'}
+                        </div>
+                        <div class="gpu-stats">
+                            <div class="gpu-stat"><div class="gpu-stat-label">累計収益</div><div class="gpu-stat-value" style="color:var(--success)">¥${Math.round(g.total_earned || 0).toLocaleString()}</div></div>
+                            <div class="gpu-stat"><div class="gpu-stat-label">稼働時間</div><div class="gpu-stat-value">${((g.total_minutes || 0) / 60).toFixed(1)}h</div></div>
+                            <div class="gpu-stat"><div class="gpu-stat-label">利用回数</div><div class="gpu-stat-value">${g.total_reservations || 0}回</div></div>
+                            <div class="gpu-stat"><div class="gpu-stat-label">デバイス</div><div class="gpu-stat-value">GPU #${g.device_index}</div></div>
+                        </div>
+                    </div>`).join('');
+            } catch (e) {
+                grid.innerHTML = `<div class="empty" style="grid-column:1/-1;color:var(--danger)">${e.message}</div>`;
+            }
+        }
+
+        async function loadEarnings() {
+            const tbody = document.getElementById('earningsBody');
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="5"><div class="spinner"></div></td></tr>';
+            try {
+                const rows = await apiGet('/providers/earnings');
+                if (!rows.length) {
+                    tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">📊</div>収益データがありません</div></td></tr>';
+                    return;
+                }
+                tbody.innerHTML = rows.map(r => `<tr>
+                    <td style="color:var(--text2)">${r.period}</td>
+                    <td>${r.gpu_name || '—'}</td>
+                    <td>${r.sessions || 0}回</td>
+                    <td>${((r.total_minutes || 0) / 60).toFixed(1)}h</td>
+                    <td style="text-align:right;color:var(--success);font-weight:700">¥${Math.round(r.net_payout || 0).toLocaleString()}</td>
+                </tr>`).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:var(--danger);text-align:center;padding:1.5rem">${e.message}</td></tr>`;
+            }
+        }
+
+        // ── RESERVATIONS ────────────────────────────────────────────
+        async function loadReservations() {
+            const tbody = document.getElementById('reservationsBody');
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="5"><div class="spinner"></div></td></tr>';
+            try {
+                const rows = await apiGet('/reservations?limit=30');
+                if (!rows.length) {
+                    tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">📅</div>予約履歴がありません</div></td></tr>';
+                    return;
+                }
+                tbody.innerHTML = rows.map(r => {
+                    const start = r.start_time ? new Date(r.start_time) : null;
+                    const end = r.end_time ? new Date(r.end_time) : null;
+                    const durH = (start && end) ? ((end - start) / 3600000).toFixed(1) + 'h' : '—';
+                    const cost = r.total_price ? '¥' + Math.round(r.total_price).toLocaleString() : '—';
+                    return `<tr>
+                        <td style="color:var(--text2);font-size:.8rem">${fmt(r.start_time || r.created_at)}</td>
+                        <td>${r.gpu_name || '—'}</td>
+                        <td>${durH}</td>
+                        <td style="color:var(--text2)">${cost}</td>
+                        <td>${statusBadge(r.status)}</td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:var(--danger);text-align:center;padding:1.5rem">${e.message}</td></tr>`;
+            }
+        }
+
+        // ── PAYOUT ──────────────────────────────────────────────────
+        const TRANSFER_FEE = 550;
+        let _walletBalance = 0;
+        let _pendingPayoutData = null;
+
+        async function loadPayoutTab() {
+            try {
+                const d = await apiGet('/providers/my-gpus');
+                _walletBalance = d.wallet_balance || 0;
+                document.getElementById('payoutWalletBalance').textContent = Math.round(_walletBalance).toLocaleString();
+            } catch (e) { /* プロバイダーでない場合でも無視 */ }
+            await loadBankAccounts();
+            await loadPayouts();
+        }
+
+        async function loadBankAccounts() {
+            const sel = document.getElementById('payoutAccountId');
+            const noAcct = document.getElementById('noAccountMsg');
+            const formBody = document.getElementById('payoutFormBody');
+            try {
+                const accounts = await apiGet('/bank-accounts');
+                if (!accounts.length) {
+                    noAcct.style.display = 'block';
+                    formBody.style.display = 'none';
+                    return;
+                }
+                noAcct.style.display = 'none';
+                formBody.style.display = 'block';
+                sel.innerHTML = '<option value="">-- 口座を選択してください --</option>' +
+                    accounts.map(a => {
+                        const type = a.account_type === 'checking' ? '当座' : '普通';
+                        const label = `${a.bank_name} ${a.branch_name} ${type} ${a.account_number} (${a.account_holder})${a.is_default ? ' ★' : ''}`;
+                        return `<option value="${a.id}" data-bank="${a.bank_name}" data-branch="${a.branch_name}" data-type="${type}" data-num="${a.account_number}" data-holder="${a.account_holder}">${label}</option>`;
+                    }).join('');
+                const def = accounts.find(a => a.is_default) || accounts[0];
+                if (def) { sel.value = def.id; onPayoutAccountChange(); }
+            } catch (e) {
+                sel.innerHTML = '<option>取得失敗</option>';
+            }
+        }
+
+        function onPayoutAccountChange() {
+            const sel = document.getElementById('payoutAccountId');
+            const detail = document.getElementById('payoutAccountDetail');
+            const opt = sel.options[sel.selectedIndex];
+            if (sel.value && opt.dataset.bank) {
+                detail.innerHTML = `🏦 ${opt.dataset.bank}　${opt.dataset.branch}　${opt.dataset.type}　${opt.dataset.num}　${opt.dataset.holder}`;
+                detail.style.display = 'block';
+            } else {
+                detail.style.display = 'none';
+            }
+        }
+
+        function setPayoutAmount(v) {
+            document.getElementById('payoutAmount').value = v;
+            updateFeeBox();
+        }
+        function setPayoutAmountMax() {
+            document.getElementById('payoutAmount').value = Math.floor(_walletBalance);
+            updateFeeBox();
+        }
+
+        function updateFeeBox() {
+            const amt = parseFloat(document.getElementById('payoutAmount').value) || 0;
+            const actual = amt - TRANSFER_FEE;
+            document.getElementById('feeRequestAmt').textContent = amt > 0 ? `¥${Math.round(amt).toLocaleString()}` : '—';
+            document.getElementById('feeActualAmt').textContent = actual > 0 ? `¥${Math.round(actual).toLocaleString()}` : '—';
+        }
+
+        function openPayoutConfirm() {
+            const errEl = document.getElementById('payoutError');
+            errEl.style.display = 'none';
+            document.getElementById('payoutSuccess').style.display = 'none';
+
+            const acctId = document.getElementById('payoutAccountId').value;
+            const amount = parseFloat(document.getElementById('payoutAmount').value);
+            const notes = document.getElementById('payoutNotes').value.trim();
+
+            if (!acctId) { errEl.textContent = '振込先口座を選択してください'; errEl.style.display = 'block'; return; }
+            if (!amount || isNaN(amount) || amount < 1001) { errEl.textContent = '出金金額は¥1,001以上で入力してください（手数料¥550が差し引かれます）'; errEl.style.display = 'block'; return; }
+            if (amount > _walletBalance) { errEl.textContent = `残高不足です（出金可能残高: ¥${Math.round(_walletBalance).toLocaleString()}）`; errEl.style.display = 'block'; return; }
+
+            const sel = document.getElementById('payoutAccountId');
+            const opt = sel.options[sel.selectedIndex];
+            const actual = amount - TRANSFER_FEE;
+            const notesText = notes ? `<br>📝 備考: ${notes}` : '';
+
+            _pendingPayoutData = { bank_account_id: acctId, amount, notes };
+
+            document.getElementById('payoutConfirmDetail').innerHTML =
+                `💰 申請金額: <strong style="color:var(--warning)">¥${Math.round(amount).toLocaleString()}</strong><br>` +
+                `💳 振込手数料: <span style="color:var(--danger)">− ¥${TRANSFER_FEE.toLocaleString()}</span><br>` +
+                `✅ 実際の振込金額: <strong style="color:var(--success);font-size:1.05rem">¥${Math.round(actual).toLocaleString()}</strong><br>` +
+                `🏦 ${opt.dataset.bank || ''} ${opt.dataset.branch || ''} ${opt.dataset.type || ''} ${opt.dataset.num || ''}${notesText}`;
+
+            document.getElementById('payoutConfirmModal').style.display = 'flex';
+        }
+
+        function closePayoutConfirm() {
+            document.getElementById('payoutConfirmModal').style.display = 'none';
+            _pendingPayoutData = null;
+        }
+
+        async function confirmPayout() {
+            if (!_pendingPayoutData) return;
+            const confirmBtn = document.getElementById('payoutConfirmBtn');
+            const cancelBtn = document.getElementById('payoutCancelBtn');
+            confirmBtn.disabled = true;
+            cancelBtn.disabled = true;
+            confirmBtn.textContent = '申請中...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/bank-accounts/payout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify(_pendingPayoutData)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'API Error');
+
+                closePayoutConfirm();
+                const actual = _pendingPayoutData.amount - TRANSFER_FEE;
+                document.getElementById('payoutSuccess').innerHTML =
+                    `✅ 出金申請 #${data.id} を受け付けました。<br>` +
+                    `申請額 ¥${Math.round(_pendingPayoutData.amount).toLocaleString()} − 手数料 ¥${TRANSFER_FEE.toLocaleString()} = <strong>振込額 ¥${Math.round(actual).toLocaleString()}</strong><br>` +
+                    `確認メールをお送りしました。3〜5営業日以内にお振込みいたします。`;
+                document.getElementById('payoutSuccess').style.display = 'block';
+                document.getElementById('payoutAmount').value = '';
+                document.getElementById('payoutNotes').value = '';
+                updateFeeBox();
+                _walletBalance = Math.max(0, _walletBalance - _pendingPayoutData.amount);
+                document.getElementById('payoutWalletBalance').textContent = Math.round(_walletBalance).toLocaleString();
+                _pendingPayoutData = null;
+                loadPayouts();
+            } catch (err) {
+                closePayoutConfirm();
+                document.getElementById('payoutError').textContent = err.message;
+                document.getElementById('payoutError').style.display = 'block';
+            }
+
+            confirmBtn.disabled = false;
+            cancelBtn.disabled = false;
+            confirmBtn.textContent = '✅ 申請する';
+        }
+
+        async function loadPayouts() {
+            const tbody = document.getElementById('payoutsBody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="5"><div class="spinner"></div></td></tr>';
+            try {
+                const rows = await apiGet('/bank-accounts/payouts');
+                if (!rows.length) {
+                    tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty-icon">💸</div>出金申請履歴がありません</div></td></tr>';
+                    return;
+                }
+                const statusMap = { pending: ['warning', '申請中'], paid: ['success', '振込済み'], rejected: ['danger', '却下'] };
+                tbody.innerHTML = rows.map(r => {
+                    const [cls, label] = statusMap[r.status] || ['info', r.status];
+                    const actual = Math.round(r.amount) - TRANSFER_FEE;
+                    return `<tr>
+                        <td style="color:var(--text2);font-size:.8rem">${fmt(r.created_at)}</td>
+                        <td style="font-weight:700">¥${Math.round(r.amount).toLocaleString()}</td>
+                        <td style="font-weight:700;color:var(--success)">¥${Math.max(0, actual).toLocaleString()}</td>
+                        <td style="font-size:.8rem">${r.bank_name || '—'} ${r.branch_name || ''}</td>
+                        <td><span class="badge badge-${cls}">${label}</span></td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:var(--danger);text-align:center;padding:1.5rem">${e.message}</td></tr>`;
+            }
+        }
+
+        // ── START ────────────────────────────────────────────────────
+        loaded['points'] = true;
+        loadPointBalance();
+        loadPointLogs();
+
+        // ── API KEYS ─────────────────────────────────────────────────
+        async function loadApiKeys() {
+            const container = document.getElementById('apiKeysList');
+            container.innerHTML = '<div class="spinner"></div>';
+            try {
+                const keys = await apiGet('/user/apikeys');
+                if (!keys.length) {
+                    container.innerHTML = '<div class="empty"><div class="empty-icon">🔑</div>APIキーがありません<br><small style="color:var(--text3)">「新規発行」ボタンからキーを作成してください</small></div>';
+                    return;
+                }
+                container.innerHTML = keys.map(k => `
+                    <div style="display:flex;align-items:center;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border)">
+                        <div style="flex:1;min-width:0">
+                            <div style="font-weight:600;font-size:.9rem">${k.name}</div>
+                            <div style="font-size:.78rem;color:var(--text2);margin-top:.15rem">
+                                <code style="background:var(--bg3);padding:.15rem .4rem;border-radius:4px">${k.key_prefix}</code>
+                                &nbsp;·&nbsp; 作成: ${fmt(k.created_at)}
+                                ${k.last_used_at ? '&nbsp;·&nbsp; 最終使用: ' + fmt(k.last_used_at) : '&nbsp;·&nbsp; <span style="color:var(--text3)">未使用</span>'}
+                            </div>
+                        </div>
+                        <span class="badge ${k.is_active ? 'badge-success' : 'badge-danger'}">${k.is_active ? '有効' : '無効'}</span>
+                        <button onclick="toggleApiKey(${k.id})" style="padding:.3rem .6rem;background:rgba(108,71,255,.2);border:none;border-radius:6px;color:#a08cff;font-size:.78rem;cursor:pointer">${k.is_active ? '無効化' : '有効化'}</button>
+                        <button onclick="deleteApiKey(${k.id})" style="padding:.3rem .6rem;background:rgba(255,71,87,.15);border:none;border-radius:6px;color:var(--danger);font-size:.78rem;cursor:pointer">削除</button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = `<div style="color:var(--danger);padding:1rem">${e.message}</div>`;
+            }
+        }
+
+        function openCreateApiKeyModal() {
+            document.getElementById('apiKeyModal').style.display = 'flex';
+            document.getElementById('apiKeyName').value = '';
+            document.getElementById('apiKeyResult').style.display = 'none';
+            document.getElementById('apiKeySubmitBtn').style.display = '';
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').style.display = 'none';
+            loadApiKeys();
+        }
+
+        async function submitCreateApiKey() {
+            const name = document.getElementById('apiKeyName').value.trim() || 'My API Key';
+            const resultEl = document.getElementById('apiKeyResult');
+            const submitBtn = document.getElementById('apiKeySubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '発行中...';
+            try {
+                const res = await fetch(`${API_BASE}/api/user/apikeys`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ name }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+
+                resultEl.style.display = 'block';
+                resultEl.innerHTML = `
+                    <div style="background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.3);border-radius:10px;padding:1rem">
+                        <div style="font-weight:700;color:var(--success);margin-bottom:.5rem">✅ APIキーを発行しました！</div>
+                        <div style="font-size:.8rem;color:var(--text2);margin-bottom:.5rem">このキーは1度しか表示されません。今すぐコピーして安全な場所に保存してください。</div>
+                        <div style="display:flex;align-items:center;gap:.5rem">
+                            <code id="newApiKey" style="flex:1;background:var(--bg3);padding:.5rem .75rem;border-radius:6px;font-size:.85rem;word-break:break-all">${data.api_key}</code>
+                            <button onclick="copyApiKey()" style="padding:.4rem .75rem;background:var(--primary);border:none;border-radius:6px;color:#fff;font-size:.8rem;cursor:pointer;white-space:nowrap">コピー</button>
+                        </div>
+                    </div>`;
+                submitBtn.style.display = 'none';
+            } catch (e) {
+                resultEl.style.display = 'block';
+                resultEl.innerHTML = `<div style="color:var(--danger);font-size:.85rem">❌ ${e.message}</div>`;
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🔑 発行する';
+            }
+        }
+
+        function copyApiKey() {
+            const el = document.getElementById('newApiKey');
+            navigator.clipboard.writeText(el.textContent).then(() => {
+                alert('クリップボードにコピーしました！');
+            });
+        }
+
+        async function deleteApiKey(id) {
+            if (!confirm('このAPIキーを削除しますか？削除後は使用できなくなります。')) return;
+            const res = await fetch(`${API_BASE}/api/user/apikeys/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) loadApiKeys();
+        }
+
+        async function toggleApiKey(id) {
+            await fetch(`${API_BASE}/api/user/apikeys/${id}/toggle`, {
+                method: 'PATCH',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            loadApiKeys();
+        }
+    </script>
+
+<script>
+(function(){
+    function toggleMenu(){
+        var d=document.getElementById('mobDrawer');
+        var b=document.getElementById('mobHamburger');
+        if(!d)return;
+        var open=d.classList.toggle('open');
+        if(b)b.classList.toggle('open',open);
+        document.body.style.overflow=open?'hidden':'';
+    }
+    function closeMenu(){
+        var d=document.getElementById('mobDrawer');
+        var b=document.getElementById('mobHamburger');
+        if(d){d.classList.remove('open');}
+        if(b){b.classList.remove('open');}
+        document.body.style.overflow='';
+    }
+    window.toggleMobMenu=toggleMenu;
+    window.closeMobMenu=closeMenu;
+})();
+</script>
+
+    <!-- Google Translate (非表示) -->
+    <div id="google_translate_element" style="display:none"></div>
+
+
+    <!-- Language Switcher JS -->
+    <script>
+    (function(){
+        var LANGS = {
+            ja: { flag: '🇯🇵', name: '日本語' },
+            en: { flag: '🇺🇸', name: 'English' },
+            zh: { flag: '🇨🇳', name: '中文' }
+        };
+        var GT_LANG = { en: 'en', zh: 'zh-CN', ja: 'ja' };
+
+        function setGoogCookie(val) {
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + d;
+            document.cookie = 'googtrans=' + val + '; path=/';
+        }
+        function clearGoogCookie() {
+            var exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=; path=/; ' + exp + '; domain=' + d;
+            document.cookie = 'googtrans=; path=/; ' + exp;
+        }
+
+        function updateLangBtn(lang) {
+            var info = LANGS[lang] || LANGS['ja'];
+            document.querySelectorAll('.lang-btn').forEach(function(b){
+                b.innerHTML = '<span class="lang-flag">' + info.flag + '</span>'
+                    + info.name + ' <span style="opacity:.6;font-size:.7rem">&#9660;</span>';
+            });
+            document.querySelectorAll('.lang-option').forEach(function(o){
+                o.classList.toggle('active', o.dataset.lang === lang);
+            });
+        }
+
+        window.googleTranslateElementInit = function() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ja',
+                includedLanguages: 'en,zh-CN',
+                autoDisplay: false
+            }, 'google_translate_element');
+        };
+
+        window.selectLang = function(lang) {
+            var current = localStorage.getItem('site_lang') || 'ja';
+            document.querySelectorAll('.lang-switcher').forEach(function(s){ s.classList.remove('open'); });
+            if (lang === current) return;
+            localStorage.setItem('site_lang', lang);
+            if (lang === 'ja') {
+                clearGoogCookie();
+            } else {
+                setGoogCookie('/ja/' + GT_LANG[lang]);
+            }
+            location.reload();
+        };
+
+        window.toggleLangMenu = function(el) {
+            var switcher = el.closest ? el.closest('.lang-switcher') : el.parentElement;
+            if (!switcher) return;
+            var isOpen = switcher.classList.toggle('open');
+            if (isOpen) {
+                setTimeout(function(){
+                    document.addEventListener('click', function handler(e){
+                        if (!switcher.contains(e.target)){
+                            switcher.classList.remove('open');
+                            document.removeEventListener('click', handler);
+                        }
+                    });
+                }, 10);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function(){
+            var saved = localStorage.getItem('site_lang') || 'ja';
+            updateLangBtn(saved);
+        });
+    })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
+<script>
+    // Stripe ポイント購入
+    async function stripeCheckoutPoints() {
+        var token = localStorage.getItem("gpu_token");
+        if (!token) { alert("ログインが必要です"); return; }
+        var planEl   = document.getElementById("stripePlanSelect");
+        var couponEl = document.getElementById("stripeCouponInput");
+        var btn      = document.getElementById("btnStripeCheckout");
+        var planId   = planEl ? planEl.value : "plan_1h";
+        var coupon   = couponEl ? couponEl.value.trim() : "";
+        try {
+            if(btn){ btn.disabled=true; btn.textContent="処理中..."; }
+            var body = { plan_id: planId };
+            if (coupon) body.coupon_code = coupon;
+            var r = await fetch("/api/stripe/checkout/points", {
+                method: "POST",
+                headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+            var d = await r.json();
+            if (!r.ok) { alert("エラー: " + (d.error || "Stripe未設定")); return; }
+            if (d.url) window.location.href = d.url;
+        } catch(e) {
+            alert("接続エラー: " + e.message);
+        } finally {
+            if(btn){ btn.disabled=false; btn.textContent="💳 Stripeで購入"; }
+        }
+    }
+    // 購入完了URLチェック（verify-payment でポイント付与確定）
+    (function(){
+        var p = new URLSearchParams(location.search);
+        if (p.get("payment") === "success") {
+            var pid = p.get("purchase");
+            var sid = p.get("session_id");
+            history.replaceState(null, "", "/mypage/");
+            if (pid && sid) {
+                // Stripeセッションを検証してポイント付与
+                var token = localStorage.getItem("gpu_token");
+                fetch("/api/stripe/verify-payment?session_id=" + sid + "&purchase_id=" + pid, {
+                    headers: { "Authorization": "Bearer " + token }
+                }).then(function(r){ return r.json(); }).then(function(d){
+                    if (d.ok) {
+                        var msg = d.already_granted
+                            ? "✅ ポイント付与済みです"
+                            : "✅ " + d.points_added + "pt が付与されました！";
+                        showToast(msg, "success");
+                        loadPointBalance();
+                        loadPointLogs();
+                    } else {
+                        showToast("⚠️ 決済確認中... しばらくお待ちください", "warning");
+                        setTimeout(function(){ loadPointBalance(); loadPointLogs(); }, 3000);
+                    }
+                }).catch(function(){
+                    showToast("✅ 決済完了！ポイント残高を確認してください", "success");
+                    setTimeout(function(){ loadPointBalance(); loadPointLogs(); }, 1000);
+                });
+            } else {
+                showToast("✅ ポイント購入完了！" + (pid ? " (注文#" + pid + ")" : ""), "success");
+                setTimeout(function(){ loadPointBalance(); loadPointLogs(); }, 500);
+            }
+        } else if (p.get("payment") === "cancelled") {
+            showToast("決済がキャンセルされました", "warning");
+            history.replaceState(null, "", "/mypage/");
+        }
+    })();
+</script>
+
+</body>
+
+</html>

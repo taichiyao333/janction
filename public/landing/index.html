@@ -1,949 +1,796 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GPU Rental Platform — 個人PCのGPUを時間貸しで収益化</title>
-    <meta name="description" content="自宅PCのGPUを時間貸しして収益を得よう。AI開発者・映像制作者向け高性能GPU レンタルサービス。RTX A4500から最新H100まで。" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap"
-        rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Janction — 高性能GPUクラウドを時間単位でレンタル | AI・機械学習・3DCG向け</title>
+    <meta name="description" content="RTX 4090・A100・H100などのハイエンドGPUを時間単位でレンタル。AI開発・機械学習・動画レンダリングに。初期費用0円、¥200/時間から。設定不要でブラウザからすぐ開始。">
+    <meta name="keywords" content="GPUレンタル,クラウドGPU,機械学習,AI開発,RTX 4090,A100,時間貸し,GPU計算,動画レンダリング">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6c47ff">
+    <!-- OG -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://janction.net/landing/">
+    <meta property="og:title" content="Janction — 高性能GPUクラウドを時間単位でレンタル">
+    <meta property="og:description" content="RTX 4090・A100・H100などハイエンドGPUを時間単位でレンタル。AI開発・機械学習・3DCGに。¥200/時間から、初期費用0円。">
+    <meta property="og:image" content="https://janction.net/favicon.ico">
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:site_name" content="Janction">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Janction — 高性能GPUクラウドを時間単位でレンタル">
+    <meta name="twitter:description" content="RTX 4090・A100・H100などのGPUを時間単位でレンタル。AI・機械学習・3DCGに最適。">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --bg: #05050f;
-            --bg2: #0a0a1a;
-            --card: #0f0f20;
-            --border: rgba(108, 71, 255, 0.15);
             --primary: #6c47ff;
+            --primary-light: #8b5cf6;
             --accent: #00d4ff;
             --success: #00e5a0;
             --warning: #ffb300;
-            --text: #f0f0ff;
-            --text2: #9898c0;
-            --text3: #4a4a7a;
+            --danger: #ff4757;
+            --bg: #07071a;
+            --bg2: #0d0d2b;
+            --bg3: #12122e;
+            --border: rgba(255,255,255,0.08);
+            --text: #e8e8f0;
+            --text2: #9898b8;
+            --text3: #5a5a7a;
         }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* ── HEADER ── */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            height: 64px;
-            background: rgba(5, 5, 15, 0.85);
-            backdrop-filter: blur(12px);
+        /* ── NAV ── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            display: flex; align-items: center; padding: 0 2rem; height: 64px;
+            background: rgba(7,7,26,0.85); backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
-
-        .brand {
-            font-size: 1.2rem;
-            font-weight: 800;
+        .nav-logo { font-size: 1.15rem; font-weight: 800; text-decoration: none; color: var(--text); white-space: nowrap; }
+        .nav-logo span { color: var(--accent); }
+        .nav-links { display: flex; align-items: center; gap: 0.25rem; margin-left: 2rem; flex: 1; }
+        .nav-links a {
+            padding: 0.4rem 0.85rem; border-radius: 8px; text-decoration: none;
+            font-size: 0.875rem; font-weight: 500; color: var(--text2); transition: all .2s;
+            white-space: nowrap;
         }
-
-        .brand span {
-            color: var(--accent);
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        nav a {
-            font-size: 0.875rem;
-            color: var(--text2);
-            transition: color 0.2s;
-        }
-
-        nav a:hover {
-            color: var(--text);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 20px;
-            border-radius: 10px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 30px rgba(108, 71, 255, 0.4);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text2);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--text);
-        }
-
-        .btn-lg {
-            padding: 14px 32px;
-            font-size: 1rem;
-            border-radius: 12px;
-        }
+        .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+        .nav-links a.active { color: var(--accent); }
+        .nav-actions { display: flex; align-items: center; gap: 0.75rem; margin-left: auto; }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 0.55rem 1.1rem; border-radius: 10px; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-decoration: none; border: none; transition: all .2s; font-family: inherit; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(108,71,255,0.4); }
+        .btn-ghost { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+        .btn-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+        .btn-outline:hover { background: rgba(0,212,255,0.1); }
+        .btn-lg { padding: 0.875rem 1.75rem; font-size: 1rem; border-radius: 12px; }
+        .btn-xl { padding: 1rem 2rem; font-size: 1.05rem; border-radius: 14px; }
 
         /* ── HERO ── */
         .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8rem 2rem 4rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+            min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 8rem 2rem 4rem;
+            background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(108,71,255,0.18) 0%, transparent 70%),
+                        radial-gradient(ellipse 60% 40% at 80% 70%, rgba(0,212,255,0.1) 0%, transparent 60%),
+                        var(--bg);
         }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(108, 71, 255, 0.2) 0%, transparent 70%),
-                radial-gradient(ellipse 60% 40% at 80% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 60%);
-            pointer-events: none;
-        }
-
         .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 16px;
-            border-radius: 100px;
-            background: rgba(108, 71, 255, 0.12);
-            border: 1px solid rgba(108, 71, 255, 0.3);
-            font-size: 0.8rem;
-            color: #a78bfa;
-            margin-bottom: 2rem;
-            animation: fadeInUp 0.6s ease;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 100px; padding: 0.35rem 1rem; font-size: 0.8rem; font-weight: 600;
+            color: var(--accent); margin-bottom: 1.5rem;
         }
-
-        .hero-badge-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--success);
-        }
-
+        .hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.5)} }
         .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 5rem);
-            font-weight: 900;
-            letter-spacing: -2px;
-            line-height: 1.05;
-            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1.5rem;
-            animation: fadeInUp 0.6s 0.1s ease both;
+            font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 900; line-height: 1.1;
+            letter-spacing: -0.03em; margin-bottom: 1.25rem;
         }
-
-        .hero-sub {
-            font-size: clamp(1rem, 2vw, 1.25rem);
-            color: var(--text2);
-            max-width: 640px;
-            line-height: 1.7;
-            margin-bottom: 3rem;
-            animation: fadeInUp 0.6s 0.2s ease both;
-        }
-
-        .hero-cta {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            animation: fadeInUp 0.6s 0.3s ease both;
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 3rem;
-            margin-top: 5rem;
-            padding-top: 3rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            animation: fadeInUp 0.6s 0.5s ease both;
-        }
-
-        .hero-stat {
-            text-align: center;
-        }
-
-        .hero-stat-val {
-            font-size: 2.5rem;
-            font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
-            background: linear-gradient(135deg, var(--text), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-stat-label {
-            font-size: 0.78rem;
-            color: var(--text3);
-            margin-top: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* ── GPU CARDS VISUAL ── */
-        .gpu-visual {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 4rem;
-            animation: fadeInUp 0.6s 0.4s ease both;
-        }
-
-        .mini-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 1.25rem;
-            width: 200px;
-            transition: transform 0.3s, border-color 0.3s;
-        }
-
-        .mini-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(108, 71, 255, 0.4);
-        }
-
-        .mini-card-name {
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .mini-card-spec {
-            font-size: 0.72rem;
-            color: var(--text3);
-            margin-bottom: 0.75rem;
-        }
-
-        .mini-bar {
-            height: 4px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 4px;
-        }
-
-        .mini-fill {
-            height: 100%;
-            border-radius: 10px;
-        }
-
-        .mc-gpu {
-            background: linear-gradient(90deg, var(--primary), #8b5cf6);
-        }
-
-        .mc-vram {
-            background: linear-gradient(90deg, var(--accent), var(--primary));
-        }
-
-        .mini-card-price {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--success);
-            margin-top: 0.75rem;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .mini-card-price span {
-            font-size: 0.7rem;
-            color: var(--text3);
-            font-weight: 400;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .mc-status {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--success);
-            box-shadow: 0 0 6px var(--success);
-            margin-right: 4px;
-        }
+        .hero h1 .line1 { display: block; }
+        .hero h1 .line2 { display: block; background: linear-gradient(135deg, var(--accent), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-sub { font-size: clamp(1rem, 2vw, 1.2rem); color: var(--text2); max-width: 680px; margin: 0 auto 2.5rem; line-height: 1.75; }
+        .hero-cta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+        .hero-stats { display: flex; gap: 2.5rem; justify-content: center; flex-wrap: wrap; padding: 1.75rem 2.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 16px; }
+        .hero-stat { text-align: center; }
+        .hero-stat-val { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+        .hero-stat-label { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
 
         /* ── SECTIONS ── */
-        section {
-            padding: 6rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        section { padding: 5rem 2rem; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--primary); margin-bottom: 0.75rem; }
+        .section-title { font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 800; line-height: 1.2; margin-bottom: 1rem; }
+        .section-sub { color: var(--text2); font-size: 1rem; line-height: 1.7; max-width: 600px; }
 
-        .section-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--primary);
-            font-weight: 700;
-            margin-bottom: 1rem;
+        /* ── GPU MARKETPLACE ── */
+        #marketplace { background: var(--bg2); }
+        .gpu-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; margin-top: 2.5rem; }
+        .gpu-card {
+            background: var(--bg3); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;
+            transition: all .25s; cursor: pointer; position: relative; overflow: hidden;
         }
+        .gpu-card::before { content:''; position:absolute; inset:0; background: linear-gradient(135deg, rgba(108,71,255,0.06), transparent); opacity:0; transition: opacity .3s; }
+        .gpu-card:hover { border-color: rgba(108,71,255,0.4); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        .gpu-card:hover::before { opacity:1; }
+        .gpu-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+        .gpu-tag { font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .tag-hot { background: rgba(255,71,87,0.15); color: #ff6b6b; border: 1px solid rgba(255,71,87,0.3); }
+        .tag-new { background: rgba(0,229,160,0.12); color: var(--success); border: 1px solid rgba(0,229,160,0.3); }
+        .tag-best { background: rgba(108,71,255,0.15); color: #a08cff; border: 1px solid rgba(108,71,255,0.3); }
+        .gpu-name { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.35rem; }
+        .gpu-memory { font-size: 0.78rem; color: var(--text2); }
+        .gpu-specs { display: flex; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+        .gpu-spec { font-size: 0.75rem; color: var(--text2); display: flex; align-items: center; gap: 4px; }
+        .gpu-price-row { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 1rem; }
+        .gpu-price { font-size: 1.5rem; font-weight: 800; color: var(--success); }
+        .gpu-price-unit { font-size: 0.8rem; color: var(--text2); }
+        .gpu-use-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .gpu-use-tag { font-size: 0.68rem; padding: 2px 8px; border-radius: 100px; background: rgba(255,255,255,0.05); color: var(--text2); }
+        .btn-book { width: 100%; margin-top: 1.25rem; padding: 0.65rem; font-size: 0.9rem; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; border: none; cursor: pointer; font-weight: 700; transition: all .2s; font-family: inherit; }
+        .btn-book:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        .section-title {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 1.25rem;
+        /* ── BENEFITS ── */
+        #benefits { background: var(--bg); }
+        .benefits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
+        .benefit-card {
+            background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem;
+            transition: border-color .2s;
         }
+        .benefit-card:hover { border-color: rgba(108,71,255,0.35); }
+        .benefit-icon { font-size: 2rem; margin-bottom: 1rem; }
+        .benefit-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .benefit-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.7; }
 
-        .section-sub {
-            font-size: 1.05rem;
-            color: var(--text2);
-            max-width: 560px;
-            line-height: 1.7;
+        /* ── USE CASES ── */
+        #usecases { background: var(--bg2); }
+        .usecase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
+        .usecase-card {
+            background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;
+            display: flex; gap: 1.25rem; align-items: flex-start; transition: all .2s;
         }
+        .usecase-card:hover { border-color: rgba(108,71,255,0.35); transform: translateY(-2px); }
+        .usecase-icon-wrap { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+        .usecase-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .usecase-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.6; }
+        .usecase-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+        .usecase-tag { font-size: 0.68rem; padding: 2px 8px; border-radius: 100px; background: rgba(108,71,255,0.12); color: #a08cff; }
 
         /* ── HOW IT WORKS ── */
-        .how-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 4rem;
-        }
-
-        .how-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .how-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-        }
-
-        .how-num {
-            font-size: 3rem;
-            font-weight: 900;
-            color: rgba(108, 71, 255, 0.12);
-            font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 0.75rem;
-        }
-
-        .how-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .how-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-        }
-
-        .how-desc {
-            font-size: 0.875rem;
-            color: var(--text2);
-            line-height: 1.7;
-        }
-
-        /* ── FEATURES ── */
-        .feat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-            margin-top: 4rem;
-        }
-
-        .feat-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.75rem;
-            transition: border-color 0.2s, transform 0.2s;
-        }
-
-        .feat-card:hover {
-            border-color: rgba(108, 71, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .feat-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .feat-title {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .feat-desc {
-            font-size: 0.85rem;
-            color: var(--text2);
-            line-height: 1.6;
-        }
+        #how { background: var(--bg); }
+        .steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; position: relative; }
+        .step { text-align: center; padding: 1.75rem 1.25rem; background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; }
+        .step-num { width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; margin: 0 auto 1rem; }
+        .step-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .step-desc { font-size: 0.8rem; color: var(--text2); line-height: 1.6; }
 
         /* ── PRICING ── */
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 4rem;
-        }
-
-        .price-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .price-card.featured {
-            border-color: var(--primary);
-            background: linear-gradient(135deg, rgba(108, 71, 255, 0.08), rgba(0, 212, 255, 0.04));
-        }
-
-        .price-card.featured::before {
-            content: '人気No.1';
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary);
-            color: #fff;
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 4px 14px;
-            border-radius: 100px;
-            white-space: nowrap;
-        }
-
-        .price-gpu {
-            font-size: 0.85rem;
-            color: var(--text2);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .price-val {
-            font-size: 3rem;
-            font-weight: 900;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--success);
-        }
-
-        .price-period {
-            font-size: 0.85rem;
-            color: var(--text3);
-        }
-
-        .price-vram {
-            font-size: 0.8rem;
-            color: var(--accent);
-            margin: 0.5rem 0 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .price-features {
-            list-style: none;
-            text-align: left;
-            margin: 1.5rem 0;
-        }
-
-        .price-features li {
-            font-size: 0.82rem;
-            color: var(--text2);
-            padding: 0.4rem 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .price-features li::before {
-            content: '✓';
-            color: var(--success);
-            font-weight: 700;
-            flex-shrink: 0;
-        }
+        #pricing { background: var(--bg2); }
+        .pricing-note { background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2); border-radius: 12px; padding: 1rem 1.5rem; margin-top: 2rem; font-size: 0.85rem; color: var(--text2); line-height: 1.7; }
+        .pricing-note strong { color: var(--accent); }
 
         /* ── PROVIDER CTA ── */
-        .provider-section {
-            background: linear-gradient(135deg, rgba(108, 71, 255, 0.1), rgba(0, 212, 255, 0.05));
-            border: 1px solid rgba(108, 71, 255, 0.2);
-            border-radius: 24px;
-            padding: 4rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+        #provider-cta {
+            background: linear-gradient(135deg, rgba(108,71,255,0.12) 0%, rgba(0,212,255,0.06) 100%);
+            border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
         }
-
-        .provider-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(108, 71, 255, 0.08), transparent);
-        }
-
-        .earn-calc {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            margin: 3rem 0;
-            flex-wrap: wrap;
-        }
-
-        .earn-item {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 1.5rem 2rem;
-            text-align: center;
-            min-width: 160px;
-        }
-
-        .earn-val {
-            font-size: 2rem;
-            font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--success);
-        }
-
-        .earn-label {
-            font-size: 0.75rem;
-            color: var(--text3);
-            margin-top: 4px;
-        }
+        .cta-inner { text-align: center; max-width: 600px; margin: 0 auto; }
+        .cta-inner h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.75rem; }
+        .cta-inner p { color: var(--text2); margin-bottom: 1.75rem; }
 
         /* ── FOOTER ── */
         footer {
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 4rem 2rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            background: var(--bg); border-top: 1px solid var(--border);
+            padding: 3rem 2rem 1.5rem;
         }
+        .footer-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem; }
+        .footer-logo { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .footer-logo span { color: var(--accent); }
+        .footer-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.7; max-width: 280px; }
+        .footer-col h4 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); margin-bottom: 1rem; }
+        .footer-col a { display: block; font-size: 0.82rem; color: var(--text3); text-decoration: none; margin-bottom: 0.5rem; transition: color .2s; }
+        .footer-col a:hover { color: var(--text); }
+        .footer-bottom { max-width: 1100px; margin: 0 auto; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text3); flex-wrap: wrap; gap: 0.5rem; }
 
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 3rem;
-            margin-bottom: 3rem;
-        }
-
-        .footer-brand {
-            font-size: 1.1rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .footer-desc {
-            font-size: 0.82rem;
-            color: var(--text3);
-            line-height: 1.7;
-        }
-
-        .footer-col h4 {
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .footer-col a {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--text3);
-            margin-bottom: 0.5rem;
-            transition: color 0.2s;
-        }
-
-        .footer-col a:hover {
-            color: var(--text);
-        }
-
-        .footer-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.78rem;
-            color: var(--text3);
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* ── MOBILE ── */
+        .mob-menu-btn { display: none; background: transparent; border: 1px solid var(--border); border-radius: 8px; width: 38px; height: 38px; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+        .mob-menu-btn span { display: block; width: 18px; height: 2px; background: var(--text); border-radius: 2px; transition: all .3s; }
 
         @media (max-width: 768px) {
-            nav {
-                display: none;
-            }
-
-            .hero-stats {
-                gap: 1.5rem;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-            }
+            .nav-links { display: none; }
+            .mob-menu-btn { display: flex; }
+            .footer-inner { grid-template-columns: 1fr; gap: 1.5rem; }
+            .hero { padding: 6rem 1.25rem 3rem; }
+            .hero-stats { gap: 1.5rem; padding: 1.25rem; }
+            section { padding: 3.5rem 1.25rem; }
         }
+        @media (max-width: 480px) {
+            .hero-cta { flex-direction: column; align-items: center; }
+            .hero-cta .btn { width: 100%; max-width: 320px; justify-content: center; }
+        }
+
+        /* ── ANIMATIONS ── */
+        .anim { opacity: 0; transform: translateY(24px); animation: fadeUp 0.6s ease forwards; }
+        @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+        /* ── TOKUSHOHO BANNER ── */
+        .legal-bar { background: rgba(255,255,255,0.02); border-top: 1px solid var(--border); padding: 1rem 2rem; text-align: center; font-size: 0.75rem; color: var(--text3); }
+        .legal-bar a { color: var(--text2); text-decoration: underline; margin: 0 0.5rem; }
     </style>
 </head>
-
 <body>
 
-    <!-- HEADER -->
-    <header>
-        <div class="brand">⚡ GPU<span>Rental</span></div>
-        <nav>
-            <a href="#how">使い方</a>
-            <a href="#features">機能</a>
-            <a href="#pricing">料金</a>
-            <a href="#provider">プロバイダー</a>
-            <a href="/portal/" class="btn btn-outline" style="padding:6px 16px">ログイン</a>
-            <a href="/portal/" class="btn btn-primary" style="padding:6px 16px">今すぐ始める</a>
-        </nav>
-    </header>
+<!-- ── NAVIGATION ── -->
+<nav>
+    <a href="/landing/" class="nav-logo">⚡ GPU<span>Rental</span></a>
+    <div class="nav-links">
+        <a href="/portal/" class="active">🖥 GPUを借りる</a>
+        <a href="#usecases">利用シーン</a>
+        <a href="#blender">Blender</a>
+        <a href="#how">使い方</a>
+        <a href="#pricing">料金プラン</a>
+        <a href="/provider/">GPUを貸し出す</a>
+    </div>
+    <div class="nav-actions">
+        <a href="/portal/" class="btn btn-primary">今すぐ始める →</a>
+        <button class="mob-menu-btn" onclick="document.querySelector('.nav-links').style.display = document.querySelector('.nav-links').style.display === 'flex' ? 'none' : 'flex'">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-badge">
-            <div class="hero-badge-dot"></div>日本初・個人GPU時間貸しプラットフォーム
+<!-- ── HERO ── -->
+<section class="hero">
+    <div class="hero-badge anim">
+        <div class="hero-badge-dot"></div>
+        高性能GPUクラウドレンタルサービス
+    </div>
+    <h1 class="anim" style="animation-delay:.1s">
+        <span class="line1">必要な時だけ、</span>
+        <span class="line2">最高峰の計算パワーを。</span>
+    </h1>
+    <p class="hero-sub anim" style="animation-delay:.2s">
+        RTX 4090・A100・H100などのハイエンドGPUを<strong>時間単位</strong>でレンタル。<br>
+        AI開発・機械学習・動画レンダリングに。初期費用0円、<strong>¥200/時間</strong>から。
+    </p>
+    <div class="hero-cta anim" style="animation-delay:.3s">
+        <a href="/portal/" class="btn btn-primary btn-xl">🖥 今すぐGPUを借りる</a>
+        <a href="#marketplace" class="btn btn-outline btn-xl">📋 料金・在庫を確認する</a>
+    </div>
+    <div class="hero-stats anim" style="animation-delay:.4s">
+        <div class="hero-stat">
+            <div class="hero-stat-val">¥200〜</div>
+            <div class="hero-stat-label">最低レンタル料金/時間</div>
         </div>
-        <h1>自宅のGPUが<br />収益マシンになる</h1>
-        <p class="hero-sub">
-            使っていないPCのGPUを時間貸しして、月10万円以上を稼ごう。
-            AI開発者・映像クリエイターに高性能GPUを5分で提供。
-        </p>
-        <div class="hero-cta">
-            <a href="/portal/" class="btn btn-primary btn-lg">🚀 今すぐGPUを借りる</a>
-            <a href="/provider/" class="btn btn-outline btn-lg">💰 GPUを貸し出す</a>
+        <div class="hero-stat">
+            <div class="hero-stat-val">35+</div>
+            <div class="hero-stat-label">対応GPUモデル</div>
         </div>
+        <div class="hero-stat">
+            <div class="hero-stat-val">1時間〜</div>
+            <div class="hero-stat-label">最短レンタル時間</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-val">0円</div>
+            <div class="hero-stat-label">初期費用・月額固定費</div>
+        </div>
+    </div>
+</section>
 
-        <div class="gpu-visual">
-            <div class="mini-card">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
-                    <div class="mini-card-name">RTX A4500</div>
+<!-- ── GPU MARKETPLACE ── -->
+<section id="marketplace">
+    <div class="container">
+        <div class="section-label">GPU Marketplace</div>
+        <h2 class="section-title">借りられるGPU一覧</h2>
+        <p class="section-sub">最新GPUから高コスパモデルまで。用途・予算に合わせて選択できます。</p>
+        <div class="gpu-cards">
+            <!-- RTX 4090 -->
+            <div class="gpu-card">
+                <div class="gpu-card-header">
                     <div>
-                        <div class="mc-status"></div><span style="font-size:0.7rem;color:var(--success)">空きあり</span>
+                        <div class="gpu-name">NVIDIA RTX 4090</div>
+                        <div class="gpu-memory">24GB GDDR6X</div>
+                    </div>
+                    <span class="gpu-tag tag-hot">人気No.1</span>
+                </div>
+                <div class="gpu-specs">
+                    <span class="gpu-spec">⚡ 82.6 TFLOPS</span>
+                    <span class="gpu-spec">💾 24 GB VRAM</span>
+                    <span class="gpu-spec">🔌 450W</span>
+                </div>
+                <div class="gpu-price-row">
+                    <span class="gpu-price">¥650</span>
+                    <span class="gpu-price-unit">/ 時間</span>
+                </div>
+                <div class="gpu-use-tags">
+                    <span class="gpu-use-tag">画像生成AI</span>
+                    <span class="gpu-use-tag">LLM</span>
+                    <span class="gpu-use-tag">3DCGレンダリング</span>
+                </div>
+                <button class="btn-book" onclick="location.href='/portal/'">今すぐ予約する →</button>
+            </div>
+            <!-- RTX A6000 -->
+            <div class="gpu-card">
+                <div class="gpu-card-header">
+                    <div>
+                        <div class="gpu-name">NVIDIA RTX A6000</div>
+                        <div class="gpu-memory">48GB GDDR6</div>
+                    </div>
+                    <span class="gpu-tag tag-best">大容量VRAM</span>
+                </div>
+                <div class="gpu-specs">
+                    <span class="gpu-spec">⚡ 38.7 TFLOPS</span>
+                    <span class="gpu-spec">💾 48 GB VRAM</span>
+                    <span class="gpu-spec">🔌 300W</span>
+                </div>
+                <div class="gpu-price-row">
+                    <span class="gpu-price">¥900</span>
+                    <span class="gpu-price-unit">/ 時間</span>
+                </div>
+                <div class="gpu-use-tags">
+                    <span class="gpu-use-tag">大規模LLM</span>
+                    <span class="gpu-use-tag">研究・解析</span>
+                    <span class="gpu-use-tag">VFX</span>
+                </div>
+                <button class="btn-book" onclick="location.href='/portal/'">今すぐ予約する →</button>
+            </div>
+            <!-- RTX 4080 -->
+            <div class="gpu-card">
+                <div class="gpu-card-header">
+                    <div>
+                        <div class="gpu-name">NVIDIA RTX 4080</div>
+                        <div class="gpu-memory">16GB GDDR6X</div>
+                    </div>
+                    <span class="gpu-tag tag-best">コスパ優秀</span>
+                </div>
+                <div class="gpu-specs">
+                    <span class="gpu-spec">⚡ 48.7 TFLOPS</span>
+                    <span class="gpu-spec">💾 16 GB VRAM</span>
+                    <span class="gpu-spec">🔌 320W</span>
+                </div>
+                <div class="gpu-price-row">
+                    <span class="gpu-price">¥550</span>
+                    <span class="gpu-price-unit">/ 時間</span>
+                </div>
+                <div class="gpu-use-tags">
+                    <span class="gpu-use-tag">Stable Diffusion</span>
+                    <span class="gpu-use-tag">動画生成</span>
+                    <span class="gpu-use-tag">ゲームAI</span>
+                </div>
+                <button class="btn-book" onclick="location.href='/portal/'">今すぐ予約する →</button>
+            </div>
+            <!-- RTX 3090 -->
+            <div class="gpu-card">
+                <div class="gpu-card-header">
+                    <div>
+                        <div class="gpu-name">NVIDIA RTX 3090</div>
+                        <div class="gpu-memory">24GB GDDR6X</div>
+                    </div>
+                    <span class="gpu-tag tag-best">コスパ優秀</span>
+                </div>
+                <div class="gpu-specs">
+                    <span class="gpu-spec">⚡ 35.6 TFLOPS</span>
+                    <span class="gpu-spec">💾 24 GB VRAM</span>
+                    <span class="gpu-spec">🔌 350W</span>
+                </div>
+                <div class="gpu-price-row">
+                    <span class="gpu-price">¥500</span>
+                    <span class="gpu-price-unit">/ 時間</span>
+                </div>
+                <div class="gpu-use-tags">
+                    <span class="gpu-use-tag">機械学習</span>
+                    <span class="gpu-use-tag">画像生成</span>
+                    <span class="gpu-use-tag">Blender</span>
+                </div>
+                <button class="btn-book" onclick="location.href='/portal/'">今すぐ予約する →</button>
+            </div>
+            <!-- RTX A4500 -->
+            <div class="gpu-card">
+                <div class="gpu-card-header">
+                    <div>
+                        <div class="gpu-name">NVIDIA RTX A4500</div>
+                        <div class="gpu-memory">20GB GDDR6</div>
+                    </div>
+                    <span class="gpu-tag tag-new">プロ向け</span>
+                </div>
+                <div class="gpu-specs">
+                    <span class="gpu-spec">⚡ 23.7 TFLOPS</span>
+                    <span class="gpu-spec">💾 20 GB VRAM</span>
+                    <span class="gpu-spec">🔌 200W</span>
+                </div>
+                <div class="gpu-price-row">
+                    <span class="gpu-price">¥450</span>
+                    <span class="gpu-price-unit">/ 時間</span>
+                </div>
+                <div class="gpu-use-tags">
+                    <span class="gpu-use-tag">CAD</span>
+                    <span class="gpu-use-tag">科学計算</span>
+                    <span class="gpu-use-tag">映像制作</span>
+                </div>
+                <button class="btn-book" onclick="location.href='/portal/'">今すぐ予約する →</button>
+            </div>
+            <!-- RTX 3060 -->
+            <div class="gpu-card">
+                <div class="gpu-card-header">
+                    <div>
+                        <div class="gpu-name">NVIDIA RTX 3060</div>
+                        <div class="gpu-memory">12GB GDDR6</div>
+                    </div>
+                    <span class="gpu-tag tag-new">入門に最適</span>
+                </div>
+                <div class="gpu-specs">
+                    <span class="gpu-spec">⚡ 12.7 TFLOPS</span>
+                    <span class="gpu-spec">💾 12 GB VRAM</span>
+                    <span class="gpu-spec">🔌 170W</span>
+                </div>
+                <div class="gpu-price-row">
+                    <span class="gpu-price">¥200</span>
+                    <span class="gpu-price-unit">/ 時間</span>
+                </div>
+                <div class="gpu-use-tags">
+                    <span class="gpu-use-tag">推論</span>
+                    <span class="gpu-use-tag">学習入門</span>
+                    <span class="gpu-use-tag">ComfyUI</span>
+                </div>
+                <button class="btn-book" onclick="location.href='/portal/'">今すぐ予約する →</button>
+            </div>
+        </div>
+        <div class="pricing-note" style="margin-top:2rem">
+            <strong>💡 ご利用の流れ：</strong> アカウント登録 → ポイント購入（クレジットカード決済）→ GPU選択・予約 → すぐに利用開始。
+            最短1時間から、複数時間の予約も可能です。<a href="/portal/" style="color:var(--accent);text-decoration:none"> → GPU一覧を見る</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── BENEFITS（借りる側メリット） ── -->
+<section id="benefits">
+    <div class="container">
+        <div class="section-label">Why Janction</div>
+        <h2 class="section-title">GPUを借りるメリット</h2>
+        <p class="section-sub">高額な機材購入なしに、必要な時だけ最高峰の計算リソースを使えます。</p>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">💰</div>
+                <div class="benefit-title">初期費用ゼロ・低コスト</div>
+                <div class="benefit-desc">RTX 4090を購入すると30万円以上かかりますが、レンタルなら¥650/時間。必要な分だけ使い、不要になればすぐ停止できます。</div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">⚡</div>
+                <div class="benefit-title">即時利用・設定不要</div>
+                <div class="benefit-desc">アカウント登録後すぐに利用開始。複雑なソフトウェア設定なしに、ブラウザまたはSSHから即座に高性能GPU環境へアクセスできます。</div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🎯</div>
+                <div class="benefit-title">用途に合わせたGPU選択</div>
+                <div class="benefit-desc">画像生成向け・LLM推論向け・3DCGレンダリング向けなど、35種類以上のGPUモデルから最適なものを自由に選択できます。</div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🛡️</div>
+                <div class="benefit-title">安全なクレジットカード決済</div>
+                <div class="benefit-desc">Stripe（国際標準）による安全な決済。Visa・Mastercard・JCB・Amex対応。ポイント制で事前チャージ、追加課金なし。</div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">📈</div>
+                <div class="benefit-title">スケーラブルなリソース</div>
+                <div class="benefit-desc">1台から複数台まで、プロジェクトの規模に合わせてリソースを増減。繁忙期だけ増やす、短期プロジェクトに集中投下など柔軟に対応。</div>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🇯🇵</div>
+                <div class="benefit-title">日本国内のGPUリソース</div>
+                <div class="benefit-desc">海外クラウドと比べ、データ転送の遅延が少なく、日本語サポートで安心。日本円でのシンプルな料金体系です。</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── USE CASES（利用シーン） ── -->
+<section id="usecases">
+    <div class="container">
+        <div class="section-label">Use Cases</div>
+        <h2 class="section-title">こんな方に使われています</h2>
+        <p class="section-sub">AI・映像・研究など様々な分野のプロフェッショナルが活用しています。</p>
+        <div class="usecase-grid">
+            <div class="usecase-card">
+                <div class="usecase-icon-wrap" style="background:rgba(108,71,255,0.15)">🤖</div>
+                <div>
+                    <div class="usecase-title">AI・機械学習エンジニア</div>
+                    <div class="usecase-desc">大規模言語モデル（LLM）のファインチューニング、Stable Diffusionの学習、PyTorchを使った推論サーバーの構築など。自社GPU購入を待たずにすぐ開発を開始できます。</div>
+                    <div class="usecase-tags">
+                        <span class="usecase-tag">PyTorch</span>
+                        <span class="usecase-tag">LLM学習</span>
+                        <span class="usecase-tag">ComfyUI</span>
+                        <span class="usecase-tag">Ollama</span>
                     </div>
                 </div>
-                <div class="mini-card-spec">20 GB VRAM · Home PC</div>
-                <div class="mini-bar">
-                    <div class="mini-fill mc-gpu" style="width:12%"></div>
-                </div>
-                <div class="mini-bar">
-                    <div class="mini-fill mc-vram" style="width:8%"></div>
-                </div>
-                <div class="mini-card-price">¥800<span>/時間</span></div>
             </div>
-            <div class="mini-card">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
-                    <div class="mini-card-name">RTX 4090</div>
-                    <div>
-                        <div class="mc-status"></div><span style="font-size:0.7rem;color:var(--success)">空きあり</span>
+            <div class="usecase-card">
+                <div class="usecase-icon-wrap" style="background:rgba(255,179,0,0.15)">🎬</div>
+                <div>
+                    <div class="usecase-title">3DCG・映像クリエイター</div>
+                    <div class="usecase-desc">BlenderやCinema 4DのGPUレンダリング、After Effectsのパワーレンダリング、高解像度動画の高速書き出しに。納期前の一時的な計算能力強化に最適です。</div>
+                    <div class="usecase-tags">
+                        <span class="usecase-tag">Blender</span>
+                        <span class="usecase-tag">NVENC</span>
+                        <span class="usecase-tag">動画書き出し</span>
+                        <span class="usecase-tag">VFX</span>
                     </div>
                 </div>
-                <div class="mini-card-spec">24 GB VRAM · Home PC</div>
-                <div class="mini-bar">
-                    <div class="mini-fill mc-gpu" style="width:5%"></div>
-                </div>
-                <div class="mini-bar">
-                    <div class="mini-fill mc-vram" style="width:3%"></div>
-                </div>
-                <div class="mini-card-price">¥1,200<span>/時間</span></div>
             </div>
-            <div class="mini-card">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
-                    <div class="mini-card-name">A100 80GB</div>
-                    <div>
-                        <div
-                            style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warning);margin-right:4px">
-                        </div><span style="font-size:0.7rem;color:var(--warning)">使用中</span>
+            <div class="usecase-card">
+                <div class="usecase-icon-wrap" style="background:rgba(0,229,160,0.15)">🔬</div>
+                <div>
+                    <div class="usecase-title">研究・解析機関</div>
+                    <div class="usecase-desc">分子動力学シミュレーション、気象データ解析、創薬研究など、一時的に大規模計算が必要な研究に。大学や研究所でのスポットでの計算リソース確保に。</div>
+                    <div class="usecase-tags">
+                        <span class="usecase-tag">CUDA</span>
+                        <span class="usecase-tag">科学計算</span>
+                        <span class="usecase-tag">シミュレーション</span>
                     </div>
                 </div>
-                <div class="mini-card-spec">80 GB VRAM · データセンター</div>
-                <div class="mini-bar">
-                    <div class="mini-fill mc-gpu" style="width:78%"></div>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon-wrap" style="background:rgba(0,212,255,0.12)">🚀</div>
+                <div>
+                    <div class="usecase-title">スタートアップ・開発チーム</div>
+                    <div class="usecase-desc">AIプロダクト開発の初期フェーズでインフラコストを最小化。PoC（概念実証）から本番移行まで、必要な時だけ高性能GPUを利用してコストを最適化できます。</div>
+                    <div class="usecase-tags">
+                        <span class="usecase-tag">PoC開発</span>
+                        <span class="usecase-tag">プロトタイプ</span>
+                        <span class="usecase-tag">コスト最適化</span>
+                    </div>
                 </div>
-                <div class="mini-bar">
-                    <div class="mini-fill mc-vram" style="width:65%"></div>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon-wrap" style="background:rgba(255,71,87,0.12)">🎮</div>
+                <div>
+                    <div class="usecase-title">ゲーム開発者</div>
+                    <div class="usecase-desc">Unreal Engine・Unityのシェーダーコンパイル、AIキャラクターの学習、物理シミュレーションなど。開発環境を汚さずクラウドで重い処理を分離できます。</div>
+                    <div class="usecase-tags">
+                        <span class="usecase-tag">Unreal Engine</span>
+                        <span class="usecase-tag">物理演算</span>
+                        <span class="usecase-tag">シェーダー</span>
+                    </div>
                 </div>
-                <div class="mini-card-price">¥3,200<span>/時間</span></div>
+            </div>
+            <div class="usecase-card">
+                <div class="usecase-icon-wrap" style="background:rgba(108,71,255,0.12)">📊</div>
+                <div>
+                    <div class="usecase-title">データサイエンティスト</div>
+                    <div class="usecase-desc">大規模データセットの前処理、XGBoost・LightGBMのGPU高速化、JupyterLabでのインタラクティブ分析。ローカルPCでは時間がかかる処理を高速化。</div>
+                    <div class="usecase-tags">
+                        <span class="usecase-tag">JupyterLab</span>
+                        <span class="usecase-tag">RAPIDS</span>
+                        <span class="usecase-tag">データ処理</span>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+</section>
 
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="hero-stat-val">3+</div>
-                <div class="hero-stat-label">登録GPU</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-val">¥800〜</div>
-                <div class="hero-stat-label">最低料金/時間</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-val">5分</div>
-                <div class="hero-stat-label">セットアップ</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-val">80%</div>
-                <div class="hero-stat-label">プロバイダー取り分</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- HOW IT WORKS -->
-    <section id="how">
+<!-- ── HOW IT WORKS ── -->
+<section id="how">
+    <div class="container">
         <div class="section-label">How It Works</div>
-        <div class="section-title">3ステップで<br />始められる</div>
-        <div class="how-grid">
-            <div class="how-card">
-                <div class="how-num">01</div>
-                <div class="how-icon">📋</div>
-                <div class="how-title">GPUを選んで予約</div>
-                <div class="how-desc">利用したいGPUを選択し、使いたい時間帯を予約。支払いはStripeで安全に処理されます。</div>
+        <h2 class="section-title">4ステップで<br>すぐ使える</h2>
+        <p class="section-sub">複雑な設定は一切不要。今すぐ高性能GPUの計算環境を利用できます。</p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-title">アカウント登録</div>
+                <div class="step-desc">メールアドレスとパスワードだけで即時登録。クレジットカードでポイントをチャージします。</div>
             </div>
-            <div class="how-card">
-                <div class="how-num">02</div>
-                <div class="how-icon">🔌</div>
-                <div class="how-title">即座に接続</div>
-                <div class="how-desc">予約確定後、ブラウザからターミナルに接続。cuda、PyTorch環境がすぐに使えます。</div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-title">GPUを選んで予約</div>
+                <div class="step-desc">GPU一覧から用途・予算に合ったモデルを選択。利用日時と時間数を指定して予約完了。</div>
             </div>
-            <div class="how-card">
-                <div class="how-num">03</div>
-                <div class="how-icon">🚀</div>
-                <div class="how-title">作業して終了</div>
-                <div class="how-desc">AI学習、映像レンダリング、推論など好きな作業を実行。終了後は秒単位で課金停止。</div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-title">すぐに利用開始</div>
+                <div class="step-desc">予約時間になったらワークスペースからSSH接続またはブラウザから高性能GPU環境にアクセス。</div>
             </div>
-        </div>
-    </section>
-
-    <!-- FEATURES -->
-    <section id="features">
-        <div class="section-label">Features</div>
-        <div class="section-title">本格的な<br />GPU環境をすぐに</div>
-        <div class="feat-grid">
-            <div class="feat-card">
-                <div class="feat-icon">🖥</div>
-                <div class="feat-title">ブラウザターミナル</div>
-                <div class="feat-desc">インストール不要。ブラウザから本物のターミナルに接続。PowerShell/bash対応。</div>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon">📊</div>
-                <div class="feat-title">リアルタイム監視</div>
-                <div class="feat-desc">GPU使用率・温度・電力消費をリアルタイムグラフで確認。過去10分の推移も表示。</div>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon">📁</div>
-                <div class="feat-title">ファイル管理</div>
-                <div class="feat-desc">ドラッグ&ドロップでファイルアップロード。学習データ・モデルを簡単に転送。</div>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon">🎬</div>
-                <div class="feat-title">レンダリングキュー</div>
-                <div class="feat-desc">NVENC対応の映像エンコード。H.264/H.265/ProRes等に対応。4Kレンダリングも高速。</div>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon">🔔</div>
-                <div class="feat-title">スマートアラート</div>
-                <div class="feat-desc">GPU温度超過・残り時間30分前・コスト上限に達したら自動通知。</div>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon">🔐</div>
-                <div class="feat-title">セキュリティ</div>
-                <div class="feat-desc">JWT認証・HTTPS(Cloudflare)・ユーザー間完全隔離。独立したワークスペース。</div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-title">使った分だけ課金</div>
+                <div class="step-desc">ポイント制なので使い過ぎの心配なし。残ったポイントは次回以降にそのまま使えます。</div>
             </div>
         </div>
-    </section>
+        <div style="text-align:center;margin-top:2.5rem">
+            <a href="/portal/" class="btn btn-primary btn-lg">🖥 GPU一覧を見る →</a>
+        </div>
+    </div>
+</section>
 
-    <!-- PRICING -->
-    <section id="pricing">
+<!-- ── PRICING NOTE ── -->
+<section id="pricing" style="background:var(--bg2)">
+    <div class="container">
         <div class="section-label">Pricing</div>
-        <div class="section-title">シンプルな<br />従量課金</div>
-        <p class="section-sub">予約した時間分だけ支払い。最低利用時間なし。いつでもキャンセル可能。</p>
-        <div class="pricing-grid">
-            <div class="price-card">
-                <div class="price-gpu">NVIDIA RTX A4500</div>
-                <div class="price-val">¥800</div>
-                <div class="price-period">/時間</div>
-                <div class="price-vram">20 GB VRAM</div>
-                <ul class="price-features">
-                    <li>中規模AI学習に最適</li>
-                    <li>映像レンダリング向け</li>
-                    <li>CUDA 12.4対応</li>
-                    <li>20GBストレージ込み</li>
-                </ul>
-                <a href="/portal/" class="btn btn-outline" style="width:100%;justify-content:center">予約する</a>
+        <h2 class="section-title">シンプルな料金体系</h2>
+        <p class="section-sub">月額固定費なし。使った時間×単価のみ。ポイント購入でよりお得に。</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;margin-top:2.5rem">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:1.75rem;text-align:center">
+                <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.1em">エントリー</div>
+                <div style="font-size:2rem;font-weight:800;color:var(--success)">¥200〜</div>
+                <div style="font-size:0.8rem;color:var(--text2);margin-bottom:1rem">/ 時間</div>
+                <div style="font-size:0.82rem;color:var(--text2);line-height:1.7">RTX 3060 などのミドルレンジGPU<br>学習・入門利用に</div>
             </div>
-            <div class="price-card featured">
-                <div class="price-gpu">NVIDIA RTX 4090</div>
-                <div class="price-val">¥1,200</div>
-                <div class="price-period">/時間</div>
-                <div class="price-vram">24 GB VRAM</div>
-                <ul class="price-features">
-                    <li>大規模LLM推論に最適</li>
-                    <li>Stable Diffusion XL</li>
-                    <li>最高のコスパ</li>
-                    <li>50GBストレージ込み</li>
-                </ul>
-                <a href="/portal/" class="btn btn-primary" style="width:100%;justify-content:center">予約する</a>
+            <div style="background:linear-gradient(135deg,rgba(108,71,255,0.12),rgba(0,212,255,0.06));border:1px solid rgba(108,71,255,0.35);border-radius:16px;padding:1.75rem;text-align:center;position:relative">
+                <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;font-size:0.68rem;font-weight:700;padding:3px 12px;border-radius:100px">人気</div>
+                <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.1em">スタンダード</div>
+                <div style="font-size:2rem;font-weight:800;color:var(--primary-light)">¥400〜</div>
+                <div style="font-size:0.8rem;color:var(--text2);margin-bottom:1rem">/ 時間</div>
+                <div style="font-size:0.82rem;color:var(--text2);line-height:1.7">RTX 4070〜4080 クラス<br>AI開発・映像制作の主力に</div>
             </div>
-            <div class="price-card">
-                <div class="price-gpu">NVIDIA A100 80GB</div>
-                <div class="price-val">¥3,200</div>
-                <div class="price-period">/時間</div>
-                <div class="price-vram">80 GB VRAM</div>
-                <ul class="price-features">
-                    <li>超大規模モデル学習</li>
-                    <li>データセンター品質</li>
-                    <li>NVLink対応</li>
-                    <li>100GBストレージ込み</li>
-                </ul>
-                <a href="/portal/" class="btn btn-outline" style="width:100%;justify-content:center">お問い合わせ</a>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:1.75rem;text-align:center">
+                <div style="font-size:0.8rem;color:var(--text2);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.1em">ハイエンド</div>
+                <div style="font-size:2rem;font-weight:800;color:var(--accent)">¥650〜</div>
+                <div style="font-size:0.8rem;color:var(--text2);margin-bottom:1rem">/ 時間</div>
+                <div style="font-size:0.82rem;color:var(--text2);line-height:1.7">RTX 4090・A6000・A100 クラス<br>大規模モデル・プロ制作に</div>
             </div>
         </div>
-    </section>
-
-    <!-- PROVIDER CTA -->
-    <section id="provider">
-        <div class="provider-section">
-            <div class="section-label" style="position:relative">For Providers</div>
-            <h2
-                style="font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-1px;margin-bottom:1rem;position:relative">
-                使っていないGPUで<br />毎月収益を得よう
-            </h2>
-            <p style="color:var(--text2);max-width:520px;margin:0 auto;line-height:1.7;position:relative">
-                RTX 3090・4090・A4500などの高性能GPUを持っているなら、
-                アイドル時間に第三者へ貸し出して収入を得ることができます。
-                収益の80%はあなたの取り分です。
-            </p>
-            <div class="earn-calc" style="position:relative">
-                <div class="earn-item">
-                    <div class="earn-val">¥6,400</div>
-                    <div class="earn-label">RTX 4090 × 8時間/日</div>
-                </div>
-                <div class="earn-item" style="align-self:center;font-size:1.5rem;color:var(--text3)">×</div>
-                <div class="earn-item">
-                    <div class="earn-val">30</div>
-                    <div class="earn-label">日数</div>
-                </div>
-                <div class="earn-item" style="align-self:center;font-size:1.5rem;color:var(--text3)">=</div>
-                <div class="earn-item" style="border-color:rgba(0,229,160,0.3)">
-                    <div class="earn-val" style="font-size:2.5rem">¥192,000</div>
-                    <div class="earn-label">月収見込み (80% = ¥153,600)</div>
-                </div>
-            </div>
-            <a href="/provider/" class="btn btn-primary btn-lg" style="position:relative">🏭 プロバイダーに登録する</a>
+        <div class="pricing-note">
+            <strong>ポイント購入プラン：</strong><br>
+            1時間チケット ¥800（80pt） ／ 3時間 ¥2,400 ／ 10時間 ¥7,500（<strong>6%OFF</strong>） ／ 30時間 ¥21,000（<strong>12%OFF</strong>） ／ 100時間 ¥65,000（<strong>18%OFF</strong>）<br>
+            <span style="font-size:0.8rem">※ ポイントは余っても翌月以降に繰り越し可能です。1pt = 10円。</span>
         </div>
-    </section>
+        <div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:12px;padding:1.25rem 1.5rem;margin-top:1rem;font-size:0.85rem;color:var(--text2)">
+            <strong style="color:var(--success)">✅ 決済の安全性について：</strong> 当サービスはStripe（PCI DSS準拠）による国際標準の安全な決済を採用しています。カード情報はStripeが管理し、当サービスのサーバーには一切保存されません。
+        </div>
+    </div>
+</section>
 
-    <!-- FOOTER -->
-    <footer>
-        <div class="footer-grid">
+<!-- ── BLENDER CLOUD RENDER ── -->
+<section id="blender" style="background:var(--bg)">
+    <div class="container">
+        <div class="section-label">Blender</div>
+        <h2 class="section-title">Blender クラウドレンダリング</h2>
+        <p class="section-sub">自分のPCのBlenderから直接クラウドGPUでレンダリング。GPUのないMacBookでもRTX 4090クラスの高速レンダリングが可能。</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2.5rem;align-items:center">
+            <!-- Left: Steps -->
             <div>
-                <div class="footer-brand">⚡ GPU<span style="color:var(--accent)">Rental</span></div>
-                <p class="footer-desc">
-                    日本初の個人・法人GPU時間貸しプラットフォーム。
-                    未使用のGPUリソースを収益化し、AI開発者・映像クリエイターに届けます。
-                </p>
+                <div style="display:flex;flex-direction:column;gap:1rem">
+                    <div style="display:flex;align-items:flex-start;gap:14px">
+                        <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--success));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;color:#fff;flex-shrink:0">1</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.95rem;margin-bottom:2px">Blender Addon をダウンロード</div>
+                            <div style="font-size:0.82rem;color:var(--text2)">ワークスペースの「🎨 Blender」タブ、またはこのページ下部からワンクリックでダウンロード。</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:14px">
+                        <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--success));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;color:#fff;flex-shrink:0">2</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.95rem;margin-bottom:2px">Blender にインストール</div>
+                            <div style="font-size:0.82rem;color:var(--text2)">編集 → プリファレンス → アドオン → インストール から .py ファイルを選択するだけ。</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:14px">
+                        <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--success));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;color:#fff;flex-shrink:0">3</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.95rem;margin-bottom:2px">GPU を選んでレンダリング開始</div>
+                            <div style="font-size:0.82rem;color:var(--text2)">サイドバー(N) → Janction タブでログイン。利用可能なGPUを選んで「☁ クラウドレンダリング開始」ボタン。</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:14px">
+                        <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--success));border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;color:#fff;flex-shrink:0">4</div>
+                        <div>
+                            <div style="font-weight:600;font-size:0.95rem;margin-bottom:2px">レンダリング結果をダウンロード</div>
+                            <div style="font-size:0.82rem;color:var(--text2)">完了通知後、ワンクリックで結果画像をZIPダウンロード。Blenderに自動ロードも可能。</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="footer-col">
-                <h4>サービス</h4>
-                <a href="/portal/">GPUを借りる</a>
-                <a href="/provider/">GPUを貸す</a>
-                <a href="#pricing">料金プラン</a>
-                <a href="/workspace/">ワークスペース</a>
-            </div>
-            <div class="footer-col">
-                <h4>サポート</h4>
-                <a href="/terms.html">利用規約</a>
-                <a href="/privacy.html">プライバシーポリシー</a>
-                <a href="mailto:taichi.yao@gmail.com">お問い合わせ</a>
-                <a href="https://github.com/taichiyao333/janction" target="_blank">GitHub</a>
-            </div>
-            <div class="footer-col">
-                <h4>開発者向け</h4>
-                <a href="/api/health" target="_blank">API Status</a>
-                <a href="/admin/">管理ダッシュボード</a>
-                <a href="https://github.com/taichiyao333/janction" target="_blank">ソースコード</a>
+
+            <!-- Right: Feature Cards -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+                <div style="background:rgba(108,71,255,0.06);border:1px solid rgba(108,71,255,0.2);border-radius:12px;padding:1rem;text-align:center">
+                    <div style="font-size:1.5rem;margin-bottom:4px">🎯</div>
+                    <div style="font-size:0.82rem;font-weight:600">GPU選択可能</div>
+                    <div style="font-size:0.72rem;color:var(--text2);margin-top:2px">RTX 4090, A4500 等<br>用途に合わせて選択</div>
+                </div>
+                <div style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:12px;padding:1rem;text-align:center">
+                    <div style="font-size:1.5rem;margin-bottom:4px">⚡</div>
+                    <div style="font-size:0.82rem;font-weight:600">高速レンダリング</div>
+                    <div style="font-size:0.72rem;color:var(--text2);margin-top:2px">CUDA GPU加速で<br>ローカルの10倍以上</div>
+                </div>
+                <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:12px;padding:1rem;text-align:center">
+                    <div style="font-size:1.5rem;margin-bottom:4px">📊</div>
+                    <div style="font-size:0.82rem;font-weight:600">リアルタイム進捗</div>
+                    <div style="font-size:0.72rem;color:var(--text2);margin-top:2px">フレーム・サンプル単位で<br>進捗をリアルタイム表示</div>
+                </div>
+                <div style="background:rgba(255,179,0,0.06);border:1px solid rgba(255,179,0,0.2);border-radius:12px;padding:1rem;text-align:center">
+                    <div style="font-size:1.5rem;margin-bottom:4px">🔧</div>
+                    <div style="font-size:0.82rem;font-weight:600">Cycles / Eevee</div>
+                    <div style="font-size:0.72rem;color:var(--text2);margin-top:2px">両エンジン対応<br>PNG, EXR, JPEG出力</div>
+                </div>
+                <div style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.2);border-radius:12px;padding:1rem;text-align:center">
+                    <div style="font-size:1.5rem;margin-bottom:4px">🎬</div>
+                    <div style="font-size:0.82rem;font-weight:600">アニメーション対応</div>
+                    <div style="font-size:0.72rem;color:var(--text2);margin-top:2px">連番フレーム一括<br>レンダリング可能</div>
+                </div>
+                <div style="background:rgba(108,71,255,0.06);border:1px solid rgba(108,71,255,0.2);border-radius:12px;padding:1rem;text-align:center">
+                    <div style="font-size:1.5rem;margin-bottom:4px">🇯🇵</div>
+                    <div style="font-size:0.82rem;font-weight:600">完全日本語対応</div>
+                    <div style="font-size:0.72rem;color:var(--text2);margin-top:2px">UI・サポート・決済<br>すべて日本語で安心</div>
+                </div>
             </div>
         </div>
-        <div class="footer-bottom">
-            <span>© 2026 GPU Rental Platform. All rights reserved.</span>
-            <span>Made with ⚡ by taichiyao333</span>
+
+        <!-- Mobile responsive override -->
+        <style>
+            @media (max-width: 768px) {
+                #blender .container > div[style*="grid-template-columns:1fr 1fr"] {
+                    grid-template-columns: 1fr !important;
+                }
+            }
+        </style>
+
+        <!-- CTA -->
+        <div style="text-align:center;margin-top:2.5rem">
+            <a href="/downloads/janction_addon.py" download class="btn btn-primary btn-lg" style="display:inline-flex;align-items:center;gap:8px">
+                ⬇ Blender Addon をダウンロード
+            </a>
+            <p style="font-size:0.75rem;color:var(--text3);margin-top:0.5rem">janction_addon.py — Blender 3.6〜4.x対応 / 依存関係なし / Python標準ライブラリのみ</p>
         </div>
-    </footer>
+    </div>
+</section>
+
+<!-- ── PROVIDER CTA（ページ下部に移動） ── -->
+<section id="provider-cta">
+    <div class="container">
+        <div class="cta-inner">
+            <h2>あなたのGPUを<br>貸し出しませんか？</h2>
+            <p>遊休状態のGPUを貸し出すことで、月10万円以上の副収入が見込めます。登録無料、手数料20%のみ。（パートナー募集中）</p>
+            <a href="/provider/" class="btn btn-ghost btn-lg">🖥 プロバイダーとして参加する →</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+    <div class="footer-inner">
+        <div>
+            <div class="footer-logo">⚡ GPU<span>Rental</span></div>
+            <p class="footer-desc">日本初の個人・法人GPU貸出マーケットプレイス。アイドルGPUリソースをAI開発者・映像クリエイターへ。METADATALAB.INC 運営。</p>
+        </div>
+        <div class="footer-col">
+            <h4>GPUを借りる</h4>
+            <a href="/portal/">GPU一覧・予約</a>
+            <a href="#marketplace">料金プラン</a>
+            <a href="#usecases">利用シーン</a>
+            <a href="/workspace/">ワークスペース</a>
+            <a href="/downloads/janction_addon.py" download>🎨 Blender Addon</a>
+        </div>
+        <div class="footer-col">
+            <h4>GPUを貸し出す</h4>
+            <a href="/provider/">プロバイダー登録</a>
+            <a href="/provider/download.html">エージェントDL</a>
+            <a href="/provider/diagnose.html">接続診断</a>
+        </div>
+        <div class="footer-col">
+            <h4>サポート</h4>
+            <a href="/tokushoho/">特定商取引法</a>
+            <a href="/terms/">利用規約</a>
+            <a href="/privacy/">プライバシーポリシー</a>
+            <a href="mailto:info@metadatalab.net">お問い合わせ</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2026 Janction by METADATALAB.INC. All rights reserved.</span>
+        <span>Made with ⚡ in Japan</span>
+    </div>
+</footer>
+<div class="legal-bar">
+    <a href="/tokushoho/">特定商取引法に基づく表記</a>
+    <a href="/terms/">利用規約</a>
+    <a href="/privacy/">プライバシーポリシー</a>
+    © 2026 METADATALAB.INC
+</div>
 
 </body>
-
 </html>

@@ -11,9 +11,157 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" />
     <link rel="stylesheet" href="style.css" />
+
+    <style>
+
+        /* ── Language Switcher ── */
+        .lang-switcher {
+            position: relative;
+            display: flex;
+            align-items: center;
+            z-index: 200;
+        }
+        .lang-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: #e8e8f0;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .lang-btn:hover {
+            background: rgba(108,71,255,0.15);
+            border-color: rgba(108,71,255,0.4);
+        }
+        .lang-flag { font-size: 1rem; line-height: 1; }
+        .lang-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: #16162a;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 140px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 9999;
+        }
+        .lang-switcher.open .lang-dropdown { display: block; }
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            color: #e8e8f0;
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: background 0.15s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .lang-option:hover { background: rgba(108,71,255,0.15); }
+        .lang-option.active { color: #6c47ff; background: rgba(108,71,255,0.1); }
+        .lang-option-name { font-weight: 500; }
+        /* Google Translate hidden */
+        #google_translate_element { display: none !important; }
+        .skiptranslate { display: none !important; }
+        body { top: 0 !important; }
+        .goog-te-banner-frame { display: none !important; }
+
+    /* Mobile warning for workspace */
+    .mobile-notice {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(10,10,20,0.97);
+        z-index: 99999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+        color: #e8e8f0;
+        font-family: 'Inter', sans-serif;
+        gap: 1.5rem;
+    }
+    .mobile-notice-icon { font-size: 4rem; }
+    .mobile-notice h2 { font-size: 1.4rem; font-weight: 700; margin: 0; }
+    .mobile-notice p { font-size: 0.9rem; color: rgba(255,255,255,0.6); margin: 0; line-height: 1.6; }
+    .mobile-notice a { color: #6c47ff; text-decoration: none; font-weight: 600; }
+    @media (max-width: 768px) {
+        .mobile-notice { display: flex; }
+        body { overflow: hidden; }
+    }
+    
+        /* workspace mobile */
+        html, body { overflow-x: hidden; }
+        @media (max-width: 768px) {
+            .workspace-header { flex-wrap: wrap; padding: 0.5rem; gap: 0.5rem; }
+            .ws-title { font-size: 0.9rem; }
+            #wsControls { flex-wrap: wrap; gap: 0.5rem; }
+            #wsControls button, #wsControls select { font-size: 0.75rem; padding: 0.35rem 0.6rem; }
+            .lang-switcher .lang-btn { font-size: 0.75rem; padding: 0.3rem 0.5rem; }
+            .terminal-container, #jupyterFrame { min-height: 300px; }
+        }
+        @media (max-width: 480px) {
+            .workspace-header { padding: 0.4rem; }
+            #wsControls button { min-width: unset; }
+        }
+    
+        /* ── Blender Panel ── */
+        .blender-pane { padding:20px; overflow-y:auto; height:100%; }
+        .blender-layout { display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:1400px; }
+        .blender-left, .blender-right { display:flex; flex-direction:column; gap:12px; }
+        .blender-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:18px; }
+        .blender-card h3 { font-size:1rem; font-weight:600; margin:0 0 8px 0; color:#e8e8f0; }
+        .blender-card p { font-size:0.85rem; color:rgba(255,255,255,0.6); margin:0 0 8px 0; line-height:1.5; }
+        .blender-addon-card { text-align:center; background:linear-gradient(135deg,rgba(108,71,255,0.08),rgba(0,229,160,0.06)); border-color:rgba(108,71,255,0.2); }
+        .blender-addon-card .blender-card-icon { font-size:2.5rem; margin-bottom:8px; }
+        .blender-steps { display:flex; flex-direction:column; gap:8px; margin-top:14px; text-align:left; }
+        .blender-step { display:flex; align-items:center; gap:10px; font-size:0.82rem; color:rgba(255,255,255,0.7); padding:6px 10px; background:rgba(255,255,255,0.03); border-radius:8px; }
+        .step-num { background:linear-gradient(135deg,#6c47ff,#00e5a0); width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.72rem; font-weight:700; color:#fff; flex-shrink:0; }
+        .blender-jobs-list { display:flex; flex-direction:column; gap:8px; max-height:500px; overflow-y:auto; }
+        .bjob-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px; }
+        .bjob-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+        .bjob-name { font-weight:600; font-size:0.88rem; }
+        .bjob-status { font-size:0.75rem; padding:2px 8px; border-radius:20px; }
+        .bjob-status.queued { background:rgba(255,193,7,0.15); color:#ffc107; }
+        .bjob-status.rendering { background:rgba(108,71,255,0.15); color:#9e8cff; }
+        .bjob-status.completed { background:rgba(0,229,160,0.15); color:#00e5a0; }
+        .bjob-status.failed { background:rgba(255,71,87,0.15); color:#ff4757; }
+        .bjob-status.cancelled { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.4); }
+        .bjob-info { font-size:0.78rem; color:var(--text3); margin-bottom:6px; }
+        .bjob-progress { width:100%; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; margin:6px 0; }
+        .bjob-progress-fill { height:100%; background:linear-gradient(90deg,#6c47ff,#00e5a0); border-radius:3px; transition:width 0.5s; }
+        .bjob-actions { display:flex; gap:6px; }
+        .bjob-actions .btn { font-size:0.75rem; padding:4px 10px; }
+        .docker-templates { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+        .docker-tmpl { display:flex; align-items:center; gap:8px; padding:8px 10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:8px; font-size:0.8rem; color:rgba(255,255,255,0.7); cursor:default; }
+        .docker-icon { font-size:1.1rem; }
+        @media (max-width:900px) { .blender-layout { grid-template-columns:1fr; } }
+    </style>
 </head>
 
 <body>
+    <!-- Mobile Notice -->
+    <div class="mobile-notice">
+        <div class="mobile-notice-icon">🖥️</div>
+        <h2>PCブラウザをご利用ください</h2>
+        <p>ワークスペースはターミナルとファイルマネージャーを含む高度なツールです。<br>スマートフォンやタブレットでは快適にご利用いただけません。</p>
+        <a href="/portal/">← GPU一覧に戻る</a>
+    </div>
     <!-- TOP BAR -->
     <header class="ws-header">
         <div class="ws-header-left">
@@ -28,8 +176,26 @@
             </div>
         </div>
         <div class="ws-header-right">
+            <div class="lang-switcher" id="langSwitcher">
+        <button class="lang-btn" onclick="toggleLangMenu(this)" aria-label="言語切り替え">
+            <span class="lang-flag">🇯🇵</span>日本語 <span style="opacity:.6;font-size:.7rem">▼</span>
+        </button>
+        <div class="lang-dropdown">
+            <button class="lang-option active" data-lang="ja" onclick="selectLang('ja')">
+                <span class="lang-flag">🇯🇵</span><span class="lang-option-name">日本語</span>
+            </button>
+            <button class="lang-option" data-lang="en" onclick="selectLang('en')">
+                <span class="lang-flag">🇺🇸</span><span class="lang-option-name">English</span>
+            </button>
+            <button class="lang-option" data-lang="zh" onclick="selectLang('zh')">
+                <span class="lang-flag">🇨🇳</span><span class="lang-option-name">中文</span>
+            </button>
+        </div>
+    </div>
+            <span id="wsBandwidth" class="ws-bandwidth">--</span>
             <span class="ws-cost" id="wsCost">¥0</span>
             <button class="btn btn-danger btn-sm" id="btnStopPod">⏹ セッション終了</button>
+            <a href="/workspace/guide.html" target="_blank" style="font-size:0.78rem;color:#9898b8;text-decoration:none;padding:5px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;">📖 ガイド</a>
         </div>
     </header>
 
@@ -47,6 +213,12 @@
             <div class="ws-file-tree" id="fileTree">
                 <div class="file-loading">読み込み中...</div>
             </div>
+            <!-- Upload Drop Zone -->
+            <div class="ws-upload-zone" id="uploadDropZone">
+                <div class="upload-zone-icon">📤</div>
+                <div class="upload-zone-text">ファイルをドラッグ＆ドロップ<br>またはクリックして選択</div>
+                <button class="upload-zone-btn" id="btnUploadZone">📁 ファイルを選択してアップロード</button>
+            </div>
             <input type="file" id="fileInput" multiple style="display:none" />
         </aside>
 
@@ -55,7 +227,9 @@
             <div class="ws-terminal-header">
                 <div class="ws-tabs">
                     <button class="ws-tab active" id="tabTerminal">ターミナル</button>
+                    <button class="ws-tab" id="tabConnect">🔌 接続情報</button>
                     <button class="ws-tab" id="tabRender">🎬 レンダリング</button>
+                    <button class="ws-tab" id="tabBlender">🎨 Blender</button>
                 </div>
                 <div class="ws-terminal-actions">
                     <button class="icon-btn" id="btnClearTerm" title="クリア">✕</button>
@@ -64,6 +238,127 @@
             <div id="terminalPane" class="terminal-pane">
                 <div id="terminal"></div>
             </div>
+
+            <!-- 接続情報パネル -->
+            <div id="connectPane" class="connect-pane hidden">
+                <div class="connect-inner">
+                    <h2 class="connect-title">🔌 外部エディターから接続する</h2>
+                    <p class="connect-subtitle">ブラウザ端末の他に、お好みのエディターやツールからこのGPUを利用できます。</p>
+
+                    <!-- SSH接続情報カード -->
+                    <div class="connect-card">
+                        <div class="connect-card-header">
+                            <span class="connect-badge badge-ssh">SSH</span>
+                            <h3>SSH 接続情報</h3>
+                        </div>
+                        <div class="connect-info-grid" id="sshInfoGrid">
+                            <div class="info-item"><span class="info-label">ホスト</span><code id="sshHost"
+                                    class="info-val copiable" onclick="copyText(this)">読み込み中...</code></div>
+                            <div class="info-item"><span class="info-label">ポート</span><code id="sshPortDisplay"
+                                    class="info-val copiable" onclick="copyText(this)">2222</code></div>
+                            <div class="info-item"><span class="info-label">ユーザー名</span><code id="sshUser"
+                                    class="info-val copiable" onclick="copyText(this)">読み込み中...</code></div>
+                            <div class="info-item"><span class="info-label">パスワード</span><code id="sshPass"
+                                    class="info-val copiable" onclick="copyText(this)">読み込み中...</code></div>
+                            <div class="info-item full"><span class="info-label">作業ディレクトリ</span><code id="sshCwd"
+                                    class="info-val copiable" onclick="copyText(this)">読み込み中...</code></div>
+                        </div>
+                        <div class="connect-cmd-block">
+                            <span class="cmd-label">ターミナルからSSH接続</span>
+                            <div class="cmd-line">
+                                <code id="sshCmd">ssh -p 2222 gpu-user@...</code>
+                                <button class="copy-btn"
+                                    onclick="copyText(document.getElementById('sshCmd'))">コピー</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VSCode -->
+                    <div class="connect-card">
+                        <div class="connect-card-header">
+                            <span class="connect-badge badge-vscode">VS Code</span>
+                            <h3>VS Code Remote SSH</h3>
+                        </div>
+                        <ol class="connect-steps">
+                            <li>VS Code に <strong>Remote - SSH</strong> 拡張機能をインストール<br>
+                                <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh"
+                                    target="_blank" class="connect-link">→ インストールページを開く</a>
+                            </li>
+                            <li><code>~/.ssh/config</code> に以下を追記：
+                                <div class="code-block">
+                                    <pre id="vscodeConfig">Host janction
+    HostName (上のSSHホスト)
+    Port 2222
+    User gpu-user-(ユーザーID)</pre>
+                                    <button class="copy-btn"
+                                        onclick="copyText(document.getElementById('vscodeConfig'))">コピー</button>
+                                </div>
+                            </li>
+                            <li><code>Ctrl+Shift+P</code> → <strong>Remote-SSH: Connect to Host</strong> →
+                                <strong>janction</strong> を選択
+                            </li>
+                            <li>パスワードを入力してリモートGPUマシンに接続</li>
+                            <li><strong>ファイル → フォルダを開く</strong> → 作業ディレクトリを指定</li>
+                        </ol>
+                        <div class="connect-note">✅ 接続後はVS Codeのすべての機能（デバッグ、拡張機能、Git等）がリモートGPU上で動作します</div>
+                    </div>
+
+                    <!-- JupyterLab -->
+                    <div class="connect-card">
+                        <div class="connect-card-header">
+                            <span class="connect-badge badge-jupyter">Jupyter</span>
+                            <h3>JupyterLab（機械学習・データ分析）</h3>
+                        </div>
+                        <!-- 動的サービスURL (Dockerコンテナ起動後に挿入) -->
+                        <div id="dynamicServices" style="margin-bottom:12px;display:none"></div>
+                        <!-- WebUI バナー (ComfyUI / Blender / Ollama) -->
+                        <div id="webuiBanner" style="display:none;margin-bottom:12px;background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.25);border-radius:8px;padding:10px 14px;font-size:0.83rem"></div>
+                        <ol class="connect-steps">
+                            <li>上のターミナルタブで以下を実行：
+                                <div class="code-block">
+                                    <pre>pip install jupyterlab -q
+jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --NotebookApp.token='janction'</pre>
+                                </div>
+                            </li>
+                            <li>ブラウザで以下にアクセス（新しいタブ）：
+                                <div class="cmd-line">
+                                    <code id="jupyterUrl">読み込み中...</code>
+                                    <button class="copy-btn"
+                                        onclick="copyText(document.getElementById('jupyterUrl'))">コピー</button>
+                                </div>
+                            </li>
+                        </ol>
+                        <div class="connect-note">⚠️
+                            JupyterLabポートはCloudflareトンネル経由で公開されていません。SSHポートフォワードを使うか、ブラウザ端末で直接利用してください</div>
+                    </div>
+
+                    <!-- PyCharm -->
+                    <div class="connect-card">
+                        <div class="connect-card-header">
+                            <span class="connect-badge badge-pycharm">PyCharm</span>
+                            <h3>PyCharm Remote Interpreter</h3>
+                        </div>
+                        <ol class="connect-steps">
+                            <li><strong>File → Settings → Project → Python Interpreter</strong></li>
+                            <li><strong>Add → SSH Interpreter</strong></li>
+                            <li>SSH接続情報（上記）を入力して接続</li>
+                            <li><strong>Tools → Deployment → Configuration</strong> でワークスペースパスを紐付け</li>
+                        </ol>
+                    </div>
+
+                    <!-- 注意事項 -->
+                    <div class="connect-warning">
+                        <h4>⚠️ 注意事項</h4>
+                        <ul>
+                            <li>セッション終了時間になると<strong>自動切断</strong>されます（10分前にメール警告）</li>
+                            <li><code>/workspace</code> 内のファイルは次回接続時も保持されます</li>
+                            <li>CUDAは利用可能。<code>torch</code>・<code>tensorflow</code>はデフォルトでインストール済みです</li>
+                            <li>クリックすると<strong>コード/コマンドをコピー</strong>できます</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <div id="renderPane" class="render-pane hidden">
                 <!-- Render settings panel -->
                 <div class="render-layout">
@@ -76,6 +371,15 @@
                                     <input type="text" id="renderInput" placeholder="ファイルを選択..." readonly />
                                     <button class="btn btn-ghost btn-sm" id="btnSelectRenderFile">選択</button>
                                 </div>
+                            </div>
+                            <div class="rform-group">
+                                <label>出力先フォルダ</label>
+                                <div class="file-select-row">
+                                    <input type="text" id="renderOutput" placeholder="/outputs/" value="/outputs/" />
+                                    <button class="btn btn-ghost btn-sm" id="btnSelectOutputDir">選択</button>
+                                </div>
+                                <div style="font-size:0.72rem;color:var(--text3);margin-top:3px">出力ファイル名は自動生成されます（例:
+                                    output_20260307_230000.mp4）</div>
                             </div>
                             <div class="rform-group">
                                 <label>出力フォーマット</label>
@@ -164,6 +468,97 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Blender Panel -->
+            <div id="blenderPane" class="blender-pane hidden">
+                <div class="blender-layout">
+                    <!-- Left: Addon & Settings -->
+                    <div class="blender-left">
+                        <!-- Addon Download -->
+                        <div class="blender-card blender-addon-card">
+                            <div class="blender-card-icon">🎨</div>
+                            <h3>Blender Addon</h3>
+                            <p>自分のPCのBlenderから直接クラウドGPUでレンダリング。<br>GPUがないMacBookでも高品質レンダリングが可能です。</p>
+                            <a href="/downloads/janction_addon.py" download class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px">
+                                ⬇ Addon をダウンロード (.py)
+                            </a>
+                            <div class="blender-steps">
+                                <div class="blender-step"><span class="step-num">1</span>上のボタンからAddonファイルをDL</div>
+                                <div class="blender-step"><span class="step-num">2</span>Blender → 編集 → プリファレンス → アドオン → インストール</div>
+                                <div class="blender-step"><span class="step-num">3</span>サイドバー(N) → Janction タブからログイン</div>
+                                <div class="blender-step"><span class="step-num">4</span>GPUを選択して「☁ クラウドレンダリング開始」</div>
+                            </div>
+                        </div>
+
+                        <!-- Web Render Submit -->
+                        <div class="blender-card">
+                            <h3>🌐 ブラウザからBlenderレンダリング</h3>
+                            <p style="font-size:0.8rem;color:var(--text3);margin-bottom:12px">ワークスペース上の.blendファイルを直接レンダリング</p>
+                            <div class="rform-group">
+                                <label>.blend ファイル</label>
+                                <div class="file-select-row">
+                                    <input type="text" id="blenderFile" placeholder=".blend ファイルを選択..." readonly />
+                                    <button class="btn btn-ghost btn-sm" id="btnSelectBlend">選択</button>
+                                    <input type="file" id="blendFileInput" accept=".blend" style="display:none" />
+                                </div>
+                            </div>
+                            <div class="rform-row">
+                                <div class="rform-group"><label>エンジン</label>
+                                    <select id="blenderEngine"><option value="CYCLES">Cycles (GPU)</option><option value="EEVEE">Eevee (高速)</option></select>
+                                </div>
+                                <div class="rform-group"><label>サンプル数</label>
+                                    <input type="number" id="blenderSamples" value="128" min="1" max="4096" />
+                                </div>
+                            </div>
+                            <div class="rform-row">
+                                <div class="rform-group"><label>解像度</label>
+                                    <select id="blenderRes"><option>1280x720</option><option selected>1920x1080</option><option>2560x1440</option><option>3840x2160</option></select>
+                                </div>
+                                <div class="rform-group"><label>出力形式</label>
+                                    <select id="blenderFormat"><option value="PNG">PNG</option><option value="JPEG">JPEG</option><option value="OPEN_EXR">OpenEXR</option></select>
+                                </div>
+                            </div>
+                            <div class="rform-row">
+                                <div class="rform-group"><label>開始フレーム</label>
+                                    <input type="number" id="blenderFrameStart" value="1" min="1" />
+                                </div>
+                                <div class="rform-group"><label>終了フレーム</label>
+                                    <input type="number" id="blenderFrameEnd" value="1" min="1" />
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-full" id="btnBlenderRender" style="margin-top:8px;font-size:1rem;padding:12px">☁ クラウドレンダリング開始</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Jobs -->
+                    <div class="blender-right">
+                        <div class="blender-card">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                                <h3>📋 レンダリングジョブ</h3>
+                                <button class="btn btn-ghost btn-sm" id="btnRefreshBlenderJobs">↻ 更新</button>
+                            </div>
+                            <div id="blenderJobsList" class="blender-jobs-list">
+                                <p style="color:var(--text3);text-align:center;padding:2rem 0">ジョブはありません</p>
+                            </div>
+                        </div>
+
+                        <!-- Docker Environment Info -->
+                        <div class="blender-card" style="margin-top:12px">
+                            <h3>🐳 開発環境テンプレート</h3>
+                            <p style="font-size:0.8rem;color:var(--text3);margin-bottom:10px">予約時にDockerイメージを選択すると、環境構築済みの状態で開発開始できます。開発終了後は環境をそのまま保存・ダウンロード可能。</p>
+                            <div class="docker-templates">
+                                <div class="docker-tmpl"><span class="docker-icon">🤖</span><span>AI/ML (PyTorch + CUDA)</span></div>
+                                <div class="docker-tmpl"><span class="docker-icon">🎨</span><span>Blender Headless</span></div>
+                                <div class="docker-tmpl"><span class="docker-icon">🖼</span><span>ComfyUI (Stable Diffusion)</span></div>
+                                <div class="docker-tmpl"><span class="docker-icon">💬</span><span>Ollama (LLM推論)</span></div>
+                                <div class="docker-tmpl"><span class="docker-icon">📊</span><span>JupyterLab + データサイエンス</span></div>
+                                <div class="docker-tmpl"><span class="docker-icon">⚙</span><span>カスタム (自分のDockerfile)</span></div>
+                            </div>
+                            <p style="font-size:0.72rem;color:var(--text3);margin-top:8px">※ 環境保存は予約ページから設定できます。保存したイメージは次回予約時にワンクリックで復元可能。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <!-- RIGHT: GPU Monitor -->
@@ -203,6 +598,8 @@
                     <div class="info-row"><span>GPU名</span><span id="monGpuName">-</span></div>
                     <div class="info-row"><span>ドライバー</span><span id="monDriver">-</span></div>
                     <div class="info-row"><span>P-State</span><span id="monPstate">-</span></div>
+                    <div class="info-row"><span>↓ 帯域幅</span><span id="monBandwidth">--</span></div>
+                    <div class="info-row"><span>遅延 (Ping)</span><span id="monPing">--</span></div>
                 </div>
                 <div class="monitor-divider"></div>
                 <div class="monitor-chart-wrap">
@@ -222,11 +619,112 @@
         <span id="uploadPct">0%</span>
     </div>
 
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- FOOTER -->
+    <footer
+        style="border-top:1px solid rgba(255,255,255,.07);padding:1.2rem 2rem;text-align:center;font-size:0.75rem;color:rgba(255,255,255,.3);flex-shrink:0">
+        <div
+            style="display:flex;justify-content:center;align-items:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:.5rem">
+            <a href="/landing/" style="color:rgba(255,255,255,.45);text-decoration:none"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.45)'">🏠
+                トップページ</a>
+            <a href="/portal/" style="color:rgba(255,255,255,.45);text-decoration:none"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.45)'">ポータル</a>
+            <a href="/provider/" style="color:rgba(255,255,255,.45);text-decoration:none"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.45)'">プロバイダー</a>
+            <a href="/landing/terms.html" style="color:rgba(255,255,255,.45);text-decoration:none"
+                onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.45)'">利用規約</a>
+        </div>
+        <span>© 2026 Janction by METADATALAB.INC.</span>
+    </footer>
+
+    <script src="/lib/socket.io.min.js"></script>
+    <script src="/lib/xterm.min.js"></script>
+    <script src="/lib/xterm-addon-fit.min.js"></script>
+    <script src="/lib/chart.umd.min.js"></script>
     <script src="app.js"></script>
+
+    <!-- Google Translate (非表示) -->
+    <div id="google_translate_element" style="display:none"></div>
+
+
+    <!-- Language Switcher JS -->
+    <script>
+    (function(){
+        var LANGS = {
+            ja: { flag: '🇯🇵', name: '日本語' },
+            en: { flag: '🇺🇸', name: 'English' },
+            zh: { flag: '🇨🇳', name: '中文' }
+        };
+        var GT_LANG = { en: 'en', zh: 'zh-CN', ja: 'ja' };
+
+        function setGoogCookie(val) {
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=' + val + '; path=/; domain=' + d;
+            document.cookie = 'googtrans=' + val + '; path=/';
+        }
+        function clearGoogCookie() {
+            var exp = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            var d = '.' + location.hostname;
+            document.cookie = 'googtrans=; path=/; ' + exp + '; domain=' + d;
+            document.cookie = 'googtrans=; path=/; ' + exp;
+        }
+
+        function updateLangBtn(lang) {
+            var info = LANGS[lang] || LANGS['ja'];
+            document.querySelectorAll('.lang-btn').forEach(function(b){
+                b.innerHTML = '<span class="lang-flag">' + info.flag + '</span>'
+                    + info.name + ' <span style="opacity:.6;font-size:.7rem">&#9660;</span>';
+            });
+            document.querySelectorAll('.lang-option').forEach(function(o){
+                o.classList.toggle('active', o.dataset.lang === lang);
+            });
+        }
+
+        window.googleTranslateElementInit = function() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ja',
+                includedLanguages: 'en,zh-CN',
+                autoDisplay: false
+            }, 'google_translate_element');
+        };
+
+        window.selectLang = function(lang) {
+            var current = localStorage.getItem('site_lang') || 'ja';
+            document.querySelectorAll('.lang-switcher').forEach(function(s){ s.classList.remove('open'); });
+            if (lang === current) return;
+            localStorage.setItem('site_lang', lang);
+            if (lang === 'ja') {
+                clearGoogCookie();
+            } else {
+                setGoogCookie('/ja/' + GT_LANG[lang]);
+            }
+            location.reload();
+        };
+
+        window.toggleLangMenu = function(el) {
+            var switcher = el.closest ? el.closest('.lang-switcher') : el.parentElement;
+            if (!switcher) return;
+            var isOpen = switcher.classList.toggle('open');
+            if (isOpen) {
+                setTimeout(function(){
+                    document.addEventListener('click', function handler(e){
+                        if (!switcher.contains(e.target)){
+                            switcher.classList.remove('open');
+                            document.removeEventListener('click', handler);
+                        }
+                    });
+                }, 10);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function(){
+            var saved = localStorage.getItem('site_lang') || 'ja';
+            updateLangBtn(saved);
+        });
+    })();
+    </script>
+    <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
+
 </body>
 
 </html>

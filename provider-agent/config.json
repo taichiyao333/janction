@@ -1,0 +1,8 @@
+{
+  "platformUrl": "http://localhost:3000",
+  "email": "taichi.yao@gmail.com",
+  "token": "36320ba9ab3de343cd0ffd1334bd52b3022188fa99fe37cce240c81ad35979d2",
+  "sshHost": "127.0.0.1",
+  "sshPort": 2222,
+  "providerId": 1
+}
